@@ -23,6 +23,7 @@
 <p>
 
 <h3><p style="color:white">⚒️ 기술 Stack </p></h3>
+
 - Spring Boot, Security, JPA
 - MySQL
 - Redis
