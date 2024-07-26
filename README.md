@@ -58,6 +58,7 @@
 <hr>
 
 <h3><p style="color:white">💬  코드 컨벤션 </p></h3>
+
 - 카멜 표기법
 - Entity 생성시에 → Entity X → 명사
 - DTO class -> Record class
@@ -71,6 +72,7 @@
 <hr>
 
 <h3><p style="color:white">📜 Git Branch</p></h3>
+
 - **main (최종본)**
 - **release (배포)**
 - **develop (통합)**
@@ -79,6 +81,7 @@
 - 예시 → feature/trip - feature/trip/discord
 
 <h3><p style="color:white">📜 Git commit 컨벤션</p></h3>
+
 - **feat : 새로운 기능 추가**
 - **fix : 버그 수정**
 - **docs : 문서 수정**
@@ -95,6 +98,7 @@
 <hr>
 
 <h3><p style="color:white">🚇 URL 컨벤션</p></h3>
+
 - **/api 공통적으로 들어가고 다음으로는 권한 그 다음으로는 API 명세서에 따른 URL**
 - **/api/customer/..**
 - **/api/influence/..**
