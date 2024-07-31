@@ -114,31 +114,17 @@
 - Entity ←→ DTO
 
 ``` jsx
-public
-record
-TestRequest(
-    String
-name,
-    String
-title
-)
-{
-
-    public
-    static
-    TestRequest
-    from(TestEntity
-    entity
-)
-    {
+public record TestRequest(
+    String name,
+    String title
+) {
+    public static TestRequest from(TestEntity entity) {
         return new TestRequest(
             entity.getName(),
             entity.getTitle()
         );
     }
-
 }
-
 ```
 
 ``` jsx
@@ -147,56 +133,22 @@ title
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public
-
-class TestEntity {
+public class TestEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long
-    id;
+    private Long id;
 
-    private String
-    title;
+    private String title;
 
-    private String
-    name;
+    private String name;
 
-    public static TestEntity
-
-    from(TestRequest
-
-    request
-) {
-    return
-    TestEntity
-.
-
-    builder()
-
-.
-
-    title(request
-
-.
-
-    title()
-
-)
-.
-
-    name(request
-
-.
-
-    name()
-
-)
-.
-
-    build();
-}
-
+    public static TestEntity from(TestRequest request) {
+        return TestEntity.builder()
+            .title(request.title())
+            .name(request.name())
+            .build();
+    }
 }
 
 ```
@@ -225,19 +177,18 @@ public abstract class GlobalException extends RuntimeException {
 
     public GlobalResponse getErrorResponse() {
         return new GlobalResponse(
-                errorCode.getMsg(),
-                errorCode.getStatus()
+            errorCode.getMsg(),
+            errorCode.getStatus()
         );
     }
-
 }
 
 ```
 
 ``` jsx
 public record GlobalResponse(
-        String msg,
-        HttpStatus status
+    String msg,
+    HttpStatus status
 ) {
 }
 
@@ -248,13 +199,10 @@ public record GlobalResponse(
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(GlobalException.class)
-    public ResponseEntity errorResponse(
-            GlobalException ex
-    ) {
+    public ResponseEntity errorResponse(GlobalException ex) {
         ex.exceptionHandling();
         return API.ERROR(ex);
     }
-
 }
 
 ```
