@@ -8,7 +8,7 @@
 
 ##  <p style="color:white">🎒 아키텍쳐</p>
 <hr>
-
+<img src="readme_img/아키텍쳐.png">
 <hr>
 
 
