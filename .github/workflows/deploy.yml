@@ -55,6 +55,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: application.yaml 주입
       - run: touch ./src/main/resources/application.yaml
       - run: echo ${{ secrets.APPLICATION }} > ./src/main/resources/application.yaml
       - run: cat ./src/main/resources/application.yaml
