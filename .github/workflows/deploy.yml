@@ -49,3 +49,33 @@ jobs:
           IMAGE_TAG: latest
         run: |
           docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: JDK 17 체크
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - run: touch ./src/main/resources/application.yaml
+      - run: echo ${{ secrets.APPLICATION }} > ./src/main/resources/application.yaml
+      - run: cat ./src/main/resources/application.yaml
+
+      - name: gradlew 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: gradle build
+        run: ./gradlew build -x test
+        shell: bash
+
+      - name: Spring/Nginx Docker 빌드
+        env:
+          IMAGE_NAME: app
+          IMAGE_TAG: latest
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/docker-compose.yml .
+
+      - name: Spring/Nginx Docker Image Push
+        env:
+          IMAGE_NAME: app
+          IMAGE_TAG: latest
+        run: |
+          docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG

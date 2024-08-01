@@ -1,0 +1,9 @@
+FROM openjdk:17-jdk-alpine
+
+WORKDIR /app
+
+COPY build/libs/DainReview.jar /app
+
+ENTRYPOINT ["java", "-jar", "DainReview.jar"]
+
+EXPOSE 8080
