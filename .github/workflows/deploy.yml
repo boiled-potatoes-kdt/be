@@ -26,6 +26,7 @@ jobs:
         env:
           IMAGE_NAME: mysql
           IMAGE_TAG: latest
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         run: |
           docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-database .
 
@@ -40,6 +41,7 @@ jobs:
         env:
           IMAGE_NAME: redis
           IMAGE_TAG: latest
+          MYSQL_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
         run: |
           docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-redis .
 
@@ -50,6 +52,19 @@ jobs:
         run: |
           docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
 
+      - name: Nginx Docker 빌드
+        env:
+          IMAGE_NAME: nginx
+          IMAGE_TAG: latest
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-nginx .
+
+      - name: Nginx Docker Image Push
+        env:
+          IMAGE_NAME: nginx
+          IMAGE_TAG: latest
+        run: |
+          docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
 
 
       - name: JDK 17 체크
@@ -71,16 +86,17 @@ jobs:
         run: ./gradlew build -x test
         shell: bash
 
-      - name: Spring/Nginx Docker 빌드
+      - name: Spring Docker 빌드
         env:
-          IMAGE_NAME: app
+          IMAGE_NAME: spring
           IMAGE_TAG: latest
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/docker-compose.yml .
+          docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-spring .
 
-      - name: Spring/Nginx Docker Image Push
+      - name: Spring Docker Image Push
         env:
-          IMAGE_NAME: app
+          IMAGE_NAME: spring
           IMAGE_TAG: latest
         run: |
           docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
+
