@@ -29,9 +29,23 @@ jobs:
         run: |
           docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-database .
 
-      - name: Docker Image Push
+      - name: MySQL Docker Image Push
         env:
           IMAGE_NAME: mysql
+          IMAGE_TAG: latest
+        run: |
+          docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: Redis Docker 빌드
+        env:
+          IMAGE_NAME: redis
+          IMAGE_TAG: latest
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-redis .
+
+      - name: Redis Docker Image Push
+        env:
+          IMAGE_NAME: redis
           IMAGE_TAG: latest
         run: |
           docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
