@@ -1,0 +1,6 @@
+### MySQL 8.0 ###
+FROM mysql:8.0
+COPY ./init-db.d /docker-entrypoint-initdb.d
+EXPOSE 3306
+VOLUME /var/lib/mysql
+CMD ["mysqld"]

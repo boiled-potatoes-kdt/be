@@ -1,0 +1,26 @@
+version: '1.0'
+
+services:
+  spring-app:
+    image: ???:latest
+    container_name: spring-app
+    ports:
+      "8080:8080"
+    networks:
+      - dain-network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx/:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - spring-app
+    networks:
+      - dain-network
+
+networks:
+  dain-network:
+    driver: bridge
