@@ -41,7 +41,6 @@ jobs:
         env:
           IMAGE_NAME: redis
           IMAGE_TAG: latest
-          MYSQL_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
         run: |
           docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-redis .
 
@@ -115,7 +114,7 @@ jobs:
         with:
           username: ubuntu
           host: ${{ secrets.REDIS_HOST }}
-          key: ${{ secrets.REDIS_PASSWORD }}
+          key: ${{ secrets.DB_PASSWORD }}
           port: 22
           script_stop: true
           script: chmod +x /home/ubuntu/redis/docker_script.sh && sh /home/ubuntu/redis/docker_script.sh
