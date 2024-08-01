@@ -4,10 +4,10 @@ services:
   spring:
     build:
       context: .
-      dockerfile: ./docker/docker-compose.yml
+      dockerfile: ./docker/Dockerfile-spring
     container_name: spring
     ports:
-      "8080:8080"
+      - "8080:8080"
     networks:
       - dain-network
 
