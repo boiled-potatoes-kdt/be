@@ -1,0 +1,4 @@
+### Redis 8.0 ###
+FROM redis:7.4
+EXPOSE 6379
+CMD ["redis-server"]

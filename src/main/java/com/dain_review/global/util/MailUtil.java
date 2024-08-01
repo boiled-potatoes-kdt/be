@@ -1,6 +1,8 @@
 package com.dain_review.global.util;
 
+
 import jakarta.mail.internet.MimeMessage;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -8,23 +10,18 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 
-import java.util.Properties;
-
 @Configuration
 @Slf4j(topic = "Email Log")
 public class MailUtil {
 
-    @Value("${email.id}")
-    private String id;
+    @Value("${email.id}") private String id;
 
-    @Value("${email.pw}")
-    private String pw;
+    @Value("${email.pw}") private String pw;
 
     /**
-     * @param email   보낼 이메일 주소
-     * @param title   제목
-     * @param content 내용
-     * @Auther Domae-back-end
+     * @param email 보낼 이메일 주소
+     * @param title 제목
+     * @param content 내용 @Auther Domae-back-end
      */
     @Async("emailPoolTask")
     public void sendMessage(String email, String title, String content) {
@@ -63,5 +60,4 @@ public class MailUtil {
         properties.setProperty("mail.smtp.ssl.enable", "true");
         return properties;
     }
-
 }

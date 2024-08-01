@@ -24,10 +24,7 @@ public class API {
     }
 
     public static ResponseEntity ERROR(MethodArgumentNotValidException ex) {
-        return ResponseEntity.status(400).body(new GlobalResponse(
-                "잘못된 인자값 입니다.",
-                HttpStatus.valueOf(400)
-        ));
+        return ResponseEntity.status(400)
+                .body(new GlobalResponse("잘못된 인자값 입니다.", HttpStatus.valueOf(400)));
     }
-
 }

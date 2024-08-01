@@ -1,0 +1,129 @@
+name: Dain-Review CI/CD Script
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 저장소 CheckOut
+        uses: actions/checkout@v2
+
+      - name: Docker 빌드
+        uses: docker/setup-buildx-action@v1
+
+      - name: Github Registry 로그인
+        env:
+          CR_PAT: ${{ secrets.DAIN_REVIEW_TOKEN }}
+        run: echo $CR_PAT | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+
+      - name: MySQL Docker 빌드
+        env:
+          IMAGE_NAME: mysql
+          IMAGE_TAG: latest
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-database .
+
+      - name: MySQL Docker Image Push
+        env:
+          IMAGE_NAME: mysql
+          IMAGE_TAG: latest
+        run: |
+          docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: Redis Docker 빌드
+        env:
+          IMAGE_NAME: redis
+          IMAGE_TAG: latest
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-redis .
+
+      - name: Redis Docker Image Push
+        env:
+          IMAGE_NAME: redis
+          IMAGE_TAG: latest
+        run: |
+          docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: Nginx Docker 빌드
+        env:
+          IMAGE_NAME: nginx
+          IMAGE_TAG: latest
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-nginx .
+
+      - name: Nginx Docker Image Push0
+        env:
+          IMAGE_NAME: nginx
+          IMAGE_TAG: latest
+        run: |
+          docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
+
+
+      - name: JDK 17 체크
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: application.yaml 주입
+        run: |
+            touch ./src/main/resources/application.yaml
+            echo ${{ secrets.APPLICATION }} > ./src/main/resources/application.yaml
+            cat ./src/main/resources/application.yaml
+
+      - name: gradlew 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: gradle build
+        run: ./gradlew build -x test
+        shell: bash
+
+      - name: Spring Docker 빌드
+        env:
+          IMAGE_NAME: spring
+          IMAGE_TAG: latest
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-spring .
+
+      - name: Spring Docker Image Push
+        env:
+          IMAGE_NAME: spring
+          IMAGE_TAG: latest
+        run: |
+          docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: DB 스크립트 작동
+        uses: appleboy/ssh-action@master
+        with:
+          username: ubuntu
+          host: ${{ secrets.DB_HOST }}
+          key: ${{ secrets.DB_PASSWORD }}
+          port: 22
+          script_stop: true
+          script: chmod +x /home/ubuntu/db/docker_script.sh && sh /home/ubuntu/db/docker_script.sh
+
+      - name: Redis 스크립트 작동
+        uses: appleboy/ssh-action@master
+        with:
+          username: ubuntu
+          host: ${{ secrets.REDIS_HOST }}
+          key: ${{ secrets.DB_PASSWORD }}
+          port: 22
+          script_stop: true
+          script: chmod +x /home/ubuntu/redis/docker_script.sh && sh /home/ubuntu/redis/docker_script.sh
+
+      - name: Spring/Nginx 스크립트 작동
+        uses: appleboy/ssh-action@master
+        with:
+          username: ubuntu
+          host: ${{ secrets.SPRING_HOST }}
+          key: ${{ secrets.DB_PASSWORD }}
+          port: 22
+          script_stop: true
+          script: chmod +x /home/ubuntu/spring/docker_script.sh && sh /home/ubuntu/spring/docker_script.sh

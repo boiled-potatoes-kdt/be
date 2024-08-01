@@ -13,9 +13,79 @@
 <img src="readme_img/아키텍쳐.png">
 <hr>
 
-## <p style="color:white">🎒 CI/CD</p>
+## <p style="color:white">📒 CI/CD</p>
 
 <hr>
+
+<a href="https://github.com/boiled-potatoes-kdt/be/tree/main/.github/workflows">Deploy 배포 파일</a>
+<br>
+<a href="https://github.com/boiled-potatoes-kdt/be/tree/main/docker">DockerFiles 도커 파일들</a>
+
+| EC2 Scripts
+
+### Spring 서버
+``/home/ubuntu/spring/docker_script.sh``
+```shell
+docker login ghcr.io -u Domae-back-end -p {TOKEN}
+docker pull ghcr.io/boiled-potatoes-kdt/be/nginx:latest
+docker pull ghcr.io/boiled-potatoes-kdt/be/spring:latest
+
+CONTAINER_NAME="nginx"
+IMAGE_NAME="ghcr.io/boiled-potatoes-kdt/be/nginx:latest"
+
+if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
+                echo "컨테이너가 실행중입니다."
+        else
+                echo "컨테이너가 실행중이지 않습니다. 새로 시작합니다람쥐"
+                docker rm nginx
+                docker run -d --name $CONTAINER_NAME -p 80:80 $IMAGE_NAME
+fi
+
+docker rm spring
+docker run -d --name "spring" -p 8080:8080 "ghcr.io/boiled-potatoes-kdt/be/spring"
+```
+
+
+### Database 서버
+``/home/ubuntu/db/docker_script.sh``
+```shell
+docker login ghcr.io -u Domae-back-end -p {TOKEN}
+docker pull ghcr.io/boiled-potatoes-kdt/be/mysql:latest
+
+CONTAINER_NAME="mysql"
+IMAGE_NAME="ghcr.io/boiled-potatoes-kdt/be/mysql:latest"
+
+if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
+        echo "컨테이너가 실행중입니다."
+else
+        echo "컨테이너가 실행중이지 않습니다. 새로 시작합니다람쥐"
+        docker rm mysql
+        docker run -d --name $CONTAINER_NAME -p 3306:3306 -e MYSQL_ROOT_PASSWORD={PASSWORD} $IMAGE_NAME
+fi
+
+```
+
+
+### Redis 서버
+``/home/ubuntu/redis/docker_script.sh``
+```shell
+docker login ghcr.io -u Domae-back-end -p {TOKEN}
+docker pull ghcr.io/boiled-potatoes-kdt/be/redis:latest
+
+CONTAINER_NAME="redis"
+IMAGE_NAME="ghcr.io/boiled-potatoes-kdt/be/redis:latest"
+
+if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
+                echo "컨테이너가 실행중입니다."
+        else
+                echo "컨테이너가 실행중이지 않습니다. 새로 시작합니다람쥐"
+                docker rm redis
+                docker run -d --name $CONTAINER_NAME -p 6379:6379 -e REDIS_PASSWORD={PASSWORD} $IMAGE_NAME
+fi
+```
+
+
+
 
 <hr>
 
