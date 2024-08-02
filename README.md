@@ -23,7 +23,7 @@
 
 | EC2 Scripts
 
-### Spring 서버
+### Spring 서버 + 무중단 배포 Script
 ``/home/ubuntu/spring/docker_script.sh``
 ```shell
 docker login ghcr.io -u Domae-back-end -p {TOKEN}
@@ -41,8 +41,29 @@ if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
                 docker run -d --name $CONTAINER_NAME -p 80:80 $IMAGE_NAME
 fi
 
-docker rm spring
-docker run -d --name "spring" -p 8080:8080 "ghcr.io/boiled-potatoes-kdt/be/spring"
+BLUE_SPRING="spring-blue"
+GREEN_SPRING="spring-green"
+
+if [ "$(docker ps -q -f name=$BLUE_SPRING)" ]; then
+        ACTIVE_SPRING=$BLUE_SPRING
+        IDELE_SPRING=$GREEN_SPRING
+        PORT=8080
+else
+        ACTIVE_SPRING=$GREEN_SPRING
+        IDELE_SPRING=$BLUE_SPRING
+        PORT=8081
+fi
+
+docker run -d --name $IDELE_SPRING -p $PORT:8080 "ghcr.io/boiled-potatoes-kdt/be/spring"
+
+sleep 30
+
+docker exec nginx /bin/sh -c "sed -i 's|proxy_pass http://[0-9.]*:[0-9]*;|proxy_pass http://{IP}:$PORT;|' /etc/nginx/nginx.conf"
+docker exec nginx nginx -s reload
+
+
+docker stop $ACTIVE_SPRING
+docker rm $ACTIVE_SPRING
 ```
 
 
