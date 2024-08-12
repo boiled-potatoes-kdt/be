@@ -1,7 +1,7 @@
 FROM nginx:latest
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 # SSL 인증서와 키를 이미지에 복사
-COPY ./path/to/local/ssl /etc/nginx/ssl
+COPY /etc/nginx/ssl /etc/nginx/ssl
 EXPOSE 80
 EXPOSE 443
 CMD ["nginx", "-g", "daemon off;"]
