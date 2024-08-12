@@ -1,11 +1,12 @@
 package com.dain_review.domain.user.model.entity;
 
 
-import com.dain_review.domain.user.model.type.Role;
+import com.dain_review.domain.user.model.type.Gender;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,21 +17,13 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class User extends BaseEntity {
+public class Influencer extends BaseEntity {
 
-    private String name;
-    private String email;
-    private String password;
+    private Long userId;
+    private Long snsId;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Gender gender;
 
-    private Long point;
-    private String phone;
-    private String joinPath;
-    private String address;
-    private String profileImage;
-    private Boolean marketing;
-    private Boolean status;
-    private Boolean penalty;
+    private LocalDate birthday;
 }
