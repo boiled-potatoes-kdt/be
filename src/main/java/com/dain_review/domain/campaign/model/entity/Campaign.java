@@ -28,7 +28,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Campaign extends BaseEntity {
 
-    @ManyToOne private User user; // 하나의 사업주에 여러 개의 캠페인
+    @ManyToOne private User user;
     private String name;
     private Double latitude;
     private Double longitude;
@@ -45,7 +45,7 @@ public class Campaign extends BaseEntity {
     private Platform platform;
 
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
-    List<AvaliableDay> avaliableDayList; // 하나의 캠페인의 여러 개의 가능한 요일
+    List<AvaliableDay> avaliableDayList;
 
     private Integer capacity;
     private Integer applicant;

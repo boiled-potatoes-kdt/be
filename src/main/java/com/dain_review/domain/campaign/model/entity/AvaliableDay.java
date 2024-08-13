@@ -19,7 +19,7 @@ public class AvaliableDay extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "campaign_id")
-    private Campaign campaign; // 하나의 캠페인에 여러 개의 요일
+    private Campaign campaign;
 
     private String day;
 }

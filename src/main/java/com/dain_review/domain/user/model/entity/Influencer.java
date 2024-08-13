@@ -6,9 +6,12 @@ import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,13 +24,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Influencer extends BaseEntity {
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "sns_id")
-    private Sns sns;
+    @OneToMany(mappedBy = "influencer", fetch = FetchType.LAZY)
+    private List<Sns> snsList;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;

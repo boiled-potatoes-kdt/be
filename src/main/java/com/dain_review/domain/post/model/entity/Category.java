@@ -26,5 +26,5 @@ public class Category extends BaseEntity {
     private CategoryType type;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    List<Post> postList; // 하나의 카테고리의 여러 개의 게시글들
+    List<Post> postList;
 }

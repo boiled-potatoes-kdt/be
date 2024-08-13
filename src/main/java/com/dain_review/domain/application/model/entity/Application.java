@@ -20,15 +20,15 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class Application extends BaseEntity { // 체험단 신청
+public class Application extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user; // 하나의 유저의 여러 개의 체험단 신청
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "campaign_id")
-    private Campaign campaign; // 하나의 캠페인에 여러 개의 체험단 신청
+    private Campaign campaign;
 
     private String message;
 

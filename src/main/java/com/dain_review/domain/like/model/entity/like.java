@@ -21,9 +21,9 @@ public class like extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user; // 하나의 유저에 다수의 좋아요
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "campaign_id")
-    private Campaign campaign; // 하나의 캠페인에 다수의 좋아요
+    private Campaign campaign;
 }
