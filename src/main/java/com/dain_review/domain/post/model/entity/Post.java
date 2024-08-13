@@ -25,17 +25,19 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Post extends BaseEntity {
 
-    @ManyToOne private User user;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user; // 하나의 유저의 여러 개의 게시물
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private Category category;
+    private Category category; // 하나의 카테고리의 여러 개의 게시물
 
     private String title;
     private String content;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
-    private List<Comment> commentList;
+    private List<Comment> commentList; // 하나의 게시물의 여러 개의 댓글들
 
     @Enumerated(EnumType.STRING)
     private CommunityType communityType;

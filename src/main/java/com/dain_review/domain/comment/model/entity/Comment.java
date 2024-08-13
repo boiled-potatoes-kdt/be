@@ -26,5 +26,6 @@ public class Comment extends BaseEntity {
     private Post post;
 
     private Long subCommentId;
+
     private String content;
 }

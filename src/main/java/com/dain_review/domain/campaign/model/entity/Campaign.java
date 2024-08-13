@@ -13,7 +13,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +28,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Campaign extends BaseEntity {
 
-    @ManyToOne private User user;
+    @ManyToOne private User user; // 하나의 사업주에 여러 개의 캠페인
     private String name;
     private Double latitude;
     private Double longitude;
@@ -44,7 +45,7 @@ public class Campaign extends BaseEntity {
     private Platform platform;
 
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
-    List<AvaliableYoil> avaliableYoilList;
+    List<AvaliableDay> avaliableDayList; // 하나의 캠페인의 여러 개의 가능한 요일
 
     private Integer capacity;
     private Integer applicant;
@@ -56,14 +57,14 @@ public class Campaign extends BaseEntity {
     private String information;
     private String requirement;
     private Boolean today;
-    private LocalDate applicationStartDate;
-    private LocalDate applicationEndDate;
-    private LocalDate announcementDate;
-    private LocalDate experienceStartDate;
-    private LocalDate experienceEndDate;
-    private LocalDate experienceStarrTime;
-    private LocalDate experienceEndTime;
-    private LocalDate reviewDate;
+    private LocalDateTime applicationStartDate;
+    private LocalDateTime applicationEndDate;
+    private LocalDateTime announcementDate;
+    private LocalDateTime experienceStartDate;
+    private LocalDateTime experienceEndDate;
+    private LocalTime experienceStarrTime;
+    private LocalTime experienceEndTime;
+    private LocalDateTime reviewDate;
 
     private State state;
 }
