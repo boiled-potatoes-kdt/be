@@ -1,8 +1,6 @@
-package com.dain_review.domain.comment.model.entity;
+package com.dain_review.domain.campaign.model.entity;
 
 
-import com.dain_review.domain.post.model.entity.Post;
-import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -17,14 +15,11 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class Comment extends BaseEntity {
-
-    @ManyToOne private User user;
+public class AvaliableYoil extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @JoinColumn(name = "campaign_id")
+    private Campaign campaign;
 
-    private Long subCommentId;
-    private String content;
+    private String yoil;
 }

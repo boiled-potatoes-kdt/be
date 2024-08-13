@@ -1,7 +1,6 @@
 package com.dain_review.global.model.entity;
 
 
-import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,14 +22,11 @@ import org.springframework.data.annotation.LastModifiedDate;
 @ToString
 public class BaseEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@CreatedDate
-	private LocalDateTime createdAt;
+    @CreatedDate private LocalDateTime createdAt;
 
-	@LastModifiedDate
-	private LocalDateTime modifiedDate;
-
+    @LastModifiedDate private LocalDateTime modifiedDate;
 }
