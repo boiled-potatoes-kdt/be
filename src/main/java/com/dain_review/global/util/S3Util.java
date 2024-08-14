@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.dain_review.global.model.request.ImageFileRequest;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @RequiredArgsConstructor
@@ -31,8 +32,8 @@ public class S3Util {
      * @param imageFileRequest  업로드 할 이미지 파일
      * @return                  S3에 업로드된 파일의 URL 반환
      */
-//    @Async("S3PoolTask")
-    public String saveImage(ImageFileRequest imageFileRequest){
+    @Async("S3PoolTask")
+    public CompletableFuture<String> saveImage(ImageFileRequest imageFileRequest){
         MultipartFile file = imageFileRequest.getFile();
         String fileName = String.valueOf(System.currentTimeMillis());
         try {
@@ -40,7 +41,7 @@ public class S3Util {
         } catch (IOException e) {
             throw new S3Exception(S3ErrorCode.IMAGE_UPLOAD_FAILED);
         }
-        return fileName;
+        return CompletableFuture.completedFuture(fileName);
     }
 
     /**

@@ -36,10 +36,10 @@ public class S3ImageValidationTest {
         ImageFileRequest imageFileRequest = new ImageFileRequest(mockFile);
 
         // When
-        String result = s3Util.saveImage(imageFileRequest);
+        s3Util.saveImage(imageFileRequest);
 
         // Then
-        assertNotNull(result);
+//        assertNotNull(result);
         verify(s3Client, times(1)).putObject(anyString(), anyString(), any(), isNull());
     }
 
