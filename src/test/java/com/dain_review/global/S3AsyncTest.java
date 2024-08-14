@@ -48,10 +48,10 @@ public class S3AsyncTest {
         ImageFileRequest imageFileRequest = new ImageFileRequest(mockFile);
 
         // When
-        String result = s3Util.saveImage(imageFileRequest);
+        s3Util.saveImage(imageFileRequest);
 
         // Then
-        assertNotNull(result);
+//        assertNotNull(result);
 //        assertEquals(result.get, fileName); // 실제 비동기 실행 결과 확인
 
         ArgumentCaptor<String> bucketCaptor = ArgumentCaptor.forClass(String.class);

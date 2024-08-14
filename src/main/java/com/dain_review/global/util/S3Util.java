@@ -9,8 +9,10 @@ import com.dain_review.global.model.request.ImageFileRequest;
 import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,17 +24,14 @@ public class S3Util {
 
     private final AmazonS3 s3Client;
 
-    // TODO: 비동기 -> String return 늦어질수도있어서. 이 부분은 테스트 꼭 하세요! 여러 이미지를 등록하는 매서드 만들고 실제로 테스트 해서 String
-    // 값이 잘 나오는지 확인
-
     /**
      * 이미지 업로드
      *
      * @param imageFileRequest 업로드 할 이미지 파일
      * @return S3에 업로드된 파일의 URL 반환
      */
-    //    @Async("S3PoolTask")
-    public String saveImage(ImageFileRequest imageFileRequest) {
+    @Async("S3PoolTask")
+    public CompletableFuture<String> saveImage(ImageFileRequest imageFileRequest) {
         MultipartFile file = imageFileRequest.getFile();
         String fileName = String.valueOf(System.currentTimeMillis());
         try {
@@ -40,7 +39,7 @@ public class S3Util {
         } catch (IOException e) {
             throw new S3Exception(S3ErrorCode.IMAGE_UPLOAD_FAILED);
         }
-        return fileName;
+        return CompletableFuture.completedFuture(fileName);
     }
 
     /**
