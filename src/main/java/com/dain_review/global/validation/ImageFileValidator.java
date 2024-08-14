@@ -14,13 +14,15 @@ public class ImageFileValidator implements ConstraintValidator<ImageFileValidati
 
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
-        if (file == null || file.isEmpty() || file.getOriginalFilename() == null) {
-            return false;
-        }
-
-        String extension = getFileExtension(file.getOriginalFilename());
-        return !extension.isEmpty()
-                && allowedExtensions.stream().anyMatch(ext -> ext.equalsIgnoreCase(extension));
+        return file != null
+                && !file.isEmpty()
+                && file.getOriginalFilename() != null
+                && allowedExtensions.stream()
+                        .map(String::toLowerCase)
+                        .anyMatch(
+                                ext ->
+                                        ext.equalsIgnoreCase(
+                                                getFileExtension(file.getOriginalFilename())));
     }
 
     private String getFileExtension(String fileName) {
