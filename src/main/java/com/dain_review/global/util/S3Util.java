@@ -1,6 +1,5 @@
 package com.dain_review.global.util;
 
-
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -9,6 +8,7 @@ import com.dain_review.global.model.request.ImageFileRequest;
 import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
 import java.io.IOException;
+import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +33,7 @@ public class S3Util {
     @Async("S3PoolTask")
     public CompletableFuture<String> saveImage(ImageFileRequest imageFileRequest) {
         MultipartFile file = imageFileRequest.getFile();
-        String fileName = String.valueOf(System.currentTimeMillis());
+        String fileName = String.valueOf(System.currentTimeMillis()) + "." + extractExtensionName(file);
         try {
             s3Client.putObject(bucketName, fileName, file.getInputStream(), null);
         } catch (IOException e) {
@@ -50,7 +50,8 @@ public class S3Util {
      */
     public String selectImage(String fileName) {
         S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketName, fileName));
-        return s3Object.getObjectContent().toString();
+        URL url = s3Client.getUrl(bucketName, fileName);
+        return url.toString();
     }
 
     /**
@@ -60,5 +61,11 @@ public class S3Util {
      */
     public void deleteImage(String fileName) {
         s3Client.deleteObject(new DeleteObjectRequest(bucketName, fileName));
+    }
+
+    private String extractExtensionName(MultipartFile file) {
+        String fileName = file.getOriginalFilename();
+        String[] div = fileName.split("\\.");
+        return div[div.length -1];
     }
 }
