@@ -7,10 +7,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CommunityType {
-    A("질문하기"),
-    B("노하우"),
-    C("동행"),
-    D("기타");
+    QUESTION("질문하기"),
+    KNOWHOW("노하우"),
+    COMPANION("동행"),
+    ETC("기타");
 
     private final String displayName;
 }

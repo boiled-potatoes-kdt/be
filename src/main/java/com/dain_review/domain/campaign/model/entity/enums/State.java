@@ -7,10 +7,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum State {
-    A("검수증"),
-    B("모집중"),
-    C("모집완료"),
-    D("리뷰마감");
+    INSPECTION("검수증"),
+    RECRUITING("모집중"),
+    RECRUITMENT_COMPLETED("모집완료"),
+    REVIEW_CLOSED("리뷰마감");
 
     private final String displayName;
 }
