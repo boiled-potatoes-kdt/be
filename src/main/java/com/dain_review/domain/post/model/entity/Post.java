@@ -2,8 +2,8 @@ package com.dain_review.domain.post.model.entity;
 
 
 import com.dain_review.domain.comment.model.entity.Comment;
-import com.dain_review.domain.post.model.type.CategoryType;
-import com.dain_review.domain.post.model.type.CommunityType;
+import com.dain_review.domain.post.model.entity.enums.CategoryType;
+import com.dain_review.domain.post.model.entity.enums.CommunityType;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.CascadeType;
