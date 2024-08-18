@@ -11,7 +11,5 @@ public class PostException extends GlobalException {
     }
 
     @Override
-    public void exceptionHandling() {
-        // 예외 처리 로직을 추가할 수 있습니다. 예를 들어, 로깅.
-    }
+    public void exceptionHandling() {}
 }

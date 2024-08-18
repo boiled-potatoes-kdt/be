@@ -7,9 +7,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CategoryType {
-    A("공지사항"),
-    B("커뮤니티"),
-    C("맞팔/서이추");
+    NOTICE("공지사항"),
+    COMMUNITY("커뮤니티"),
+    FOLLOW("맞팔/서이추");
 
     private final String displayName;
 }

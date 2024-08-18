@@ -1,6 +1,7 @@
 package com.dain_review.domain.post.service;
 
 
+import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.exception.PostException;
 import com.dain_review.domain.post.exception.errorcode.PostErrorCode;
 import com.dain_review.domain.post.model.entity.Post;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityService {
 
     private final PostRepository postRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public CommunityResponse createPost(CommunityRequest communityRequest) {
         Post post =
@@ -48,11 +51,20 @@ public class CommunityService {
         return CommunityResponse.fromEntity(post);
     }
 
+    // todo : 해당 메서드는 모든 게시물의 공통 메서드라 따로 빼는 게 나을 듯 함.
+    public void increaseViewCount(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        postRepository.increaseViewCount(post);
+    }
+
     public CommunityResponse getPost(Long postId) {
         Post post =
                 postRepository
                         .findById(postId)
                         .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+        // 조회 이벤트 발생
+        eventPublisher.publishEvent(new PostReadEvent(post.getId()));
+
         return CommunityResponse.fromEntity(post);
     }
 
