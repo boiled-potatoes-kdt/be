@@ -1,4 +1,4 @@
-package com.dain_review.domain.user.model.type;
+package com.dain_review.domain.user.model.entity.enums;
 
 public enum Role {
     ROLE_INFLUENCER,
