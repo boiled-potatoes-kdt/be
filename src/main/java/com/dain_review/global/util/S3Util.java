@@ -28,7 +28,7 @@ public class S3Util {
      * 이미지 업로드
      *
      * @param imageFileRequest 업로드 할 이미지 파일
-     * @return S3에 업로드된 파일의 URL 반환
+     * @return S3에 업로드된 파일 이름 반환
      */
     @Async("S3PoolTask")
     public CompletableFuture<String> saveImage(ImageFileRequest imageFileRequest) {
@@ -46,7 +46,7 @@ public class S3Util {
      * 이미지 조회
      *
      * @param fileName 조회할 이미지 확장자 포함 이름
-     * @return 조회 이미지 url
+     * @return fileName 과 일치하는 이름의 이미지 url 반환
      */
     public String selectImage(String fileName) {
         S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketName, fileName));
