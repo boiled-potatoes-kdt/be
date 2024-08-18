@@ -1,10 +1,10 @@
 package com.dain_review.domain.campaign.model.entity;
 
 
-import com.dain_review.domain.campaign.model.type.Category;
-import com.dain_review.domain.campaign.model.type.Platform;
-import com.dain_review.domain.campaign.model.type.State;
-import com.dain_review.domain.campaign.model.type.Type;
+import com.dain_review.domain.campaign.model.entity.enums.Category;
+import com.dain_review.domain.campaign.model.entity.enums.Platform;
+import com.dain_review.domain.campaign.model.entity.enums.State;
+import com.dain_review.domain.campaign.model.entity.enums.Type;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;

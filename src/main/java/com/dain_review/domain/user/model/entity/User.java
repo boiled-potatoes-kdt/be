@@ -2,7 +2,7 @@ package com.dain_review.domain.user.model.entity;
 
 
 import com.dain_review.domain.application.model.entity.Application;
-import com.dain_review.domain.user.model.type.Role;
+import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

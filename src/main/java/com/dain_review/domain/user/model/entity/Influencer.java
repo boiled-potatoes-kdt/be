@@ -1,7 +1,7 @@
 package com.dain_review.domain.user.model.entity;
 
 
-import com.dain_review.domain.user.model.type.Gender;
+import com.dain_review.domain.user.model.entity.enums.Gender;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

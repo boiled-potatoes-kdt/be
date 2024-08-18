@@ -1,7 +1,7 @@
 package com.dain_review.domain.application.model.entity;
 
 
-import com.dain_review.domain.application.model.type.State;
+import com.dain_review.domain.application.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;

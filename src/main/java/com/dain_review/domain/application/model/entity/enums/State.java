@@ -1,4 +1,4 @@
-package com.dain_review.domain.application.model.type;
+package com.dain_review.domain.application.model.entity.enums;
 
 
 import lombok.AllArgsConstructor;
