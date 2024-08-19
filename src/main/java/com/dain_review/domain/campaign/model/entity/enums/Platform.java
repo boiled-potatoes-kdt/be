@@ -7,12 +7,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Platform {
-    A("블로그"),
-    B("인스타그램"),
-    C("유튜브"),
-    D("틱톡"),
-    E("릴스"),
-    F("쇼츠");
+
+    BLOG("블로그"),
+    INSTAGRAM("인스타그램"),
+    YOUTUBE("유튜브"),
+    TIKTOK("틱톡"),
+    REELS("릴스"),
+    SHORTS("쇼츠");
 
     private final String displayName;
 }

@@ -8,9 +8,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum State {
     /** 2차목표 내용 */
-    A("대기"),
-    B("승인"),
-    C("거부");
+    PENDING("대기"),
+    APPROVED("승인"),
+    REJECTED("거부");
 
     private final String displayName;
 }

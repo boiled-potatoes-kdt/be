@@ -33,7 +33,7 @@ public class Post extends BaseEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private CategoryType categoryType; // 이제 CategoryType을 직접 사용
+    private CategoryType categoryType;
 
     private String title;
     private String content;
@@ -42,13 +42,14 @@ public class Post extends BaseEntity {
     private List<Comment> commentList;
 
     @Enumerated(EnumType.STRING)
-    private CommunityType communityType; // 커뮤니티 속성
+    private CommunityType communityType;
 
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private PostMeta postMeta; // 조회수, 댓글수
+    private PostMeta postMeta;
 
     public void setPostMeta(PostMeta postMeta) {
         this.postMeta = postMeta;
         postMeta.setPost(this);
     }
+
 }

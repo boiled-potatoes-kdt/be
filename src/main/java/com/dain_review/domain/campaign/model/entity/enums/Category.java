@@ -7,13 +7,14 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Category {
-    A("맛집"),
-    B("뷰티"),
-    C("여행"),
-    D("문화"),
-    E("식품"),
-    F("생활"),
-    G("디지털");
+
+    FOOD("맛집"),
+    BEAUTY("뷰티"),
+    TRAVEL("여행"),
+    CULTURE("문화"),
+    GROCERY("식품"),
+    LIFESTYLE("생활"),
+    DIGITAL("디지털");
 
     private final String displayName;
 }
