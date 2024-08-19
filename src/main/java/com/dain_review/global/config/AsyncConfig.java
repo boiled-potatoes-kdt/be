@@ -39,4 +39,18 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.initialize();
         return executor;
     }
+
+    @Bean(name = "S3PoolTask")
+    public Executor S3PoolTask() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100);
+        executor.setKeepAliveSeconds(30);
+        executor.setThreadNamePrefix("S3Executor-");
+        executor.setTaskDecorator(new MailTaskDecorator());
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
 }
