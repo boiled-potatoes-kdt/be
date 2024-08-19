@@ -27,5 +27,4 @@ public class PostMeta extends BaseEntity {
     public void setPost(Post post) {
         this.post = post;
     }
-
 }

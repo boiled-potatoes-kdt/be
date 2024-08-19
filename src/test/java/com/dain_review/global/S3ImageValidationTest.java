@@ -37,7 +37,7 @@ public class S3ImageValidationTest {
         validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
 
-        // 리플렉션을 사용해 bucketName 필드에 값을 설정합니다.
+        // 리플렉션을 사용해 bucketName 필드에 값을 설정
         Field bucketNameField = S3Util.class.getDeclaredField("bucketName");
         bucketNameField.setAccessible(true);
         bucketNameField.set(s3Util, "my-test-bucket");  // 테스트용 버킷 이름 설정

@@ -7,7 +7,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Platform {
-
     BLOG("블로그"),
     INSTAGRAM("인스타그램"),
     YOUTUBE("유튜브"),

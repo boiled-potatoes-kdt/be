@@ -7,7 +7,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Type {
-
     VISIT("방문형"),
     PURCHASE("구매형"),
     DELIVERY("배송형"),

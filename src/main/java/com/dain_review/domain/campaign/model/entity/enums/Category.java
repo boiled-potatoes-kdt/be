@@ -7,7 +7,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Category {
-
     FOOD("맛집"),
     BEAUTY("뷰티"),
     TRAVEL("여행"),
