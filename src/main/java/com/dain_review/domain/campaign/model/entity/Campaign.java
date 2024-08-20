@@ -2,6 +2,7 @@ package com.dain_review.domain.campaign.model.entity;
 
 
 import com.dain_review.domain.campaign.model.entity.enums.Category;
+import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
 import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
@@ -15,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -47,6 +49,10 @@ public class Campaign extends BaseEntity {
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
     List<AvaliableDay> avaliableDayList;
 
+    @Enumerated(EnumType.STRING)
+    private Label label;
+
+    private Integer point;
     private Integer capacity;
     private Integer applicant;
     private Integer likeCount;
@@ -65,6 +71,7 @@ public class Campaign extends BaseEntity {
     private LocalTime experienceStarrTime;
     private LocalTime experienceEndTime;
     private LocalDateTime reviewDate;
+    private LocalDateTime approvalDate;
 
     private State state;
 }
