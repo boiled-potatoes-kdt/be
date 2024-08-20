@@ -27,4 +27,8 @@ public class PostMeta extends BaseEntity {
     public void setPost(Post post) {
         this.post = post;
     }
+
+    public void setViewCount(int viewCount) {
+        this.viewCount = viewCount;
+    }
 }

@@ -24,7 +24,7 @@ public class CommunityResponse {
     private int commentCount; // 댓글 수
     private String contentPreview; // 글 내용 미리보기
 
-    // todo : 게시글 미리보기가 포함된 응답과 미포함된 응답으로 나누기 (ex . fromEntity -> responseWithContentReivew)
+    // todo : 게시글 미리보기가 포함된 응답과 미포함된 응답으로 나누기 (ex . fromEntity -> responseWithContentPreivew)
     public static CommunityResponse fromEntity(Post post) {
         return CommunityResponse.builder()
                 .id(post.getId())

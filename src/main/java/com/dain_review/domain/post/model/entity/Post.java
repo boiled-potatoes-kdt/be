@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Version;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,6 +47,8 @@ public class Post extends BaseEntity {
 
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private PostMeta postMeta;
+
+    @Version private Long version; // 낙관적 락을 위한 버전 필드
 
     public void setPostMeta(PostMeta postMeta) {
         this.postMeta = postMeta;

@@ -51,12 +51,6 @@ public class CommunityService {
         return CommunityResponse.fromEntity(post);
     }
 
-    // todo : 해당 메서드는 모든 게시물의 공통 메서드라 따로 빼는 게 나을 듯 함.
-    public void increaseViewCount(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow();
-        postRepository.increaseViewCount(post);
-    }
-
     public CommunityResponse getPost(Long postId) {
         Post post =
                 postRepository
@@ -79,15 +73,15 @@ public class CommunityService {
 
         Post updatedPost =
                 Post.builder()
-                        .id(existingPost.getId()) // 기존 ID 유지
-                        .user(existingPost.getUser()) // 기존 User 유지
-                        .categoryType(existingPost.getCategoryType()) // 기존 Category 유지
+                        .id(existingPost.getId())
+                        .user(existingPost.getUser())
+                        .categoryType(existingPost.getCategoryType())
                         .title(communityRequest.title()) // 새 제목 설정
                         .content(communityRequest.content()) // 새 내용 설정
                         .communityType(communityRequest.communityType())
-                        .createdAt(existingPost.getCreatedAt()) // 기존 생성일 유지
+                        .createdAt(existingPost.getCreatedAt())
                         .updatedAt(LocalDateTime.now()) // 업데이트 시각 설정
-                        .postMeta(existingPostMeta) // 기존 PostMeta 유지
+                        .postMeta(existingPostMeta)
                         .build();
 
         postRepository.save(updatedPost);
