@@ -6,6 +6,8 @@ import com.dain_review.domain.post.exception.PostException;
 import com.dain_review.domain.post.exception.errorcode.PostErrorCode;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.PostMeta;
+import com.dain_review.domain.post.model.entity.enums.CategoryType;
+import com.dain_review.domain.post.model.entity.enums.CommunityType;
 import com.dain_review.domain.post.model.request.CommunityRequest;
 import com.dain_review.domain.post.model.response.CommunityResponse;
 import com.dain_review.domain.post.repository.PostRepository;
@@ -56,8 +58,9 @@ public class CommunityService {
                 postRepository
                         .findById(postId)
                         .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
-        // 조회 이벤트 발생
-        eventPublisher.publishEvent(new PostReadEvent(post.getId()));
+
+        // 조회 이벤트 발생 시, 이미 조회된 Post 객체를 전달
+        eventPublisher.publishEvent(new PostReadEvent(post));
 
         return CommunityResponse.fromEntity(post);
     }
@@ -68,20 +71,19 @@ public class CommunityService {
                         .findById(postId)
                         .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
 
-        // 기존 PostMeta를 유지하기 위해 설정
         PostMeta existingPostMeta = existingPost.getPostMeta();
 
         Post updatedPost =
                 Post.builder()
-                        .id(existingPost.getId())
-                        .user(existingPost.getUser())
+                        .id(existingPost.getId()) // 기존의 값
+                        .user(existingPost.getUser()) // 기존의 값
                         .categoryType(existingPost.getCategoryType())
                         .title(communityRequest.title()) // 새 제목 설정
                         .content(communityRequest.content()) // 새 내용 설정
-                        .communityType(communityRequest.communityType())
-                        .createdAt(existingPost.getCreatedAt())
+                        .communityType(communityRequest.communityType()) // 기존의 값
+                        .createdAt(existingPost.getCreatedAt()) // 기존의 값
                         .updatedAt(LocalDateTime.now()) // 업데이트 시각 설정
-                        .postMeta(existingPostMeta)
+                        .postMeta(existingPostMeta) // 기존의 값
                         .build();
 
         postRepository.save(updatedPost);
@@ -99,17 +101,30 @@ public class CommunityService {
 
     public PagedResponse<CommunityResponse> getAllPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Post> postsPage = postRepository.findAll(pageable);
+        Page<Post> postsPage = postRepository.findByCategoryType(CategoryType.COMMUNITY, pageable);
 
         List<CommunityResponse> communities =
-                postsPage.stream().map(CommunityResponse::fromEntity).collect(Collectors.toList());
+                postsPage.stream()
+                        .map(CommunityResponse::responseWithContentPreview)
+                        .collect(Collectors.toList());
 
         return new PagedResponse<>(
-                communities,
-                postsPage.getNumber(),
-                postsPage.getSize(),
-                postsPage.getTotalElements(),
-                postsPage.getTotalPages(),
-                postsPage.isLast());
+                communities, postsPage.getTotalElements(), postsPage.getTotalPages());
+    }
+
+    public PagedResponse<CommunityResponse> getPostsByCommunityType(
+            CommunityType communityType, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> postsPage =
+                postRepository.findByCategoryTypeAndCommunityType(
+                        CategoryType.COMMUNITY, communityType, pageable);
+
+        List<CommunityResponse> communities =
+                postsPage.stream()
+                        .map(CommunityResponse::responseWithContentPreview)
+                        .collect(Collectors.toList());
+
+        return new PagedResponse<>(
+                communities, postsPage.getTotalElements(), postsPage.getTotalPages());
     }
 }

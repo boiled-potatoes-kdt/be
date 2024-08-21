@@ -1,6 +1,7 @@
 package com.dain_review.domain.post.controller;
 
 
+import com.dain_review.domain.post.model.entity.enums.CommunityType;
 import com.dain_review.domain.post.model.request.CommunityRequest;
 import com.dain_review.domain.post.model.response.CommunityResponse;
 import com.dain_review.domain.post.service.CommunityService;
@@ -9,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,7 +38,7 @@ public class CommunityController {
         return ResponseEntity.ok(communityResponse);
     }
 
-    @PutMapping("/{postId}") // 커뮤니티 게시글 수정
+    @PatchMapping("/{postId}") // 커뮤니티 게시글 수정
     public ResponseEntity<CommunityResponse> updatePost(
             @PathVariable Long postId, @RequestBody CommunityRequest communityRequest) {
         CommunityResponse communityResponse = communityService.updatePost(postId, communityRequest);
@@ -56,5 +57,16 @@ public class CommunityController {
             @RequestParam(defaultValue = "10") int size) {
         PagedResponse<CommunityResponse> communities = communityService.getAllPosts(page, size);
         return ResponseEntity.ok(communities);
+    }
+
+    @GetMapping("type/{communityType}")
+    public ResponseEntity<PagedResponse<CommunityResponse>>
+            getPostsByCommunityType( // 커뮤니티 게시글 중 카테고리 별 목록 조회
+                    @PathVariable CommunityType communityType,
+                    @RequestParam(defaultValue = "0") int page,
+                    @RequestParam(defaultValue = "10") int size) {
+        PagedResponse<CommunityResponse> responses =
+                communityService.getPostsByCommunityType(communityType, page, size);
+        return ResponseEntity.ok(responses);
     }
 }

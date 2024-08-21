@@ -15,7 +15,7 @@ public class CommunityResponse {
     private Long id;
     private String title;
     private String content;
-    /*private String author;*/
+    /*private String nickname;*/
     // 작성자 이름(닉네임 또는 업체명)-보류 개발 아직 안함
     private String category; // 카테고리 이름
     private String communityType;
@@ -24,7 +24,23 @@ public class CommunityResponse {
     private int commentCount; // 댓글 수
     private String contentPreview; // 글 내용 미리보기
 
-    // todo : 게시글 미리보기가 포함된 응답과 미포함된 응답으로 나누기 (ex . fromEntity -> responseWithContentPreivew)
+    // 게시글 미리보기가 포함된 응답
+    public static CommunityResponse responseWithContentPreview(Post post) {
+        return CommunityResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                /*.nickname(post.getUser().getNickName()) */
+                .category(post.getCategoryType().getDisplayName())
+                .communityType(post.getCommunityType().getDisplayName())
+                .createdAt(post.getCreatedAt())
+                .viewCount(post.getPostMeta().getViewCount())
+                .commentCount(post.getPostMeta().getCommentCount())
+                .contentPreview(getContentPreview(post.getContent()))
+                .build();
+    }
+
+    // 게시글 미리보기가 포함되지 않은 응답
     public static CommunityResponse fromEntity(Post post) {
         return CommunityResponse.builder()
                 .id(post.getId())
@@ -36,15 +52,15 @@ public class CommunityResponse {
                 .createdAt(post.getCreatedAt())
                 .viewCount(post.getPostMeta().getViewCount())
                 .commentCount(post.getPostMeta().getCommentCount())
-                .contentPreview(getContentPreview(post.getContent()))
                 .build();
     }
 
-    // todo : 글 내용을 html로 받았을 때 html은 무시하는 로직 추가
+    // 글 내용을 HTML로 받았을 때 HTML 태그는 무시하고 미리보기 생성
     private static String getContentPreview(String content) {
         int previewLength = 100; // 미리보기 길이 설정 (예시: 100자)
-        return content.length() > previewLength
-                ? content.substring(0, previewLength) + "..."
-                : content;
+        String plainTextContent = content.replaceAll("<[^>]*>", ""); // HTML 태그 제거
+        return plainTextContent.length() > previewLength
+                ? plainTextContent.substring(0, previewLength) + "..."
+                : plainTextContent;
     }
 }

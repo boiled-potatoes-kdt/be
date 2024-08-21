@@ -15,7 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Version;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,7 +28,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Post extends BaseEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -45,10 +44,12 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private CommunityType communityType;
 
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(
+            mappedBy = "post",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private PostMeta postMeta;
-
-    @Version private Long version; // 낙관적 락을 위한 버전 필드
 
     public void setPostMeta(PostMeta postMeta) {
         this.postMeta = postMeta;
