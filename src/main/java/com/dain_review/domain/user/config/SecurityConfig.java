@@ -1,6 +1,7 @@
 package com.dain_review.domain.user.config;
 
 import com.dain_review.domain.user.config.filter.LoginFilter;
+import com.dain_review.domain.user.config.filter.RequestFilter;
 import com.dain_review.domain.user.exception.AuthException;
 import com.dain_review.domain.user.exception.errortype.AuthErrorCode;
 import com.dain_review.global.api.API;
@@ -69,6 +70,7 @@ public class SecurityConfig {
         );
 
         http.addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(requestFilter(), LoginFilter.class);
 
         return http.build();
     }
@@ -78,6 +80,10 @@ public class SecurityConfig {
         LoginFilter filter = new LoginFilter(jwtUtil);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
+    }
+    @Bean
+    public RequestFilter requestFilter() {
+        return new RequestFilter(jwtUtil);
     }
 
     @Bean

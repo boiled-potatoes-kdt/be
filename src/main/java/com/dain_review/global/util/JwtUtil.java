@@ -9,18 +9,22 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
 @Component
+@Slf4j(topic = "JWT Log")
 public class JwtUtil {
 
 
@@ -32,7 +36,7 @@ public class JwtUtil {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final long ACCESS_TOKEN_EXPIRATION_PERIOD = 30 * 60 * 1000L; // 30분
-    private final long REFRESH_TOKEN_EXPIRATION_PERIOD = 14 * 24 * 60 * 60 * 1000L; // 14일
+    private final long REFRESH_TOKEN_EXPIRATION_PERIOD = 1 * 24 * 60 * 60 * 1000L; // 1일
 
     private Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
@@ -46,6 +50,7 @@ public class JwtUtil {
     }
 
     public void jwtExceptionHandler(HttpServletResponse response, AuthErrorCode error) {
+        log.warn(error.getMsg());
         response.setStatus(error.getStatus().value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -53,17 +58,66 @@ public class JwtUtil {
             String json = new ObjectMapper().writeValueAsString(new GlobalResponse(error.getMsg(), error.getStatus()));
             response.getWriter().write(json);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e.getMessage());
         }
     }
 
+    public String getAccessTokenFromRequest(HttpServletRequest req) {
+        return getTokenFromCookie(req, AUTHORIZATION_ACCESS_HEADER);
+    }
+
+    public String getRefreshTokenFromRequest(HttpServletRequest req) {
+        return getTokenFromCookie(req, AUTHORIZATION_REFRESH_HEADER);
+    }
+
+    private String getTokenFromCookie(HttpServletRequest req, String authorizationRefreshHeader) {
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(authorizationRefreshHeader)) {
+                    try {
+                        return URLDecoder.decode(cookie.getValue(), "UTF-8"); // Encode 되어 넘어간 Value 다시 Decode
+                    } catch (UnsupportedEncodingException e) {
+                        return null;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public Claims getUserInfoFromToken(String token, HttpServletResponse response) {
+        token = substringToken(token, response);
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    }
+
+    public void accessTokenCookieClear(HttpServletRequest req, HttpServletResponse res) {
+        clearCookie(req, res, AUTHORIZATION_ACCESS_HEADER);
+    }
+
+    public void refreshTokenCookieClear(HttpServletRequest req, HttpServletResponse res) {
+        clearCookie(req, res, AUTHORIZATION_REFRESH_HEADER);
+    }
+
+    public void clearCookie(HttpServletRequest req, HttpServletResponse res, String key) {
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(key)) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    res.addCookie(cookie);
+                }
+            }
+        }
+    }
 
     public Cookie getAccessTokenCookie(String email, String role) throws UnsupportedEncodingException {
         return getCookie(createAccessToken(email, role), AUTHORIZATION_ACCESS_HEADER, ACCESS_TOKEN_EXPIRATION_PERIOD);
     }
 
     public Cookie getRefreshTokenCookie(String email, String role) throws UnsupportedEncodingException {
-        return getCookie(createAccessToken(email, role), AUTHORIZATION_REFRESH_HEADER, REFRESH_TOKEN_EXPIRATION_PERIOD);
+        return getCookie(createRefreshToken(email, role), AUTHORIZATION_REFRESH_HEADER, REFRESH_TOKEN_EXPIRATION_PERIOD);
     }
 
     public boolean validateCookieName(Cookie cookie) {
