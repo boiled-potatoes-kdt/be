@@ -1,6 +1,6 @@
 package com.dain_review.domain.comment.model.entity;
 
-
+import com.dain_review.domain.comment.model.request.CommentRequest;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
@@ -38,4 +38,23 @@ public class Comment extends BaseEntity {
     private List<Comment> children;
 
     private String content;
+
+    public static Comment from(CommentRequest request, User user, Post post, Comment comment) {
+        return Comment.builder()
+                .user(user)
+                .post(post)
+                .parent(comment)
+                .content(request.content())
+                .build();
+    }
+
+    public static Comment from(CommentRequest request, User user, Comment comment) {
+        return Comment.builder()
+                .id(request.id())
+                .user(user)
+                .post(comment.getPost())
+                .parent(comment.getParent())
+                .content(request.content())
+                .build();
+    }
 }
