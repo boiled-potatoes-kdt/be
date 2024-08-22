@@ -4,8 +4,6 @@ package com.dain_review.global.util;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.dain_review.global.model.request.ImageFileRequest;
 import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
 import java.io.IOException;
@@ -25,17 +23,9 @@ public class S3Util {
 
     private final AmazonS3 s3Client;
 
-    /**
-     * 이미지 업로드
-     *
-     * @param imageFileRequest 업로드 할 이미지 파일
-     * @return S3에 업로드된 파일 이름 반환
-     */
     @Async("S3PoolTask")
-    public CompletableFuture<String> saveImage(ImageFileRequest imageFileRequest) {
-        MultipartFile file = imageFileRequest.getFile();
-        String fileName =
-                String.valueOf(System.currentTimeMillis()) + "." + extractExtensionName(file);
+    public CompletableFuture<String> saveImage(MultipartFile file) {
+        String fileName = System.currentTimeMillis() + "." + extractExtensionName(file);
         try {
             s3Client.putObject(bucketName, fileName, file.getInputStream(), null);
         } catch (IOException e) {
@@ -51,7 +41,7 @@ public class S3Util {
      * @return fileName 과 일치하는 이름의 이미지 url 반환
      */
     public String selectImage(String fileName) {
-        S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketName, fileName));
+        s3Client.getObject(new GetObjectRequest(bucketName, fileName));
         URL url = s3Client.getUrl(bucketName, fileName);
         return url.toString();
     }

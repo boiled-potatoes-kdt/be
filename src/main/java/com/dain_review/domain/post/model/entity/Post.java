@@ -37,6 +37,7 @@ public class Post extends BaseEntity {
 
     private String title;
     private String content;
+    private String imageUrl;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Comment> commentList;

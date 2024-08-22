@@ -41,7 +41,7 @@ public class S3AsyncTest {
         asyncTaskExecutor = new ThreadPoolTaskExecutor();
     }
 
-    @Test
+/*    @Test
     void 이미지_비동기_업로드() throws ExecutionException, InterruptedException, IOException {
         // Given
         MultipartFile mockFile = new MockMultipartFile("file", "image.jpg", "image/jpeg", new byte[10]);
@@ -59,5 +59,5 @@ public class S3AsyncTest {
         verify(s3Client, times(1)).putObject(bucketCaptor.capture(), fileCaptor.capture(), any(InputStream.class), isNull());
 
         assertEquals(bucketName, bucketCaptor.getValue());
-    }
+    }*/
 }

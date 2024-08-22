@@ -15,6 +15,7 @@ public class CommunityResponse {
     private Long id;
     private String title;
     private String content;
+    private String imageUrl;
     /*private String nickname;*/
     // 작성자 이름(닉네임 또는 업체명)-보류 개발 아직 안함
     private String category; // 카테고리 이름
@@ -30,6 +31,7 @@ public class CommunityResponse {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
+                .imageUrl(post.getImageUrl())
                 /*.nickname(post.getUser().getNickName()) */
                 .category(post.getCategoryType().getDisplayName())
                 .communityType(post.getCommunityType().getDisplayName())
@@ -41,11 +43,12 @@ public class CommunityResponse {
     }
 
     // 게시글 미리보기가 포함되지 않은 응답
-    public static CommunityResponse fromEntity(Post post) {
+    public static CommunityResponse responseWithoutContentPreview(Post post) {
         return CommunityResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
+                .imageUrl(post.getImageUrl())
                 /*.author(post.getUser().getUsername()) */
                 .category(post.getCategoryType().getDisplayName())
                 .communityType(post.getCommunityType().getDisplayName())

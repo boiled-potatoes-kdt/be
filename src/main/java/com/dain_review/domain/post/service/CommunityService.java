@@ -1,5 +1,6 @@
 package com.dain_review.domain.post.service;
 
+import static com.dain_review.global.util.ImageFileValidatorUtil.isValidImageFile;
 
 import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.exception.PostException;
@@ -12,6 +13,9 @@ import com.dain_review.domain.post.model.request.CommunityRequest;
 import com.dain_review.domain.post.model.response.CommunityResponse;
 import com.dain_review.domain.post.repository.PostRepository;
 import com.dain_review.global.model.response.PagedResponse;
+import com.dain_review.global.util.S3Util;
+import com.dain_review.global.util.error.S3Exception;
+import com.dain_review.global.util.errortype.S3ErrorCode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -30,14 +35,26 @@ public class CommunityService {
 
     private final PostRepository postRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final S3Util s3Util;
 
-    public CommunityResponse createPost(CommunityRequest communityRequest) {
+    public CommunityResponse createPost(
+            CommunityRequest communityRequest, MultipartFile imageFile) {
+        String fileName = null;
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            if (!isValidImageFile(imageFile)) {
+                throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
+            }
+            fileName = s3Util.saveImage(imageFile).join();
+        }
+
         Post post =
                 Post.builder()
                         .categoryType(communityRequest.categoryType())
                         .title(communityRequest.title())
                         .content(communityRequest.content())
                         .communityType(communityRequest.communityType())
+                        .imageUrl(fileName) // 이미지 URL 설정
                         .build();
 
         PostMeta postMeta =
@@ -50,7 +67,7 @@ public class CommunityService {
         post.setPostMeta(postMeta);
         postRepository.save(post);
 
-        return CommunityResponse.fromEntity(post);
+        return CommunityResponse.responseWithoutContentPreview(post);
     }
 
     public CommunityResponse getPost(Long postId) {
@@ -62,7 +79,7 @@ public class CommunityService {
         // 조회 이벤트 발생 시, 이미 조회된 Post 객체를 전달
         eventPublisher.publishEvent(new PostReadEvent(post));
 
-        return CommunityResponse.fromEntity(post);
+        return CommunityResponse.responseWithoutContentPreview(post);
     }
 
     public CommunityResponse updatePost(Long postId, CommunityRequest communityRequest) {
@@ -88,7 +105,7 @@ public class CommunityService {
 
         postRepository.save(updatedPost);
 
-        return CommunityResponse.fromEntity(updatedPost);
+        return CommunityResponse.responseWithoutContentPreview(updatedPost);
     }
 
     public void deletePost(Long postId) {
