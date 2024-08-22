@@ -20,8 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -47,15 +45,13 @@ public class CommentService {
      */
     @Transactional
     public void createComment(CommentRequest request) {
-        //
-        User user = userRepository.findById(1L)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND)); // 테스트를 위한 임시 유저 데이터 조회
+        // 유저 정보 조회
+        User user = getUserInfo(1L);
         // post, parent 객체 조회
         Post post = postRepository.findById(request.postId())
                 .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
-        Comment parent = commentRepository.findById(request.parentId())
-                .orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
-
+        //부모 댓글이 존재하는지
+        Comment parent = checkCommentExistence(request.parentId());
         Comment saveComment = Comment.from(request, user, post, parent);
         Comment saved = commentRepository.save(saveComment);
         if (saved == null) {
@@ -66,18 +62,12 @@ public class CommentService {
     // todo user -> 로그인 유저 정보로 작동하도록 수정 필요
     @Transactional
     public void updateComment(CommentRequest request) {
-        User user = userRepository.findById(1L)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND)); // 테스트를 위한 임시 유저 데이터 조회
-        // post, parent 객체 조회
-        Comment comment = commentRepository.findById(request.id())
-                .orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
+        User user = getUserInfo(1L);
+        //해당 댓글이 존재하는지
+        Comment comment = checkCommentExistence(request.id());
 
-        // 요청을 보낸 클라이언트의 userId와 comment의 userId가 일치하지 않으면 예외를 더뜨림
-        User author = userRepository.findById(comment.getUser().getId())
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-        if (!author.getId().equals(user.getId())) {
-            throw new CommentException(CommentErrorCode.COMMENT_AUTHOR_MISMATCH);
-        }
+        // 요청 클라이언트와 댓글 작성자가 일치하는지 여부를 확인
+        checkAuthorMismatch(user, comment);
 
         Comment updateComment = Comment.from(request, user, comment);
         Comment updated = commentRepository.save(updateComment);
@@ -88,25 +78,31 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(CommentRequest request) {
-        User user = userRepository.findById(1L)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND)); // 테스트를 위한 임시 유저 데이터 조회
+        //해당 유처 및 댓글이 존재하는지
+        User user = getUserInfo(1L);
+        Comment comment = checkCommentExistence(request.id());
 
-        //해당 게시글이 존재하는지
-        Comment comment = findOneComment(request);
-
-        User author = userRepository.findById(comment.getUser().getId())
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-        if (!author.getId().equals(user.getId())) {
-            throw new CommentException(CommentErrorCode.COMMENT_AUTHOR_MISMATCH);
-        }
+        // 요청 클라이언트와 댓글 작성자가 일치하는지 여부를 확인
+        checkAuthorMismatch(user, comment);
 
         // 댓글 삭제
         commentRepository.deleteById(request.id());
     }
 
-
-    private Comment findOneComment(CommentRequest request) {
-        return commentRepository.findById(request.id())
+    private Comment checkCommentExistence(Long commentId) {
+        return commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
+    }
+
+    private User getUserInfo(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND)); // 테스트를 위한 임시 유저 데이터 조회
+    }
+
+    private void checkAuthorMismatch(User user, Comment comment) {
+        User commentAuthor = getUserInfo(comment.getUser().getId());
+        if (!commentAuthor.getId().equals(user.getId())) {
+            throw new CommentException(CommentErrorCode.COMMENT_AUTHOR_MISMATCH);
+        }
     }
 }
