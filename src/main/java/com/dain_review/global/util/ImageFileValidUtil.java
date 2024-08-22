@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
-public class ImageFileValidatorUtil {
+public class ImageFileValidUtil {
 
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png");
 

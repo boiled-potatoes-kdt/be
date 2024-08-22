@@ -1,6 +1,6 @@
 package com.dain_review.domain.post.service;
 
-import static com.dain_review.global.util.ImageFileValidatorUtil.isValidImageFile;
+import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 
 import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.exception.PostException;

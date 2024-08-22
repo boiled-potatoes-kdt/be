@@ -8,7 +8,6 @@ import com.dain_review.domain.post.service.CommunityService;
 import com.dain_review.global.api.API;
 import com.dain_review.global.model.response.PagedResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +28,7 @@ public class CommunityController {
 
     private final CommunityService communityService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // 커뮤니티 게시글 생성
+    @PostMapping // 커뮤니티 게시글 생성
     public ResponseEntity<?> createPost(
             @RequestPart("data") CommunityRequest communityRequest,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
