@@ -1,34 +1,28 @@
 package com.dain_review.domain.campaign.model.response;
 
 import com.dain_review.domain.campaign.model.entity.Campaign;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class CampaignPreviewResponse {
-    private Long id;
-    private String name;
-    private String reward;
-    private String region1;
-    private String region2;
-    private Integer point;
-    private String type;
-    private String platform;
-    private String label;
-    private Integer capacity;
-    private Integer applicant;
-    private String campaignImage;
-    private LocalDateTime applicationStartDate;
-    private LocalDateTime applicationEndDate;
-    private LocalDateTime experienceStartDate;
-    private LocalDateTime experienceEndDate;
-    private boolean isLike;
-
+public record CampaignPreviewResponse(
+        Long id,
+        String name,
+        String reward,
+        String region1,
+        String region2,
+        Integer point,
+        String type,
+        String platform,
+        String label,
+        Integer capacity,
+        Integer applicant,
+        String campaignImage,
+        LocalDateTime applicationStartDate,
+        LocalDateTime applicationEndDate,
+        LocalDateTime experienceStartDate,
+        LocalDateTime experienceEndDate,
+        boolean isLike
+) {
     public static CampaignPreviewResponse from(Campaign campaign) {
         return new CampaignPreviewResponse(
                 campaign.getId(),

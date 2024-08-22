@@ -1,19 +1,10 @@
 package com.dain_review.domain.campaign.model.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 
-@Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CampaignHomeResponse {
-    private List<CampaignPreviewResponse> premium;
-    private List<CampaignPreviewResponse> popular;
-    private List<CampaignPreviewResponse> newest;
-    private List<CampaignPreviewResponse> imminent;
-}
+public record CampaignHomeResponse(
+        List<CampaignPreviewResponse> premium,
+        List<CampaignPreviewResponse> popular,
+        List<CampaignPreviewResponse> newest,
+        List<CampaignPreviewResponse> imminent
+) { }
