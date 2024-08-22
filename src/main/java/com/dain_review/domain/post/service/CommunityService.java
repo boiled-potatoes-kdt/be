@@ -11,7 +11,7 @@ import com.dain_review.domain.post.model.entity.enums.CommunityType;
 import com.dain_review.domain.post.model.request.CommunityRequest;
 import com.dain_review.domain.post.model.response.CommunityResponse;
 import com.dain_review.domain.post.repository.PostRepository;
-import com.dain_review.global.model.PagedResponse;
+import com.dain_review.global.model.response.PagedResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

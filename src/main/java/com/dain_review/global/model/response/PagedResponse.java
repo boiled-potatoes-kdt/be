@@ -1,4 +1,4 @@
-package com.dain_review.global.model;
+package com.dain_review.global.model.response;
 
 
 import java.util.List;

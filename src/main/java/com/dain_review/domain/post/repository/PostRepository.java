@@ -14,17 +14,17 @@ import org.springframework.data.repository.query.Param;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 커뮤니티 전체 게시글 조회
-    Page<Post> findByCategoryType(CategoryType categoryType, Pageable pageable);
+    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.postMeta WHERE p.categoryType = :categoryType")
+    Page<Post> findByCategoryType(
+            @Param("categoryType") CategoryType categoryType, Pageable pageable);
 
-    // 커뮤니티 글 중, 카테고리로 분류하여 목록 조회
+    // 게시글 중, 카테고리로 분류하여 목록 조회
+    @Query(
+            "SELECT p FROM Post p JOIN FETCH p.postMeta WHERE p.categoryType = :categoryType AND p.communityType = :communityType")
     Page<Post> findByCategoryTypeAndCommunityType(
-            CategoryType categoryType, CommunityType communityType, Pageable pageable);
-
-    /*    @Query("SELECT p FROM Post p " +
-        "LEFT JOIN FETCH p.postMeta " +
-        "LEFT JOIN FETCH p.user " +
-        "WHERE p.id = :postId")
-    Optional<Post> findPostWithMetaAndUser(Long postId);*/
+            @Param("categoryType") CategoryType categoryType,
+            @Param("communityType") CommunityType communityType,
+            Pageable pageable);
 
     @Modifying
     @Query(
