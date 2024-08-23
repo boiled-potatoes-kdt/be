@@ -17,7 +17,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
@@ -27,6 +29,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 
 @Configuration
 @RequiredArgsConstructor
+@EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
@@ -72,6 +76,8 @@ public class SecurityConfig {
     public LoginFilter loginFilter() throws Exception {
         LoginFilter filter = new LoginFilter(jwtUtil);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+        // 필터 등록 로그 추가
+        System.out.println("LoginFilter registered");
         return filter;
     }
 

@@ -12,11 +12,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JwtUtil jwtUtil;
@@ -54,9 +56,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         CustomUserDetails userDetails = ((CustomUserDetails) authResult.getPrincipal());
         String email = userDetails.getEmail();
         String role = userDetails.getUserRole().name();
+        Long userId = userDetails.getUserId();
 
-        response.addCookie(jwtUtil.getAccessTokenCookie(email, role));
-        response.addCookie(jwtUtil.getRefreshTokenCookie(email, role));
+        response.addCookie(jwtUtil.getAccessTokenCookie(email, role, userId));
+        response.addCookie(jwtUtil.getRefreshTokenCookie(email, role, userId));
 
         response.setStatus(HttpServletResponse.SC_OK);
         PrintWriter writer = response.getWriter();
@@ -68,6 +71,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             AuthenticationException failed) {
+
         jwtUtil.jwtExceptionHandler(response, AuthErrorCode.LOGIN_ERROR);
     }
 }

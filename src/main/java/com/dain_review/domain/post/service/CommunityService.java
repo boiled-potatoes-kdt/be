@@ -12,6 +12,10 @@ import com.dain_review.domain.post.model.entity.enums.CommunityType;
 import com.dain_review.domain.post.model.request.CommunityRequest;
 import com.dain_review.domain.post.model.response.CommunityResponse;
 import com.dain_review.domain.post.repository.PostRepository;
+import com.dain_review.domain.user.exception.UserException;
+import com.dain_review.domain.user.exception.errortype.UserErrorCode;
+import com.dain_review.domain.user.model.entity.User;
+import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.util.S3Util;
 import com.dain_review.global.util.error.S3Exception;
@@ -35,12 +39,15 @@ public class CommunityService {
 
     private final PostRepository postRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserRepository userRepository;
     private final S3Util s3Util;
 
     public CommunityResponse createPost(
-            CommunityRequest communityRequest, MultipartFile imageFile) {
-        String fileName = null;
+            Long userId, CommunityRequest communityRequest, MultipartFile imageFile) {
 
+        User user = getUser(userId);
+
+        String fileName = null;
         if (imageFile != null && !imageFile.isEmpty()) {
             if (!isValidImageFile(imageFile)) {
                 throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
@@ -50,6 +57,7 @@ public class CommunityService {
 
         Post post =
                 Post.builder()
+                        .user(user) // 사용자 정보 설정
                         .categoryType(communityRequest.categoryType())
                         .title(communityRequest.title())
                         .content(communityRequest.content())
@@ -70,7 +78,15 @@ public class CommunityService {
         return CommunityResponse.responseWithoutContentPreview(post);
     }
 
-    public CommunityResponse getPost(Long postId) {
+    private User getUser(Long userId) {
+        return userRepository
+                .findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    public CommunityResponse getPost(Long userId, Long postId) {
+        getUser(userId);
+
         Post post =
                 postRepository
                         .findById(postId)
@@ -82,7 +98,10 @@ public class CommunityService {
         return CommunityResponse.responseWithoutContentPreview(post);
     }
 
-    public CommunityResponse updatePost(Long postId, CommunityRequest communityRequest) {
+    public CommunityResponse updatePost(
+            Long userId, Long postId, CommunityRequest communityRequest) {
+        getUser(userId); // 사용자 조회 및 검증
+
         Post existingPost =
                 postRepository
                         .findById(postId)
@@ -108,7 +127,9 @@ public class CommunityService {
         return CommunityResponse.responseWithoutContentPreview(updatedPost);
     }
 
-    public void deletePost(Long postId) {
+    public void deletePost(Long userId, Long postId) {
+        getUser(userId);
+
         Post post =
                 postRepository
                         .findById(postId)
@@ -116,7 +137,9 @@ public class CommunityService {
         postRepository.delete(post);
     }
 
-    public PagedResponse<CommunityResponse> getAllPosts(int page, int size) {
+    public PagedResponse<CommunityResponse> getAllPosts(Long userId, int page, int size) {
+        getUser(userId);
+
         Pageable pageable = PageRequest.of(page, size);
         Page<Post> postsPage = postRepository.findByCategoryType(CategoryType.COMMUNITY, pageable);
 
@@ -130,7 +153,9 @@ public class CommunityService {
     }
 
     public PagedResponse<CommunityResponse> getPostsByCommunityType(
-            CommunityType communityType, int page, int size) {
+            Long userId, CommunityType communityType, int page, int size) {
+        getUser(userId);
+
         Pageable pageable = PageRequest.of(page, size);
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndCommunityType(

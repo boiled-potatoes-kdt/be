@@ -33,7 +33,7 @@ public class JwtUtil {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final long ACCESS_TOKEN_EXPIRATION_PERIOD = 30 * 60 * 1000L; // 30분
-    private final long REFRESH_TOKEN_EXPIRATION_PERIOD = 1 * 24 * 60 * 60 * 1000L; // 1일
+    private final long REFRESH_TOKEN_EXPIRATION_PERIOD = 24 * 60 * 60 * 1000L; // 1일
 
     private Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
@@ -111,18 +111,18 @@ public class JwtUtil {
         }
     }
 
-    public Cookie getAccessTokenCookie(String email, String role)
+    public Cookie getAccessTokenCookie(String email, String role, Long userId)
             throws UnsupportedEncodingException {
         return getCookie(
-                createAccessToken(email, role),
+                createAccessToken(email, role, userId),
                 AUTHORIZATION_ACCESS_HEADER,
                 ACCESS_TOKEN_EXPIRATION_PERIOD);
     }
 
-    public Cookie getRefreshTokenCookie(String email, String role)
+    public Cookie getRefreshTokenCookie(String email, String role, Long userId)
             throws UnsupportedEncodingException {
         return getCookie(
-                createRefreshToken(email, role),
+                createRefreshToken(email, role, userId),
                 AUTHORIZATION_REFRESH_HEADER,
                 REFRESH_TOKEN_EXPIRATION_PERIOD);
     }
@@ -157,7 +157,7 @@ public class JwtUtil {
         return "";
     }
 
-    private String createAccessToken(String email, String role) {
+    private String createAccessToken(String email, String role, Long userId) {
         Date date = new Date();
 
         return BEARER_PREFIX
@@ -165,13 +165,14 @@ public class JwtUtil {
                         .setSubject(email)
                         .claim(JwtOptionType.ROLE.name(), role)
                         .claim(JwtOptionType.EMAIL.name(), email)
+                        .claim(JwtOptionType.USER_ID.name(), userId)
                         .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_EXPIRATION_PERIOD))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)
                         .compact();
     }
 
-    private String createRefreshToken(String email, String role) {
+    private String createRefreshToken(String email, String role, Long userId) {
         Date date = new Date();
 
         return BEARER_PREFIX
@@ -179,6 +180,7 @@ public class JwtUtil {
                         .setSubject(email)
                         .claim(JwtOptionType.ROLE.name(), role)
                         .claim(JwtOptionType.EMAIL.name(), email)
+                        .claim(JwtOptionType.USER_ID.name(), userId)
                         .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_EXPIRATION_PERIOD))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)

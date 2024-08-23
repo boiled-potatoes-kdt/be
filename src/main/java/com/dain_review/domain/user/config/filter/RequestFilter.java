@@ -55,26 +55,31 @@ public class RequestFilter extends OncePerRequestFilter {
             response.addCookie(
                     jwtUtil.getAccessTokenCookie(
                             (String) info.get(JwtOptionType.EMAIL.name()),
-                            (String) info.get(JwtOptionType.ROLE.name())));
+                            (String) info.get(JwtOptionType.ROLE.name()),
+                            (Long) info.get(JwtOptionType.USER_ID.name())));
         } else {
             info = jwtUtil.getUserInfoFromToken(accessToken, response);
         }
+        Long userId =
+                info.get(JwtOptionType.USER_ID.name()) instanceof Integer
+                        ? ((Integer) info.get(JwtOptionType.USER_ID.name())).longValue()
+                        : (Long) info.get(JwtOptionType.USER_ID.name());
 
-        setAuthentication(info.getSubject(), info.get(JwtOptionType.ROLE.name()).toString());
+        setAuthentication(info.getSubject(), (String) info.get(JwtOptionType.ROLE.name()), userId);
         filterChain.doFilter(request, response);
     }
 
-    private void setAuthentication(String email, String role) {
+    private void setAuthentication(String email, String role, Long userId) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = createAuthentication(email, role);
+        Authentication authentication = createAuthentication(email, role, userId);
         context.setAuthentication(authentication);
 
         SecurityContextHolder.setContext(context);
     }
 
-    private Authentication createAuthentication(String email, String role) {
+    private Authentication createAuthentication(String email, String role, Long userId) {
         CustomUserDetails userDetails =
-                new CustomUserDetails(null, email, null, Role.valueOf(role));
+                new CustomUserDetails(userId, email, null, Role.valueOf(role));
         return new UsernamePasswordAuthenticationToken(
                 userDetails, null, userDetails.getAuthorities());
     }
