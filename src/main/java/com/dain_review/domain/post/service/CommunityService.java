@@ -57,12 +57,12 @@ public class CommunityService {
 
         Post post =
                 Post.builder()
-                        .user(user) // 사용자 정보 설정
+                        .user(user)
                         .categoryType(communityRequest.categoryType())
                         .title(communityRequest.title())
                         .content(communityRequest.content())
                         .communityType(communityRequest.communityType())
-                        .imageUrl(fileName) // 이미지 URL 설정
+                        .imageUrl(fileName)
                         .build();
 
         PostMeta postMeta =
@@ -78,15 +78,8 @@ public class CommunityService {
         return CommunityResponse.responseWithoutContentPreview(post);
     }
 
-    private User getUser(Long userId) {
-        return userRepository
-                .findById(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-    }
-
     public CommunityResponse getPost(Long userId, Long postId) {
         getUser(userId);
-
         Post post =
                 postRepository
                         .findById(postId)
@@ -100,26 +93,30 @@ public class CommunityService {
 
     public CommunityResponse updatePost(
             Long userId, Long postId, CommunityRequest communityRequest) {
-        getUser(userId); // 사용자 조회 및 검증
+        User user = getUser(userId);
 
         Post existingPost =
                 postRepository
                         .findById(postId)
                         .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
 
+        if (!existingPost.getUser().getId().equals(user.getId())) {
+            throw new PostException(PostErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
         PostMeta existingPostMeta = existingPost.getPostMeta();
 
         Post updatedPost =
                 Post.builder()
-                        .id(existingPost.getId()) // 기존의 값
-                        .user(existingPost.getUser()) // 기존의 값
+                        .id(existingPost.getId())
+                        .user(existingPost.getUser())
                         .categoryType(existingPost.getCategoryType())
                         .title(communityRequest.title()) // 새 제목 설정
                         .content(communityRequest.content()) // 새 내용 설정
-                        .communityType(communityRequest.communityType()) // 기존의 값
-                        .createdAt(existingPost.getCreatedAt()) // 기존의 값
+                        .communityType(communityRequest.communityType())
+                        .createdAt(existingPost.getCreatedAt())
                         .updatedAt(LocalDateTime.now()) // 업데이트 시각 설정
-                        .postMeta(existingPostMeta) // 기존의 값
+                        .postMeta(existingPostMeta)
                         .build();
 
         postRepository.save(updatedPost);
@@ -128,21 +125,47 @@ public class CommunityService {
     }
 
     public void deletePost(Long userId, Long postId) {
-        getUser(userId);
+        User user = getUser(userId);
 
         Post post =
                 postRepository
                         .findById(postId)
                         .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+
+        if (!post.getUser().getId().equals(user.getId())) {
+            throw new PostException(PostErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
         postRepository.delete(post);
     }
 
     public PagedResponse<CommunityResponse> getAllPosts(Long userId, int page, int size) {
         getUser(userId);
-
         Pageable pageable = PageRequest.of(page, size);
         Page<Post> postsPage = postRepository.findByCategoryType(CategoryType.COMMUNITY, pageable);
+        return mapPostsToPagedResponse(postsPage);
+    }
 
+    public PagedResponse<CommunityResponse> getPostsByCommunityType(
+            Long userId, CommunityType communityType, int page, int size) {
+        getUser(userId);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> postsPage =
+                postRepository.findByCategoryTypeAndCommunityType(
+                        CategoryType.COMMUNITY, communityType, pageable);
+        return mapPostsToPagedResponse(postsPage);
+    }
+
+    public PagedResponse<CommunityResponse> searchPosts(
+            Long userId, String keyword, int page, int size) {
+        getUser(userId);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> postsPage =
+                postRepository.searchByKeyword(CategoryType.COMMUNITY, keyword, pageable);
+        return mapPostsToPagedResponse(postsPage);
+    }
+
+    private PagedResponse<CommunityResponse> mapPostsToPagedResponse(Page<Post> postsPage) {
         List<CommunityResponse> communities =
                 postsPage.stream()
                         .map(CommunityResponse::responseWithContentPreview)
@@ -152,21 +175,9 @@ public class CommunityService {
                 communities, postsPage.getTotalElements(), postsPage.getTotalPages());
     }
 
-    public PagedResponse<CommunityResponse> getPostsByCommunityType(
-            Long userId, CommunityType communityType, int page, int size) {
-        getUser(userId);
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Post> postsPage =
-                postRepository.findByCategoryTypeAndCommunityType(
-                        CategoryType.COMMUNITY, communityType, pageable);
-
-        List<CommunityResponse> communities =
-                postsPage.stream()
-                        .map(CommunityResponse::responseWithContentPreview)
-                        .collect(Collectors.toList());
-
-        return new PagedResponse<>(
-                communities, postsPage.getTotalElements(), postsPage.getTotalPages());
+    private User getUser(Long userId) {
+        return userRepository
+                .findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 }

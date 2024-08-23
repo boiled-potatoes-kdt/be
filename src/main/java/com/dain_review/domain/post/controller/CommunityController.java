@@ -59,7 +59,8 @@ public class CommunityController {
     public ResponseEntity<?> updatePost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
-            @RequestPart("data") CommunityRequest communityRequest) {
+            @RequestPart("data") CommunityRequest communityRequest,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
 
         CommunityResponse communityResponse =
                 communityService.updatePost(
@@ -77,7 +78,7 @@ public class CommunityController {
         return API.OK();
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ENTERPRISER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping
     public ResponseEntity<?> getAllPosts( // 커뮤니티 게시글 전체 목록 조회
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -91,7 +92,7 @@ public class CommunityController {
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("type/{communityType}")
-    public ResponseEntity<?> getPostsByCommunityType( // 커뮤니티 게시글 중 카테고리 별 목록 조회
+    public ResponseEntity<?> getPostsByCommunityType( // 커뮤니티 게시글 카테고리 별 목록 조회
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable CommunityType communityType,
             @RequestParam(defaultValue = "0") int page,
@@ -100,6 +101,19 @@ public class CommunityController {
         PagedResponse<CommunityResponse> communities =
                 communityService.getPostsByCommunityType(
                         customUserDetails.getUserId(), communityType, page, size);
+        return API.OK(communities);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
+    @GetMapping("/search")
+    public ResponseEntity<?> searchPosts( // 커뮤니티 게시글 키워드 검색
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PagedResponse<CommunityResponse> communities =
+                communityService.searchPosts(customUserDetails.getUserId(), keyword, page, size);
         return API.OK(communities);
     }
 }

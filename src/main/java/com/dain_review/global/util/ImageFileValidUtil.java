@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
-public class ImageFileValidUtil {
+public class ImageFileValidUtil { // 이미지 형식 유효성 검증
 
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png");
 

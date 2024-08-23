@@ -16,13 +16,12 @@ public class CommunityResponse {
     private String title;
     private String content;
     private String imageUrl;
-    /*private String nickname;*/
-    // 작성자 이름(닉네임 또는 업체명)-보류 개발 아직 안함
-    private String category; // 카테고리 이름
+    private String userName; // todo : 추후에 닉네임으로 변경
+    private String category;
     private String communityType;
-    private LocalDateTime createdAt; // 게시글 등록일
-    private int viewCount; // 조회수
-    private int commentCount; // 댓글 수
+    private LocalDateTime createdAt;
+    private int viewCount;
+    private int commentCount;
     private String contentPreview; // 글 내용 미리보기
 
     // 게시글 미리보기가 포함된 응답
@@ -32,7 +31,7 @@ public class CommunityResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .imageUrl(post.getImageUrl())
-                /*.nickname(post.getUser().getNickName()) */
+                .userName(post.getUser().getName())
                 .category(post.getCategoryType().getDisplayName())
                 .communityType(post.getCommunityType().getDisplayName())
                 .createdAt(post.getCreatedAt())
@@ -49,7 +48,7 @@ public class CommunityResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .imageUrl(post.getImageUrl())
-                /*.author(post.getUser().getUsername()) */
+                .userName(post.getUser().getName())
                 .category(post.getCategoryType().getDisplayName())
                 .communityType(post.getCommunityType().getDisplayName())
                 .createdAt(post.getCreatedAt())
