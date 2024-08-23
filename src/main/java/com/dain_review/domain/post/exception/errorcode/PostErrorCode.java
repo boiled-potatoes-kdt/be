@@ -13,8 +13,6 @@ public enum PostErrorCode implements ErrorCode {
     // 게시글 공통
     POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "게시글을 찾을 수 없습니다."),
     UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "작성자만 수정 및 삭제할 수 있습니다."),
-
-    // 커뮤니티
     CATEGORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다.");
 
     private final HttpStatus status;

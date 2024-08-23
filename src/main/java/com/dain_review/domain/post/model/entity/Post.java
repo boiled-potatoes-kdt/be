@@ -15,7 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -57,14 +56,4 @@ public class Post extends BaseEntity {
         this.postMeta = postMeta;
         postMeta.setPost(this);
     }
-
-    public void setTitle(String title) {}
-
-    public void setContent(String content) {}
-
-    public void setCommunityType(CommunityType communityType) {}
-
-    public void setUpdatedAt(LocalDateTime now) {}
-
-    public void setImageUrl(String newImageUrl) {}
 }
