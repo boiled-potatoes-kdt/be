@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -39,19 +40,22 @@ public class Comment extends BaseEntity {
 
     private String content;
 
-    public static Comment from(CommentRequest request, User user, Post post, Comment comment) {
+    @ColumnDefault("false")
+    private boolean deleted;
+
+    public static Comment from(CommentRequest request, User user, Post post, Comment parent) {
         return Comment.builder()
                 .user(user)
                 .post(post)
-                .parent(comment)
+                .parent(parent)
                 .content(request.content())
                 .build();
     }
 
-    public static Comment from(CommentRequest request, User user, Comment comment) {
+    public static Comment from(CommentRequest request, Comment comment) {
         return Comment.builder()
                 .id(request.id())
-                .user(user)
+                .user(comment.getUser())
                 .post(comment.getPost())
                 .parent(comment.getParent())
                 .content(request.content())
