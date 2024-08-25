@@ -4,6 +4,7 @@ import com.dain_review.domain.comment.excepiton.CommentException;
 import com.dain_review.domain.comment.excepiton.errortype.CommentErrorCode;
 import com.dain_review.domain.comment.model.entity.Comment;
 import com.dain_review.domain.comment.model.request.CommentRequest;
+import com.dain_review.domain.comment.model.response.CommentAllTypeResponse;
 import com.dain_review.domain.comment.model.response.CommentResponse;
 import com.dain_review.domain.comment.repository.CommentRepository;
 import com.dain_review.domain.post.exception.PostException;
@@ -20,6 +21,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -34,11 +37,13 @@ public class CommentService {
      * @return          해당하는 페이지의 댓글 리스트 및 페이지 정보
      */
     @Transactional(readOnly = true)
-    public Page<CommentResponse> getComments(Long postId) {
+    public CommentAllTypeResponse getComments(Long postId, int page) {
         // parent 컬럼이 null 인 데이터(대댓글이 아닌 댓글)만 조회
         Page<Comment> comments = commentRepository
-                .findByPostIdAndDeletedFalseAndParentIsNull(postId, PageRequest.of(0, 10));
-        return comments.map(CommentResponse::from);
+                .findByPostIdAndDeletedFalseAndParentIsNull(postId, PageRequest.of(page-1, 10));
+        List<CommentResponse> replyList = findChildCommentsByCommentId(comments.get().map(Comment::getId).toList());
+        Page<CommentResponse> parents = comments.map(CommentResponse::from);
+        return new CommentAllTypeResponse(parents, replyList);
     }
 
     /**
@@ -46,8 +51,8 @@ public class CommentService {
      * @param request   postId:작성할 댓글의 대상 게시글 ID, parentId:생성 대댓글의 부모 댓글 ID, content: 댓글 내용
      */
     @Transactional
-    public void createComment(CommentRequest request) {
-        User user = getUserInfo(1L); // 테스트를 위한 임시 유저 데이터 조회
+    public void createComment(Long userId, CommentRequest request) {
+        User user = getUserInfo(userId); // 테스트를 위한 임시 유저 데이터 조회
         Post post = postRepository.findById(request.postId())
                 .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
         Comment parent = null;
@@ -68,9 +73,8 @@ public class CommentService {
      * @param request   id:댓글 ID, postId:게시글 ID, parentId:부모 댓글 ID, content:댓글 내용
      */
     @Transactional
-    public void updateComment(CommentRequest request) {
-        User user = getUserInfo(1L); // 테스트를 위한 임시 유저 데이터 조회
-        Comment comment = checkAuthorMismatch(1L, request.id());
+    public void updateComment(Long userId, CommentRequest request) {
+        Comment comment = checkAuthorMismatch(userId, request.id());
 
         Comment updateComment = Comment.from(request, comment);
         Comment updated = commentRepository.save(updateComment);
@@ -84,8 +88,8 @@ public class CommentService {
      * @param request   id:댓글 ID
      */
     @Transactional
-    public void deleteComment(CommentRequest request) {
-        Comment comment = checkAuthorMismatch(1L, request.id()); // 테스트를 위한 임시 유저 데이터 조회
+    public void deleteComment(Long userId, CommentRequest request) {
+        Comment comment = checkAuthorMismatch(userId, request.id()); // 테스트를 위한 임시 유저 데이터 조회
 
         Comment delete = Comment.builder()
                 .id(comment.getId())
@@ -134,5 +138,12 @@ public class CommentService {
             throw new CommentException(CommentErrorCode.COMMENT_AUTHOR_MISMATCH);
         }
         return comment;
+    }
+
+    // todo 대댓글 찾는 로직 추가
+    private List<CommentResponse> findChildCommentsByCommentId(List<Long> commentIds) {
+        // 주어진 list의 id와 parent가 일치하는 comment의 레코드 리스트 가져오기
+        List<Comment> replies = commentRepository.findByParentIdInAndDeletedFalseOrderByParentId(commentIds);
+        return replies.stream().map(CommentResponse::from).toList();
     }
 }

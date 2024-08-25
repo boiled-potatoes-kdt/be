@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -23,4 +24,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
      * @return      일치하는 ID의 댓글 레코드
      */
     Optional<Comment> findByIdAndDeletedFalse(Long id);
+
+    /**
+     * 매개변수로 주어진 Id와 parentId가 일치하는 대댓글을 조회
+     * @param parentIdList  부모 댓글의 idList
+     * @return              부모 댓글에 대한 대댓글 리스트
+     */
+    List<Comment> findByParentIdInAndDeletedFalseOrderByParentId(List<Long> parentIdList);
 }
