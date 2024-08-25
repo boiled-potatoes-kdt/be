@@ -35,38 +35,4 @@ public class CampaignController {
                         customUserDetails.getUserId(), campaignRequest, imageFile);
         return API.OK(campaignResponse);
     }
-
-    /*	@PreAuthorize("hasAnyRole('ROLE_ENTERPRISER')")
-    @PatchMapping("/{campaignId}") // 체험단 수정
-    public ResponseEntity<?> updateCampaign(
-    	@AuthenticationPrincipal CustomUserDetails customUserDetails,
-    	@PathVariable Long campaignId,
-    	@RequestPart("data") CampaignRequest campaignRequest,
-    	@RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
-
-    	CampaignResponse campaignResponse =
-    		campaignService.updateCampaign(customUserDetails.getUserId(), campaignId, campaignRequest, imageFile);
-    	return API.OK(campaignResponse);
-    }
-
-    @PreAuthorize("hasAnyRole('ROLE_ENTERPRISER')")
-    @DeleteMapping("/{campaignId}") // 체험단 삭제
-    public ResponseEntity<?> deleteCampaign(
-    	@AuthenticationPrincipal CustomUserDetails customUserDetails,
-    	@PathVariable Long campaignId) {
-
-    	campaignService.deleteCampaign(customUserDetails.getUserId(), campaignId);
-    	return API.OK();
-    }
-
-    @PreAuthorize("hasAnyRole('ROLE_ENTERPRISER')")
-    @GetMapping("/{campaignId}") // 체험단 단건 조회
-    public ResponseEntity<?> getCampaign(
-    	@AuthenticationPrincipal CustomUserDetails customUserDetails,
-    	@PathVariable Long campaignId) {
-
-    	CampaignResponse campaignResponse =
-    		campaignService.getCampaign(customUserDetails.getUserId(), campaignId);
-    	return API.OK(campaignResponse);
-    }*/
 }

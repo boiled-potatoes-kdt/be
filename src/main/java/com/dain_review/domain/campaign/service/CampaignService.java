@@ -2,8 +2,6 @@ package com.dain_review.domain.campaign.service;
 
 import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 
-import com.dain_review.domain.campaign.exception.CampaignException;
-import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
@@ -95,76 +93,5 @@ public class CampaignService {
     private Integer calculateTotalPoints(Integer capacity, Integer pointPerPerson) {
         /*총 포인트 계산 메서드*/
         return (int) Math.round(capacity * pointPerPerson * 1.2);
-    }
-
-    public CampaignResponse updateCampaign(
-            Long userId,
-            Long campaignId,
-            CampaignRequest campaignRequest,
-            MultipartFile imageFile) {
-        User user = getUser(userId);
-        Campaign campaign = getCampaignEntity(campaignId, user);
-
-        String imageUrl = campaign.getImageUrl();
-        if (imageFile != null && !imageFile.isEmpty()) {
-            if (!isValidImageFile(imageFile)) {
-                throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
-            }
-            imageUrl = s3Util.saveImage(imageFile).join();
-        }
-
-        Integer totalPoints = null;
-        if (Boolean.TRUE.equals(campaignRequest.pointPayment())) {
-            Integer pointPerPerson = campaignRequest.pointPerPerson();
-            totalPoints = calculateTotalPoints(campaignRequest.capacity(), pointPerPerson);
-        }
-
-        campaign.updateCampaign(
-                imageUrl,
-                campaignRequest.businessName(),
-                campaignRequest.contactNumber(),
-                campaignRequest.address(),
-                campaignRequest.latitude(),
-                campaignRequest.longitude(),
-                campaignRequest.availableDays(),
-                campaignRequest.type(),
-                campaignRequest.category(),
-                campaignRequest.platform(),
-                campaignRequest.capacity(),
-                campaignRequest.serviceProvided(),
-                campaignRequest.keywords(),
-                campaignRequest.pointPayment(),
-                campaignRequest.pointPerPerson(),
-                totalPoints,
-                campaignRequest.applicationStartDate(),
-                campaignRequest.applicationEndDate(),
-                campaignRequest.announcementDate(),
-                campaignRequest.experienceStartDate(),
-                campaignRequest.experienceEndDate(),
-                campaignRequest.reviewDate());
-
-        campaignRepository.save(campaign);
-
-        return CampaignResponse.fromEntity(campaign);
-    }
-
-    public void deleteCampaign(Long userId, Long campaignId) {
-        User user = getUser(userId);
-        Campaign campaign = getCampaignEntity(campaignId, user);
-        campaign.markAsDeleted();
-        campaignRepository.save(campaign);
-    }
-
-    public CampaignResponse getCampaign(Long userId, Long campaignId) {
-        User user = getUser(userId);
-        Campaign campaign = getCampaignEntity(campaignId, user);
-        return CampaignResponse.fromEntity(campaign);
-    }
-
-    private Campaign getCampaignEntity(Long campaignId, User user) {
-        return campaignRepository
-                .findById(campaignId)
-                .filter(campaign -> campaign.getUser().getId().equals(user.getId()))
-                .orElseThrow(() -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
     }
 }
