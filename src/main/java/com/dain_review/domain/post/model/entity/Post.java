@@ -2,8 +2,9 @@ package com.dain_review.domain.post.model.entity;
 
 
 import com.dain_review.domain.comment.model.entity.Comment;
-import com.dain_review.domain.post.model.entity.enums.CategoryType;
+import com.dain_review.domain.post.model.entity.enums.Category;
 import com.dain_review.domain.post.model.entity.enums.CommunityType;
+import com.dain_review.domain.post.model.entity.enums.FollowType;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -33,7 +34,7 @@ public class Post extends BaseEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private CategoryType categoryType;
+    private Category category;
 
     private String title;
     private String content;
@@ -43,6 +44,9 @@ public class Post extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private CommunityType communityType;
+
+    @Enumerated(EnumType.STRING)
+    private FollowType followType;
 
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private PostMeta postMeta;

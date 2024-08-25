@@ -5,14 +5,14 @@ import com.dain_review.domain.application.model.entity.Application;
 import com.dain_review.domain.application.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.user.model.entity.enums.Role;
+import com.dain_review.domain.user.model.request.EnterpriserChangeRequest;
+import com.dain_review.domain.user.model.request.EnterpriserExtraRegisterRequest;
 import com.dain_review.domain.user.model.request.InfluencerChangeRequest;
 import com.dain_review.domain.user.model.request.InfluencerExtraRegisterRequest;
-import com.dain_review.domain.user.model.request.OwnerChangeRequest;
-import com.dain_review.domain.user.model.request.OwnerExtraRegisterRequest;
+import com.dain_review.domain.user.model.response.EnterpriserChangeResponse;
+import com.dain_review.domain.user.model.response.EnterpriserResponse;
 import com.dain_review.domain.user.model.response.InfluencerChangeResponse;
 import com.dain_review.domain.user.model.response.InfluencerResponse;
-import com.dain_review.domain.user.model.response.OwnerChangeResponse;
-import com.dain_review.domain.user.model.response.OwnerResponse;
 import com.dain_review.domain.user.model.response.SnsResponse;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
@@ -66,22 +66,22 @@ public class User extends BaseEntity {
     private Boolean penalty;
     private Boolean isDeleted;
 
-    public void change(OwnerChangeRequest ownerChangeRequest) {
-        this.password = ownerChangeRequest.newPassword();
-        this.name = ownerChangeRequest.name();
-        this.nickname = ownerChangeRequest.nickname();
-        this.phone = ownerChangeRequest.phone();
-        this.address = ownerChangeRequest.address();
-        this.addressDetail = ownerChangeRequest.addressDetail();
-        this.postalCode = ownerChangeRequest.postalCode();
+    public void change(EnterpriserChangeRequest enterpriserChangeRequest) {
+        this.password = enterpriserChangeRequest.newPassword();
+        this.name = enterpriserChangeRequest.name();
+        this.nickname = enterpriserChangeRequest.nickname();
+        this.phone = enterpriserChangeRequest.phone();
+        this.address = enterpriserChangeRequest.address();
+        this.addressDetail = enterpriserChangeRequest.addressDetail();
+        this.postalCode = enterpriserChangeRequest.postalCode();
     }
 
     // 완료
-    public void change(OwnerExtraRegisterRequest ownerExtraRegisterRequest) {
-        this.profileImage = ownerExtraRegisterRequest.profileImage();
-        this.address = ownerExtraRegisterRequest.address();
-        this.addressDetail = ownerExtraRegisterRequest.addressDetail();
-        this.postalCode = ownerExtraRegisterRequest.postalCode();
+    public void change(EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest) {
+        this.profileImage = enterpriserExtraRegisterRequest.profileImage();
+        this.address = enterpriserExtraRegisterRequest.address();
+        this.addressDetail = enterpriserExtraRegisterRequest.addressDetail();
+        this.postalCode = enterpriserExtraRegisterRequest.postalCode();
     }
 
     // 완료
@@ -109,14 +109,14 @@ public class User extends BaseEntity {
     }
 
     // 완성
-    public OwnerResponse toOwnerResponse() {
-        return new OwnerResponse(this.profileImage, this.nickname);
+    public EnterpriserResponse toOwnerResponse() {
+        return new EnterpriserResponse(this.profileImage, this.nickname);
     }
 
     // 완료
-    public OwnerChangeResponse toOwnerChangeResponse() {
+    public EnterpriserChangeResponse toOwnerChangeResponse() {
 
-        return new OwnerChangeResponse(
+        return new EnterpriserChangeResponse(
                 this.email,
                 this.name,
                 this.phone,
