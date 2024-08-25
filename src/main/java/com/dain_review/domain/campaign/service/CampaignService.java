@@ -39,16 +39,16 @@ public class CampaignService {
         User user = getUser(userId);
 
         // 이미지 업로드 처리
-        String imageUrl = null;
+        String imageFileName = null;
         if (imageFile != null && !imageFile.isEmpty()) {
             if (!isValidImageFile(imageFile)) {
                 throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
             }
-            imageUrl = s3Util.saveImage(imageFile).join();
+            imageFileName = s3Util.saveImage(imageFile).join();
         }
 
         Integer totalPoints = null;
-        Integer pointPerPerson = null;
+        Integer pointPerPerson;
 
         // 총 지급 포인트 계산
         if (Boolean.TRUE.equals(campaignRequest.pointPayment())) {
@@ -59,7 +59,7 @@ public class CampaignService {
         Campaign campaign =
                 Campaign.builder()
                         .user(user)
-                        .imageUrl(imageUrl)
+                        .imageUrl(imageFileName)
                         .businessName(campaignRequest.businessName())
                         .contactNumber(campaignRequest.contactNumber())
                         .address(campaignRequest.address())
@@ -87,11 +87,23 @@ public class CampaignService {
 
         campaignRepository.save(campaign);
 
-        return CampaignResponse.fromEntity(campaign);
+        return convertToCampaignResponse(campaign);
     }
 
     private Integer calculateTotalPoints(Integer capacity, Integer pointPerPerson) {
+        /*총 포인트 계산*/
         /*총 포인트 계산 메서드*/
         return (int) Math.round(capacity * pointPerPerson * 1.2);
+    }
+
+    private CampaignResponse convertToCampaignResponse(Campaign campaign) {
+        /*이미지 이름 -> 이미지 url*/
+        // S3 URL로 변환
+        String imageUrl =
+                (campaign.getImageUrl() != null)
+                        ? s3Util.selectImage(campaign.getImageUrl())
+                        : null;
+
+        return CampaignResponse.fromEntity(campaign, imageUrl);
     }
 }

@@ -34,11 +34,11 @@ public class CampaignResponse {
     private LocalDateTime experienceEndDate; // 체험 종료일
     private LocalDateTime reviewDate; // 리뷰 마감일
 
-    public static CampaignResponse fromEntity(Campaign campaign) {
+    public static CampaignResponse fromEntity(Campaign campaign, String imageUrl) {
         return CampaignResponse.builder()
                 .id(campaign.getId())
                 .businessName(campaign.getBusinessName())
-                .imageUrl(campaign.getImageUrl())
+                .imageUrl(imageUrl)
                 .contactNumber(campaign.getContactNumber())
                 .type(campaign.getType().getDisplayName())
                 .category(campaign.getCategory().getDisplayName())
