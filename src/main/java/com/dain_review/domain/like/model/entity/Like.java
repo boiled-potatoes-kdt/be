@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-@Table(name = "likes")
+@Table(name = "like")
 public class Like extends BaseEntity {
 
     @ManyToOne

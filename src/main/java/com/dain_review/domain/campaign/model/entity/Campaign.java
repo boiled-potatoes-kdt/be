@@ -44,14 +44,14 @@ public class Campaign extends BaseEntity {
     private Platform platform;
 
     @Enumerated(EnumType.STRING)
-    private State state;
+    private State campaignState;
 
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
     List<AvaliableDay> avaliableDayList;
 
     private Integer capacity;
     private Integer applicant;
-    private Integer likeCount;
+    private Long likeCount;
     private String label;
     private String campaignImage;
     private String reward;

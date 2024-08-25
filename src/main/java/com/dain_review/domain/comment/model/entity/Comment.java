@@ -38,8 +38,6 @@ public class Comment extends BaseEntity {
     @OneToMany(mappedBy = "parent")
     private List<Comment> children;
 
-    private Boolean isDeleted;
-
     private String content;
 
     @ColumnDefault("false")
