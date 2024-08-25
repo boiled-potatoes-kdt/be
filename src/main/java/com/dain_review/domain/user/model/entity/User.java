@@ -4,6 +4,7 @@ package com.dain_review.domain.user.model.entity;
 import com.dain_review.domain.application.model.entity.Application;
 import com.dain_review.domain.application.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.entity.Campaign;
+import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.domain.user.model.request.EnterpriserChangeRequest;
 import com.dain_review.domain.user.model.request.EnterpriserExtraRegisterRequest;
@@ -15,6 +16,7 @@ import com.dain_review.domain.user.model.response.InfluencerChangeResponse;
 import com.dain_review.domain.user.model.response.InfluencerResponse;
 import com.dain_review.domain.user.model.response.SnsResponse;
 import com.dain_review.global.model.entity.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -37,8 +39,8 @@ public class User extends BaseEntity {
 
     private String name;
     private String email;
-    private String nickname;
     private String password;
+    private String nickname;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Application> applicationList;
@@ -54,6 +56,13 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Enterpriser enterpriser;
+
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Post> posts;
 
     private Long point;
     private String phone;

@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum RedisPrefixType {
-    DEFAULT("default:");
+    DEFAULT("default:"),
+    POST_VIEW_COUNT("postViewCount:");
+
     private final String prefix;
 
     @Override

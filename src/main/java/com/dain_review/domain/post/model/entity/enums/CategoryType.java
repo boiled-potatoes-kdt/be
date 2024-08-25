@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum Category {
+public enum CategoryType {
     NOTICE("공지사항"),
     COMMUNITY("커뮤니티"),
     FOLLOW("맞팔/서이추");

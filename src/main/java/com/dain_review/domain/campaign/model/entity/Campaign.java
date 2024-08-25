@@ -7,7 +7,6 @@ import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
-import com.dain_review.domain.like.model.entity.Like;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
@@ -53,9 +52,6 @@ public class Campaign extends BaseEntity {
 
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
     List<AvaliableDay> avaliableDayList;
-
-    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
-    List<Like> likeList;
 
     private Integer capacity;
     private Integer applicant;
