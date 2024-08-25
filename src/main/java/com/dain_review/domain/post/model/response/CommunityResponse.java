@@ -16,7 +16,7 @@ public class CommunityResponse {
     private String title;
     private String content;
     private String imageUrl;
-    private String userName; // todo : 추후에 닉네임으로 변경
+    private String nickName; // 작성자 닉네임
     private String category;
     private String communityType;
     private LocalDateTime createdAt;
@@ -31,7 +31,7 @@ public class CommunityResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .imageUrl(post.getImageUrl())
-                .userName(post.getUser().getName())
+                .nickName(post.getUser().getNickname())
                 .category(post.getCategoryType().getDisplayName())
                 .communityType(post.getCommunityType().getDisplayName())
                 .createdAt(post.getCreatedAt())
@@ -48,7 +48,7 @@ public class CommunityResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .imageUrl(post.getImageUrl())
-                .userName(post.getUser().getName())
+                .nickName(post.getUser().getNickname())
                 .category(post.getCategoryType().getDisplayName())
                 .communityType(post.getCommunityType().getDisplayName())
                 .createdAt(post.getCreatedAt())

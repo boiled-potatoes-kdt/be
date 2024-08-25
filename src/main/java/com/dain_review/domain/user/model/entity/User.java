@@ -30,6 +30,7 @@ public class User extends BaseEntity {
     private String name;
     private String email;
     private String password;
+    private String nickname;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Application> applicationList;
@@ -54,8 +55,10 @@ public class User extends BaseEntity {
     private String phone;
     private String joinPath;
     private String address;
+    private String addressDetail;
     private String profileImage;
     private Boolean marketing;
     private Boolean status;
+    private Boolean isDeleted;
     private Boolean penalty;
 }
