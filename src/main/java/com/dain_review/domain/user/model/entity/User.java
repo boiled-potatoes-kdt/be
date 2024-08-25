@@ -56,6 +56,7 @@ public class User extends BaseEntity {
     private String joinPath;
     private String address;
     private String addressDetail;
+    private String postalCode;
     private String profileImage;
     private Boolean marketing;
     private Boolean status;

@@ -60,10 +60,12 @@ public class Campaign extends BaseEntity {
     private String information;
     private String requirement;
     private Boolean today;
+    private LocalDateTime approvalDate;
     private LocalDateTime applicationStartDate;
     private LocalDateTime applicationEndDate;
     private LocalDateTime announcementDate;
     private LocalDateTime experienceStartDate;
     private LocalDateTime experienceEndDate;
     private LocalDateTime reviewDate;
+    private Boolean isDeleted;
 }
