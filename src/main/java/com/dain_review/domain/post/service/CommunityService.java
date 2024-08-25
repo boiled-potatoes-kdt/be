@@ -62,7 +62,7 @@ public class CommunityService {
                         .title(communityRequest.title())
                         .content(communityRequest.content())
                         .communityType(communityRequest.communityType())
-                        .imageUrl(fileName)
+                        .imageUrl(fileName) // 파일명만 저장
                         .build();
 
         PostMeta postMeta =
@@ -75,7 +75,8 @@ public class CommunityService {
         post.setPostMeta(postMeta);
         postRepository.save(post);
 
-        return CommunityResponse.responseWithoutContentPreview(post);
+        String imageUrl = (fileName != null) ? s3Util.selectImage(fileName) : null;
+        return CommunityResponse.responseWithoutContentPreview(post, imageUrl);
     }
 
     public CommunityResponse getPost(Long userId, Long postId) {
@@ -85,14 +86,17 @@ public class CommunityService {
                         .findById(postId)
                         .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
 
+        String imageUrl =
+                (post.getImageUrl() != null) ? s3Util.selectImage(post.getImageUrl()) : null;
+
         // 조회 이벤트 발생 시, 이미 조회된 Post 객체를 전달
         eventPublisher.publishEvent(new PostReadEvent(post));
 
-        return CommunityResponse.responseWithoutContentPreview(post);
+        return CommunityResponse.responseWithoutContentPreview(post, imageUrl);
     }
 
     public CommunityResponse updatePost(
-            Long userId, Long postId, CommunityRequest communityRequest) {
+            Long userId, Long postId, CommunityRequest communityRequest, MultipartFile imageFile) {
         User user = getUser(userId);
 
         Post existingPost =
@@ -102,6 +106,14 @@ public class CommunityService {
 
         if (!existingPost.getUser().getId().equals(user.getId())) {
             throw new PostException(PostErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        String fileName = existingPost.getImageUrl();
+        if (imageFile != null && !imageFile.isEmpty()) {
+            if (!isValidImageFile(imageFile)) {
+                throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
+            }
+            fileName = s3Util.saveImage(imageFile).join();
         }
 
         PostMeta existingPostMeta = existingPost.getPostMeta();
@@ -114,6 +126,7 @@ public class CommunityService {
                         .title(communityRequest.title()) // 새 제목 설정
                         .content(communityRequest.content()) // 새 내용 설정
                         .communityType(communityRequest.communityType())
+                        .imageUrl(fileName) // 파일명만 저장
                         .createdAt(existingPost.getCreatedAt())
                         .updatedAt(LocalDateTime.now()) // 업데이트 시각 설정
                         .postMeta(existingPostMeta)
@@ -121,7 +134,8 @@ public class CommunityService {
 
         postRepository.save(updatedPost);
 
-        return CommunityResponse.responseWithoutContentPreview(updatedPost);
+        String imageUrl = (fileName != null) ? s3Util.selectImage(fileName) : null;
+        return CommunityResponse.responseWithoutContentPreview(updatedPost, imageUrl);
     }
 
     public void deletePost(Long userId, Long postId) {

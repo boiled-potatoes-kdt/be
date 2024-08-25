@@ -64,7 +64,7 @@ public class CommunityController {
 
         CommunityResponse communityResponse =
                 communityService.updatePost(
-                        customUserDetails.getUserId(), postId, communityRequest);
+                        customUserDetails.getUserId(), postId, communityRequest, imageFile);
         return API.OK(communityResponse);
     }
 

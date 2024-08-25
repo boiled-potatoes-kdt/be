@@ -24,13 +24,12 @@ public class CommunityResponse {
     private int commentCount;
     private String contentPreview; // 글 내용 미리보기
 
-    // 게시글 미리보기가 포함된 응답
+    // 게시글 미리보기가 포함된 응답 (이미지 url 제외)
     public static CommunityResponse responseWithContentPreview(Post post) {
         return CommunityResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .imageUrl(post.getImageUrl())
                 .nickName(post.getUser().getNickname())
                 .category(post.getCategoryType().getDisplayName())
                 .communityType(post.getCommunityType().getDisplayName())
@@ -41,13 +40,13 @@ public class CommunityResponse {
                 .build();
     }
 
-    // 게시글 미리보기가 포함되지 않은 응답
-    public static CommunityResponse responseWithoutContentPreview(Post post) {
+    // 게시글 미리보기가 포함되지 않은 응답 (이미지 url 포함)
+    public static CommunityResponse responseWithoutContentPreview(Post post, String imageUrl) {
         return CommunityResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .imageUrl(post.getImageUrl())
+                .imageUrl(imageUrl)
                 .nickName(post.getUser().getNickname())
                 .category(post.getCategoryType().getDisplayName())
                 .communityType(post.getCommunityType().getDisplayName())
