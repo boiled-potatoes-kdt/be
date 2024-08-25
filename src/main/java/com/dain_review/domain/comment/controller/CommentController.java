@@ -1,7 +1,7 @@
 package com.dain_review.domain.comment.controller;
 
 import com.dain_review.domain.comment.model.request.CommentRequest;
-import com.dain_review.domain.comment.model.response.CommentAllTypeResponse;
+import com.dain_review.domain.comment.model.response.CommentsAndRepliesResponse;
 import com.dain_review.domain.comment.service.CommentService;
 import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
@@ -25,16 +25,17 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping
-    public ResponseEntity getComments(
+    public ResponseEntity<?> getComments(
             @RequestParam(value="post_id") Long postId,
-            @RequestParam(value="page", defaultValue = "1") int page
+            @RequestParam(value="page", defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        CommentAllTypeResponse response = commentService.getComments(postId, page);
+        CommentsAndRepliesResponse response = commentService.getComments(postId, page, size);
         return API.OK(response);
     }
 
     @PostMapping
-    public ResponseEntity createComment(
+    public ResponseEntity<?> createComment(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody CommentRequest request
     ) {
@@ -43,7 +44,7 @@ public class CommentController {
     }
 
     @PatchMapping
-    public ResponseEntity updateComment(
+    public ResponseEntity<?> updateComment(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody CommentRequest request
     ) {
@@ -52,7 +53,7 @@ public class CommentController {
     }
 
     @DeleteMapping
-    public ResponseEntity deleteComment(
+    public ResponseEntity<?> deleteComment(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody CommentRequest request
     ) {

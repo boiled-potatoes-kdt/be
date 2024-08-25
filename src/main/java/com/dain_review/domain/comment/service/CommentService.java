@@ -4,7 +4,7 @@ import com.dain_review.domain.comment.excepiton.CommentException;
 import com.dain_review.domain.comment.excepiton.errortype.CommentErrorCode;
 import com.dain_review.domain.comment.model.entity.Comment;
 import com.dain_review.domain.comment.model.request.CommentRequest;
-import com.dain_review.domain.comment.model.response.CommentAllTypeResponse;
+import com.dain_review.domain.comment.model.response.CommentsAndRepliesResponse;
 import com.dain_review.domain.comment.model.response.CommentResponse;
 import com.dain_review.domain.comment.repository.CommentRepository;
 import com.dain_review.domain.post.exception.PostException;
@@ -15,6 +15,8 @@ import com.dain_review.domain.user.exception.UserException;
 import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
+import com.dain_review.global.model.response.PagedResponse;
+import com.dain_review.global.util.S3Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,19 +33,27 @@ public class CommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    private final S3Util s3Util;
+
     /**
-     * 댓글 페이지네이션, 10개 댓글 리스트 조회
+     * 댓글 size 10개로 페이지네이션, 대댓글 리스트 조회
      * @param postId    댓글 조회할 게시글 ID
      * @return          해당하는 페이지의 댓글 리스트 및 페이지 정보
      */
     @Transactional(readOnly = true)
-    public CommentAllTypeResponse getComments(Long postId, int page) {
+    public CommentsAndRepliesResponse getComments(Long postId, int page, int size) {
         // parent 컬럼이 null 인 데이터(대댓글이 아닌 댓글)만 조회
         Page<Comment> comments = commentRepository
-                .findByPostIdAndDeletedFalseAndParentIsNull(postId, PageRequest.of(page-1, 10));
+                .findByPostIdAndDeletedFalseAndParentIsNull(postId, PageRequest.of(page-1, size));
+
+        List<CommentResponse> commentResponseList = comments.get().map(comment -> {
+            String profileUrl = s3Util.selectImage(comment.getUser().getProfileImage());
+            return CommentResponse.from(comment, comment.getUser().getNickname(), profileUrl);
+        }).toList();
         List<CommentResponse> replyList = findChildCommentsByCommentId(comments.get().map(Comment::getId).toList());
-        Page<CommentResponse> parents = comments.map(CommentResponse::from);
-        return new CommentAllTypeResponse(parents, replyList);
+
+        PagedResponse<CommentResponse> pagedComments = new PagedResponse<>(commentResponseList, comments.getTotalElements(), comments.getTotalPages());
+        return new CommentsAndRepliesResponse(pagedComments, replyList);
     }
 
     /**
@@ -52,7 +62,7 @@ public class CommentService {
      */
     @Transactional
     public void createComment(Long userId, CommentRequest request) {
-        User user = getUserInfo(userId); // 테스트를 위한 임시 유저 데이터 조회
+        User user = getUserInfo(userId);
         Post post = postRepository.findById(request.postId())
                 .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
         Comment parent = null;
@@ -67,7 +77,6 @@ public class CommentService {
         }
     }
 
-    // todo user -> 로그인 유저 정보로 작동하도록 수정 필요
     /**
      * 댓글 수정 메서드
      * @param request   id:댓글 ID, postId:게시글 ID, parentId:부모 댓글 ID, content:댓글 내용
@@ -89,7 +98,7 @@ public class CommentService {
      */
     @Transactional
     public void deleteComment(Long userId, CommentRequest request) {
-        Comment comment = checkAuthorMismatch(userId, request.id()); // 테스트를 위한 임시 유저 데이터 조회
+        Comment comment = checkAuthorMismatch(userId, request.id());
 
         Comment delete = Comment.builder()
                 .id(comment.getId())
@@ -140,10 +149,16 @@ public class CommentService {
         return comment;
     }
 
-    // todo 대댓글 찾는 로직 추가
+    /**
+     * 대댓글 조회 메서드 (주어진 list id와 parentId가 일치하는 comment 조회)
+     * @param commentIds    부모 댓글 id 리스트
+     * @return              대댓글 리스트
+     */
     private List<CommentResponse> findChildCommentsByCommentId(List<Long> commentIds) {
-        // 주어진 list의 id와 parent가 일치하는 comment의 레코드 리스트 가져오기
         List<Comment> replies = commentRepository.findByParentIdInAndDeletedFalseOrderByParentId(commentIds);
-        return replies.stream().map(CommentResponse::from).toList();
+        return replies.stream().map(comment -> {
+            String profileUrl = s3Util.selectImage(comment.getUser().getProfileImage());
+            return CommentResponse.from(comment, comment.getUser().getNickname(), profileUrl);
+        }).toList();
     }
 }
