@@ -34,4 +34,6 @@ public class Application extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private State state;
+
+    private Boolean isDeleted;
 }

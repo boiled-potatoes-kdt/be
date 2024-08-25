@@ -1,15 +1,15 @@
 package com.dain_review.domain.user.config.model;
 
+
 import com.dain_review.domain.user.model.entity.enums.Role;
+import java.util.Collection;
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.List;
 
 @ToString
 @Getter
@@ -21,10 +21,9 @@ public class CustomUserDetails implements UserDetails {
     private final String password;
     private final Role userRole;
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + userRole.name()));
+        return List.of(new SimpleGrantedAuthority(userRole.name()));
     }
 
     @Override

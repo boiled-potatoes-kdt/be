@@ -14,7 +14,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,12 +43,16 @@ public class Campaign extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Platform platform;
 
+    @Enumerated(EnumType.STRING)
+    private State state;
+
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
     List<AvaliableDay> avaliableDayList;
 
     private Integer capacity;
     private Integer applicant;
     private Integer likeCount;
+    private String label;
     private String campaignImage;
     private String reward;
 
@@ -57,14 +60,12 @@ public class Campaign extends BaseEntity {
     private String information;
     private String requirement;
     private Boolean today;
+    private LocalDateTime approvalDate;
     private LocalDateTime applicationStartDate;
     private LocalDateTime applicationEndDate;
     private LocalDateTime announcementDate;
     private LocalDateTime experienceStartDate;
     private LocalDateTime experienceEndDate;
-    private LocalTime experienceStarrTime;
-    private LocalTime experienceEndTime;
     private LocalDateTime reviewDate;
-
-    private State state;
+    private Boolean isDeleted;
 }

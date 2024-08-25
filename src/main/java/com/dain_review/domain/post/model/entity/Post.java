@@ -28,7 +28,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Post extends BaseEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -37,6 +37,7 @@ public class Post extends BaseEntity {
 
     private String title;
     private String content;
+    private String imageUrl;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Comment> commentList;
@@ -44,6 +45,15 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private CommunityType communityType;
 
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(
+            mappedBy = "post",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private PostMeta postMeta;
+
+    public void setPostMeta(PostMeta postMeta) {
+        this.postMeta = postMeta;
+        postMeta.setPost(this);
+    }
 }

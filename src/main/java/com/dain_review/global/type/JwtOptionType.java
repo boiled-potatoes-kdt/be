@@ -1,7 +1,7 @@
 package com.dain_review.global.type;
 
 public enum JwtOptionType {
-
-    ROLE, EMAIL
-
+    ROLE,
+    EMAIL,
+    USER_ID
 }

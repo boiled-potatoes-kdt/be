@@ -35,6 +35,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    //swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
     //security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -62,43 +65,43 @@ dependencies {
 
     //sms nurigo
     implementation 'net.nurigo:sdk:4.3.0'
-}
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
 
-bootJar {
-    archiveFileName = 'DainReview.jar'
-}
+    bootJar {
+        archiveFileName = 'DainReview.jar'
+    }
 
 // git hook 설정
-spotless {
-    java {
-        target("src/main/java/**/*.java")
-        googleJavaFormat().aosp()
-        importOrder()
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
-        formatAnnotations()
+    spotless {
+        java {
+            target("src/main/java/**/*.java")
+            googleJavaFormat().aosp()
+            importOrder()
+            removeUnusedImports()
+            trimTrailingWhitespace()
+            endWithNewline()
+            formatAnnotations()
+        }
     }
-}
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-    options.compilerArgs += '-parameters'
-}
-
-tasks.register('updateGitHooks', Copy) {
-    from('./scripts/pre-commit') {
-        rename 'pre-commit', 'pre-commit'
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        options.compilerArgs += '-parameters'
     }
-    into('.git/hooks')
-    fileMode 0775
 
-    doFirst {
-        file('.git/hooks').mkdirs()
+    tasks.register('updateGitHooks', Copy) {
+        from('./scripts/pre-commit') {
+            rename 'pre-commit', 'pre-commit'
+        }
+        into('.git/hooks')
+        fileMode 0775
+
+        doFirst {
+            file('.git/hooks').mkdirs()
+        }
     }
+    compileJava.dependsOn updateGitHooks
 }
-compileJava.dependsOn updateGitHooks

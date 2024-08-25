@@ -7,6 +7,7 @@ import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class like extends BaseEntity {
+@Table(name = "likes")
+public class Like extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
