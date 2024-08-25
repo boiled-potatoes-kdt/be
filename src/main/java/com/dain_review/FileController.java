@@ -1,9 +1,7 @@
 package com.dain_review;
 
 
-import com.dain_review.global.model.request.ImageFileRequest;
 import com.dain_review.global.util.S3Util;
-import jakarta.validation.Valid;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,9 +23,9 @@ public class FileController {
     private final S3Util s3Service;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@Valid ImageFileRequest imageFileRequest)
+    public ResponseEntity<String> uploadFile(MultipartFile file)
             throws ExecutionException, InterruptedException {
-        CompletableFuture<String> response = s3Service.saveImage(imageFileRequest);
+        CompletableFuture<String> response = s3Service.saveImage(file);
         return new ResponseEntity<>(response.get(), HttpStatus.OK);
     }
 

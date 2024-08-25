@@ -1,6 +1,6 @@
 package com.dain_review.global.util;
 
-import com.dain_review.domain.user.exception.AuthException;
+
 import com.dain_review.domain.user.exception.errortype.AuthErrorCode;
 import com.dain_review.global.exception.GlobalResponse;
 import com.dain_review.global.type.JwtOptionType;
@@ -11,42 +11,37 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 @Slf4j(topic = "JWT Log")
 public class JwtUtil {
 
-
-    @Value("${jwt.key}")
-    private String secretKey;
+    @Value("${jwt.key}") private String secretKey;
 
     private static final String AUTHORIZATION_ACCESS_HEADER = "accessToken";
     private static final String AUTHORIZATION_REFRESH_HEADER = "refreshToken";
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final long ACCESS_TOKEN_EXPIRATION_PERIOD = 30 * 60 * 1000L; // 30분
-    private final long REFRESH_TOKEN_EXPIRATION_PERIOD = 1 * 24 * 60 * 60 * 1000L; // 1일
+    private final long REFRESH_TOKEN_EXPIRATION_PERIOD = 24 * 60 * 60 * 1000L; // 1일
 
     private Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
 
     @PostConstruct
     public void init() {
         byte[] bytes = Base64.getDecoder().decode(secretKey);
         key = Keys.hmacShaKeyFor(bytes);
-
     }
 
     public void jwtExceptionHandler(HttpServletResponse response, AuthErrorCode error) {
@@ -55,7 +50,10 @@ public class JwtUtil {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try {
-            String json = new ObjectMapper().writeValueAsString(new GlobalResponse(error.getMsg(), error.getStatus()));
+            String json =
+                    new ObjectMapper()
+                            .writeValueAsString(
+                                    new GlobalResponse(error.getMsg(), error.getStatus()));
             response.getWriter().write(json);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -76,7 +74,8 @@ public class JwtUtil {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(authorizationRefreshHeader)) {
                     try {
-                        return URLDecoder.decode(cookie.getValue(), "UTF-8"); // Encode 되어 넘어간 Value 다시 Decode
+                        return URLDecoder.decode(
+                                cookie.getValue(), "UTF-8"); // Encode 되어 넘어간 Value 다시 Decode
                     } catch (UnsupportedEncodingException e) {
                         return null;
                     }
@@ -112,16 +111,25 @@ public class JwtUtil {
         }
     }
 
-    public Cookie getAccessTokenCookie(String email, String role) throws UnsupportedEncodingException {
-        return getCookie(createAccessToken(email, role), AUTHORIZATION_ACCESS_HEADER, ACCESS_TOKEN_EXPIRATION_PERIOD);
+    public Cookie getAccessTokenCookie(String email, String role, Long userId)
+            throws UnsupportedEncodingException {
+        return getCookie(
+                createAccessToken(email, role, userId),
+                AUTHORIZATION_ACCESS_HEADER,
+                ACCESS_TOKEN_EXPIRATION_PERIOD);
     }
 
-    public Cookie getRefreshTokenCookie(String email, String role) throws UnsupportedEncodingException {
-        return getCookie(createRefreshToken(email, role), AUTHORIZATION_REFRESH_HEADER, REFRESH_TOKEN_EXPIRATION_PERIOD);
+    public Cookie getRefreshTokenCookie(String email, String role, Long userId)
+            throws UnsupportedEncodingException {
+        return getCookie(
+                createRefreshToken(email, role, userId),
+                AUTHORIZATION_REFRESH_HEADER,
+                REFRESH_TOKEN_EXPIRATION_PERIOD);
     }
 
     public boolean validateCookieName(Cookie cookie) {
-        return cookie.getName() == AUTHORIZATION_ACCESS_HEADER || cookie.getName() == AUTHORIZATION_REFRESH_HEADER;
+        return cookie.getName() == AUTHORIZATION_ACCESS_HEADER
+                || cookie.getName() == AUTHORIZATION_REFRESH_HEADER;
     }
 
     public boolean validateToken(String token, HttpServletResponse response) {
@@ -141,7 +149,6 @@ public class JwtUtil {
         return false;
     }
 
-
     private String substringToken(String tokenValue, HttpServletResponse response) {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
             return tokenValue.substring(BEARER_PREFIX.length());
@@ -150,35 +157,39 @@ public class JwtUtil {
         return "";
     }
 
-    private String createAccessToken(String email, String role) {
+    private String createAccessToken(String email, String role, Long userId) {
         Date date = new Date();
 
-        return BEARER_PREFIX +
-                Jwts.builder()
+        return BEARER_PREFIX
+                + Jwts.builder()
                         .setSubject(email)
                         .claim(JwtOptionType.ROLE.name(), role)
                         .claim(JwtOptionType.EMAIL.name(), email)
+                        .claim(JwtOptionType.USER_ID.name(), userId)
                         .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_EXPIRATION_PERIOD))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)
                         .compact();
     }
 
-    private String createRefreshToken(String email, String role) {
+    private String createRefreshToken(String email, String role, Long userId) {
         Date date = new Date();
 
-        return BEARER_PREFIX +
-                Jwts.builder()
+        return BEARER_PREFIX
+                + Jwts.builder()
                         .setSubject(email)
                         .claim(JwtOptionType.ROLE.name(), role)
                         .claim(JwtOptionType.EMAIL.name(), email)
+                        .claim(JwtOptionType.USER_ID.name(), userId)
                         .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_EXPIRATION_PERIOD))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)
                         .compact();
     }
 
-    private Cookie getCookie(String token, String authorizationRefreshHeader, long refreshTokenExpirationPeriod) throws UnsupportedEncodingException {
+    private Cookie getCookie(
+            String token, String authorizationRefreshHeader, long refreshTokenExpirationPeriod)
+            throws UnsupportedEncodingException {
         token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20");
         Cookie cookie = new Cookie(authorizationRefreshHeader, token);
         cookie.setPath("/");
@@ -189,6 +200,4 @@ public class JwtUtil {
 
         return cookie;
     }
-
-
 }
