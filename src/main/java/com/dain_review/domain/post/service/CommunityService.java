@@ -68,8 +68,8 @@ public class CommunityService {
         PostMeta postMeta =
                 PostMeta.builder()
                         .post(post)
-                        .viewCount(0) // 조회수와 댓글수는 0으로 초기화
-                        .commentCount(0)
+                        .viewCount(0L) // 조회수와 댓글수는 0으로 초기화
+                        .commentCount(0L)
                         .build();
 
         post.setPostMeta(postMeta);
