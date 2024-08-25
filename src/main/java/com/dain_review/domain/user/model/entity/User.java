@@ -75,6 +75,10 @@ public class User extends BaseEntity {
     private Boolean penalty;
     private Boolean isDeleted;
 
+    public void delete() {
+        this.isDeleted = true;
+    }
+
     public void change(EnterpriserChangeRequest enterpriserChangeRequest) {
         this.password = enterpriserChangeRequest.newPassword();
         this.name = enterpriserChangeRequest.name();

@@ -1,6 +1,7 @@
 package com.dain_review.domain.user.controller;
 
 
+import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.domain.user.model.request.InfluencerChangeRequest;
 import com.dain_review.domain.user.model.request.InfluencerExtraRegisterRequest;
 import com.dain_review.domain.user.model.response.InfluencerChangeResponse;
@@ -9,6 +10,7 @@ import com.dain_review.domain.user.service.InfluencerService;
 import com.dain_review.global.api.API;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,36 +29,32 @@ public class InfluencerController {
     // 인플루언서 회원가입 추가정보 입력
     @PostMapping("/sign-up/extra")
     public ResponseEntity save(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody InfluencerExtraRegisterRequest influencerExtraRegisterRequest) {
 
-        // Todo 임시값
-        Long id = 1L;
-
-        influencerService.save(id, influencerExtraRegisterRequest);
+        influencerService.save(customUserDetails.getUserId(), influencerExtraRegisterRequest);
 
         return API.OK();
     }
 
     // 인플루언서 마이페이지
     @GetMapping("")
-    public ResponseEntity<InfluencerResponse> get() {
+    public ResponseEntity<InfluencerResponse> get(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        // Todo 임시값
-        Long id = 1L;
-
-        InfluencerResponse influencerResponse = influencerService.get(id);
+        InfluencerResponse influencerResponse =
+                influencerService.get(customUserDetails.getUserId());
 
         return API.OK(influencerResponse);
     }
 
     // 인플루언서 회원정보 변경 페이지
     @GetMapping("/change")
-    public ResponseEntity<InfluencerChangeResponse> change() {
+    public ResponseEntity<InfluencerChangeResponse> change(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        // Todo 임시값
-        Long id = 1L;
-
-        InfluencerChangeResponse influencerChangeResponse = influencerService.getChange(id);
+        InfluencerChangeResponse influencerChangeResponse =
+                influencerService.getChange(customUserDetails.getUserId());
 
         return API.OK(influencerChangeResponse);
     }
@@ -64,13 +62,11 @@ public class InfluencerController {
     // 인플루언서 회원정보 변경
     @PatchMapping("")
     public ResponseEntity<InfluencerChangeResponse> change(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody InfluencerChangeRequest influencerChangeRequest) {
 
-        // Todo 임시값
-        Long id = 1L;
-
         InfluencerChangeResponse influencerChangeResponse =
-                influencerService.change(influencerChangeRequest, id);
+                influencerService.change(influencerChangeRequest, customUserDetails.getUserId());
 
         return API.OK(influencerChangeResponse);
     }

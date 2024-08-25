@@ -28,4 +28,14 @@ public class UserService {
         // 프로필 주소 변경
         user.change(profileChangeRequest.profileImage());
     }
+
+    @Transactional
+    public void delete(Long id) {
+        User user =
+                userRepository
+                        .findById(id)
+                        .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND_BY_ID));
+
+        user.delete();
+    }
 }
