@@ -1,5 +1,6 @@
 package com.dain_review.domain.post.exception;
 
+
 import com.dain_review.global.exception.ErrorCode;
 import com.dain_review.global.exception.GlobalException;
 

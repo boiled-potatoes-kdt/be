@@ -6,11 +6,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum State {
-    INSPECTION("검수증"),
-    RECRUITING("모집중"),
-    RECRUITMENT_COMPLETED("모집완료"),
-    REVIEW_CLOSED("리뷰마감");
+public enum Label {
+    DAINREVIEW("다인체험단"),
+    PREMIUM("프리미엄"),
+    COMMON("일반");
 
     private final String displayName;
 }

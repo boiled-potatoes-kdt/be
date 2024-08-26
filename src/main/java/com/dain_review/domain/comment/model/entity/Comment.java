@@ -1,5 +1,6 @@
 package com.dain_review.domain.comment.model.entity;
 
+
 import com.dain_review.domain.comment.model.request.CommentRequest;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.user.model.entity.User;

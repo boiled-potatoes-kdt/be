@@ -1,5 +1,6 @@
 package com.dain_review.domain.comment.controller;
 
+
 import com.dain_review.domain.comment.model.request.CommentRequest;
 import com.dain_review.domain.comment.model.response.CommentsAndRepliesResponse;
 import com.dain_review.domain.comment.service.CommentService;
@@ -26,10 +27,9 @@ public class CommentController {
 
     @GetMapping
     public ResponseEntity<?> getComments(
-            @RequestParam(value="post_id") Long postId,
-            @RequestParam(value="page", defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(value = "post_id") Long postId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
         CommentsAndRepliesResponse response = commentService.getComments(postId, page, size);
         return API.OK(response);
     }
@@ -37,8 +37,7 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<?> createComment(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody CommentRequest request
-    ) {
+            @RequestBody CommentRequest request) {
         commentService.createComment(customUserDetails.getUserId(), request);
         return API.OK();
     }
@@ -46,8 +45,7 @@ public class CommentController {
     @PatchMapping
     public ResponseEntity<?> updateComment(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody CommentRequest request
-    ) {
+            @RequestBody CommentRequest request) {
         commentService.updateComment(customUserDetails.getUserId(), request);
         return API.OK();
     }
@@ -55,8 +53,7 @@ public class CommentController {
     @DeleteMapping
     public ResponseEntity<?> deleteComment(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody CommentRequest request
-    ) {
+            @RequestBody CommentRequest request) {
         commentService.deleteComment(customUserDetails.getUserId(), request);
         return API.OK();
     }

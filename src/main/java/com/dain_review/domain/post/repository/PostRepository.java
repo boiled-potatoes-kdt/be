@@ -1,5 +1,6 @@
 package com.dain_review.domain.post.repository;
 
+
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.CommunityType;
