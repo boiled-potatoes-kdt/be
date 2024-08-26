@@ -20,8 +20,8 @@ public class CommunityResponse {
     private String category;
     private String communityType;
     private LocalDateTime createdAt;
-    private int viewCount;
-    private int commentCount;
+    private Long viewCount;
+    private Long commentCount;
     private String contentPreview; // 글 내용 미리보기
 
     // 게시글 미리보기가 포함된 응답 (이미지 url 제외)
