@@ -10,6 +10,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CampaignResponse {
+    /*체험단 등록,조회 시 반환 받을 응답*/
     private Long id;
     private String businessName; // 상호명
     private String imageUrl; // 이미지 등록 URL

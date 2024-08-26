@@ -7,8 +7,10 @@ import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.State;
+import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
+import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
 import com.dain_review.domain.user.exception.UserException;
 import com.dain_review.domain.user.exception.errortype.UserErrorCode;
@@ -18,6 +20,8 @@ import com.dain_review.global.util.S3Util;
 import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,12 +34,6 @@ public class CampaignService {
     private final CampaignRepository campaignRepository;
     private final UserRepository userRepository;
     private final S3Util s3Util;
-
-    private User getUser(Long userId) {
-        return userRepository
-                .findById(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-    }
 
     public CampaignResponse createCampaign(
             Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
@@ -51,7 +49,7 @@ public class CampaignService {
         }
 
         Integer totalPoints = null;
-        Integer pointPerPerson;
+        Integer pointPerPerson = null;
 
         // 총 지급 포인트 계산
         if (Boolean.TRUE.equals(campaignRequest.pointPayment())) {
@@ -60,10 +58,7 @@ public class CampaignService {
         }
 
         // 라벨 설정
-        Label label =
-                Boolean.TRUE.equals(campaignRequest.pointPayment())
-                        ? Label.PREMIUM
-                        : null; // 일단 기본 값은 null로 지정
+        Label label = Boolean.TRUE.equals(campaignRequest.pointPayment()) ? Label.PREMIUM : null;
 
         // 주소에서 시/도, 구/군 추출
         String[] cityAndDistrict = extractCityAndDistrict(campaignRequest.address());
@@ -105,7 +100,7 @@ public class CampaignService {
 
         campaignRepository.save(campaign);
 
-        return convertToCampaignResponse(campaign);
+        return convertToImageUrlResponse(campaign);
     }
 
     @Transactional(readOnly = true)
@@ -116,7 +111,7 @@ public class CampaignService {
                         .orElseThrow(
                                 () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
 
-        return convertToCampaignResponse(campaign);
+        return convertToImageUrlResponse(campaign);
     }
 
     public void deleteCampaign(Long userId, Long campaignId) { // 체험단 삭제(취소)
@@ -135,6 +130,22 @@ public class CampaignService {
         campaignRepository.save(campaign);
     }
 
+    // 사업주가 등록한 체험단 목록 조회
+    public Page<CampaignSummaryResponse> getRegisteredCampaigns(
+            CampaignFilterRequest campaignFilterRequest, Pageable pageable, Long userId) {
+        Page<Campaign> campaignPage =
+                campaignRepository.findByStateAndPlatformAndNameContainingAndUserId(
+                        campaignFilterRequest.state(),
+                        campaignFilterRequest.platform(),
+                        campaignFilterRequest.keyword(),
+                        userId,
+                        pageable);
+        return campaignPage.map(
+                campaign ->
+                        CampaignSummaryResponse.fromEntity(
+                                campaign, s3Util.selectImage(campaign.getImageUrl())));
+    }
+
     private String[] extractCityAndDistrict(String address) {
         String[] addressParts = address.split(" ");
         String rawCity = addressParts[0]; // 시/도
@@ -148,19 +159,28 @@ public class CampaignService {
     }
 
     private Integer calculateTotalPoints(Integer capacity, Integer pointPerPerson) {
-        /*총 포인트 계산*/
-        /*총 포인트 계산 메서드*/
+        /*총포인트 계산*/
         return (int) Math.round(capacity * pointPerPerson * 1.2);
     }
 
-    private CampaignResponse convertToCampaignResponse(Campaign campaign) {
-        /*이미지 이름 -> 이미지 url*/
-        // S3 URL로 변환
+    private CampaignResponse convertToImageUrlResponse(Campaign campaign) {
+        /*이미지 url 반환*/
         String imageUrl =
                 (campaign.getImageUrl() != null)
                         ? s3Util.selectImage(campaign.getImageUrl())
                         : null;
-
         return CampaignResponse.fromEntity(campaign, imageUrl);
+    }
+
+    public Campaign getCampaign(Long campaignId) {
+        return campaignRepository
+                .findById(campaignId)
+                .orElseThrow(() -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+    }
+
+    private User getUser(Long userId) {
+        return userRepository
+                .findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 }

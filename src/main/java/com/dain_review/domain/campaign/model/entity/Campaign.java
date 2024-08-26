@@ -8,7 +8,15 @@ import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -57,7 +65,7 @@ public class Campaign extends BaseEntity {
 
     private Integer capacity; // 총 모집 인원 수
 
-    private Integer currentApplicants; // 현재 까지 신청 인원 수
+    private Integer currentApplicants; // 현재까지 신청 인원 수
 
     private Integer pointPerPerson; // 1인당 지급 포인트
 
@@ -71,15 +79,15 @@ public class Campaign extends BaseEntity {
 
     private Double longitude; // 경도
 
-    private String city; // 지역 1 (시/도)
+    private String city; // 시/도
 
-    private String district; // 지역 2 (구/군)
-
-    @Enumerated(EnumType.STRING)
-    private State state; // 체험단 상태 (검수증, 모집중 등)
+    private String district; // 구/군
 
     @Enumerated(EnumType.STRING)
-    private Label label; // 라벨 (예: 다인체험단,프리미엄,일반체험단)
+    private State state; // 체험단 상태 (검수중, 모집중 등)
+
+    @Enumerated(EnumType.STRING)
+    private Label label; // 라벨 (예: 다인체험단, 프리미엄, 일반체험단)
 
     private String requirement; // 사업주 요청 사항
 
