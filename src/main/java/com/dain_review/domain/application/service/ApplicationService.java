@@ -1,8 +1,8 @@
 package com.dain_review.domain.application.service;
 
 
-import com.dain_review.domain.application.exception.ApplicationErrorCode;
 import com.dain_review.domain.application.exception.ApplicationException;
+import com.dain_review.domain.application.exception.errortype.ApplicationErrorCode;
 import com.dain_review.domain.application.model.entity.Application;
 import com.dain_review.domain.application.repository.ApplicationRepository;
 import com.dain_review.domain.campaign.model.entity.enums.State;
