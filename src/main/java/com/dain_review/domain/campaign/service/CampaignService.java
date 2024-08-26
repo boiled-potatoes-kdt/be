@@ -3,6 +3,7 @@ package com.dain_review.domain.campaign.service;
 import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 
 import com.dain_review.domain.campaign.model.entity.Campaign;
+import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
@@ -56,6 +57,17 @@ public class CampaignService {
             totalPoints = calculateTotalPoints(campaignRequest.capacity(), pointPerPerson);
         }
 
+        // 라벨 설정
+        Label label =
+                Boolean.TRUE.equals(campaignRequest.pointPayment())
+                        ? Label.PREMIUM
+                        : null; // 일단 기본 값은 null로 지정
+
+        // 주소에서 시/도, 구/군 추출
+        String[] cityAndDistrict = extractCityAndDistrict(campaignRequest.address());
+        String city = cityAndDistrict[0];
+        String district = cityAndDistrict[1];
+
         Campaign campaign =
                 Campaign.builder()
                         .user(user)
@@ -69,8 +81,12 @@ public class CampaignService {
                         .type(campaignRequest.type())
                         .category(campaignRequest.category())
                         .platform(campaignRequest.platform())
+                        .label(label)
+                        .city(city)
+                        .district(district)
                         .capacity(campaignRequest.capacity())
                         .serviceProvided(campaignRequest.serviceProvided())
+                        .requirement(campaignRequest.requirement())
                         .keywords(campaignRequest.keywords())
                         .pointPayment(campaignRequest.pointPayment())
                         .pointPerPerson(campaignRequest.pointPerPerson())
@@ -88,6 +104,18 @@ public class CampaignService {
         campaignRepository.save(campaign);
 
         return convertToCampaignResponse(campaign);
+    }
+
+    private String[] extractCityAndDistrict(String address) {
+        String[] addressParts = address.split(" ");
+        String rawCity = addressParts[0]; // 시/도
+
+        // "서울특별시" -> "서울", "부산광역시" -> "부산" 등으로 변환
+        String city = rawCity.replace("특별시", "").replace("광역시", "").replace("도", "");
+
+        String district = addressParts[1]; // 구/군
+
+        return new String[] {city, district};
     }
 
     private Integer calculateTotalPoints(Integer capacity, Integer pointPerPerson) {

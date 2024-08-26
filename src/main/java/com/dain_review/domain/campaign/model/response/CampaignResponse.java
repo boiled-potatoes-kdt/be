@@ -21,8 +21,10 @@ public class CampaignResponse {
     private String type; // 체험단 유형
     private String category; // 카테고리
     private String platform; // 플랫폼
+    private String label;
     private Integer capacity; // 최대 신청 인원
-    private String serviceProvided; // 제공할 서비스
+    private String serviceProvided; // 제공 내역
+    private String requirement;
     private List<String> keywords; // 홍보용 키워드
     private Boolean pointPayment; // 포인트 지급 여부
     private Integer pointPerPerson; // 1인당 지급 포인트
@@ -43,8 +45,10 @@ public class CampaignResponse {
                 .type(campaign.getType().getDisplayName())
                 .category(campaign.getCategory().getDisplayName())
                 .platform(campaign.getPlatform().getDisplayName())
+                .label(campaign.getLabel() != null ? campaign.getLabel().getDisplayName() : null)
                 .capacity(campaign.getCapacity())
                 .serviceProvided(campaign.getServiceProvided())
+                .requirement(campaign.getRequirement())
                 .keywords(campaign.getKeywords())
                 .pointPayment(campaign.getPointPayment())
                 .pointPerPerson(campaign.getPointPerPerson())

@@ -2,6 +2,7 @@ package com.dain_review.domain.campaign.model.entity;
 
 
 import com.dain_review.domain.campaign.model.entity.enums.Category;
+import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
 import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
@@ -9,7 +10,6 @@ import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,13 +35,11 @@ public class Campaign extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Category category; // 광고를 원하는 카테고리 (예: 음식, 뷰티)
 
-    private String serviceProvided; // 인플루언서에게 제공할 서비스
+    private String serviceProvided; // 제공 내역
 
     private String businessName; // 상호명
 
     private String imageUrl; // 이미지 등록 URL
-
-    private String address; // 방문 체험할 장소의 주소
 
     private String contactNumber; // 연락처
 
@@ -50,16 +48,10 @@ public class Campaign extends BaseEntity {
     @Column(name = "day")
     private List<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
 
-    private LocalTime startTime; // 체험 가능 시작 시간 (HH:MM)
-
-    private LocalTime endTime; // 체험 가능 종료 시간 (HH:MM)
-
-    private String mission; // 사업주 미션
-
     @ElementCollection
     @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "campaign_id"))
     @Column(name = "keyword")
-    private List<String> keywords; // 홍보용 키워드 최대 3개, 각 키워드는 10자 이내
+    private List<String> keywords; // 홍보용 키워드(태그) 최대 3개, 각 키워드는 10자 이내
 
     private Boolean pointPayment; // 포인트 지급 여부 (예/아니오)
 
@@ -69,34 +61,29 @@ public class Campaign extends BaseEntity {
 
     private Integer totalPoints; // 총 지급 포인트 (총 모집 인원 * 1인당 지급 포인트 * 수수료 20%)
 
+    private String address; // 방문 체험할 장소의 주소
+
     private Double latitude; // 위도
 
     private Double longitude; // 경도
 
-    private String region1; // 지역 1 (시/도)
+    private String city; // 지역 1 (시/도)
 
-    private String region2; // 지역 2 (구/군)
+    private String district; // 지역 2 (구/군)
 
     @Enumerated(EnumType.STRING)
     private State state; // 체험단 상태 (검수증, 모집중 등)
 
-    private String label; // 라벨 (예: 다인체험단,프리미엄,일반)
+    @Enumerated(EnumType.STRING)
+    private Label label; // 라벨 (예: 다인체험단,프리미엄,일반체험단)
 
-    private String reward; // 제공 내역
-
-    private String notation; // 주의 사항
-
-    private String information; // 체험단 정보
-
-    private String requirement; // 요구 사항
-
-    private Boolean today; // 오늘 체험 여부
+    private String requirement; // 사업주 요청 사항
 
     private LocalDateTime applicationStartDate; // 모집 시작일
 
     private LocalDateTime applicationEndDate; // 모집 종료일
 
-    private LocalDateTime announcementDate; // 발표일
+    private LocalDateTime announcementDate; // 선정자 발표일
 
     private LocalDateTime experienceStartDate; // 체험 시작일
 
