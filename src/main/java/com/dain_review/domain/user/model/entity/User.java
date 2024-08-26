@@ -24,7 +24,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-@Table(name = "users")
+@Table(name = "user")
 public class User extends BaseEntity {
 
     private String name;
@@ -59,7 +59,6 @@ public class User extends BaseEntity {
     private String postalCode;
     private String profileImage;
     private Boolean marketing;
-    private Boolean status;
     private Boolean isDeleted;
     private Boolean penalty;
 }

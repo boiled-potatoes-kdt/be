@@ -22,8 +22,8 @@ public class PostMeta extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    private Integer viewCount;
-    private Integer commentCount;
+    private Long viewCount;
+    private Long commentCount;
 
     public void setPost(Post post) {
         this.post = post;
