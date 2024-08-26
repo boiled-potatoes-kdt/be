@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/enterpriser/campaign")
+@RequestMapping("/api/campaigns")
 @RequiredArgsConstructor
 public class CampaignController {
 
@@ -61,6 +61,7 @@ public class CampaignController {
         return API.OK();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ENTERPRISER')")
     @GetMapping
     public ResponseEntity<Page<CampaignSummaryResponse>>
             getRegisteredCampaigns( // 사업주가 등록한 체험단 목록 조회
