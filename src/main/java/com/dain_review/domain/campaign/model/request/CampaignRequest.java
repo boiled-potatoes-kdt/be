@@ -13,7 +13,8 @@ import java.util.List;
 public record CampaignRequest( // 체험단 등록 시 사용할 Request DTO
         @NotBlank String businessName, // 상호명
         @NotBlank String contactNumber, // 컨택할 번호
-        @NotBlank String address, // 주소
+        @NotBlank String address,
+        @NotBlank Integer postalCode,
         @NotBlank Double latitude, // 위도
         @NotBlank Double longitude, // 경도
         @NotNull List<String> availableDays, // 체험 가능 요일

@@ -15,17 +15,18 @@ public class CampaignResponse {
     private String imageUrl; // 이미지 등록 URL
     private String contactNumber; // 연락처
     private String address; // 방문 체험할 장소의 주소
+    private Integer postalCode; // 우편번호
     private Double latitude; // 위도
     private Double longitude; // 경도
     private List<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
     private String type; // 체험단 유형
     private String category; // 카테고리
     private String platform; // 플랫폼
-    private String label;
+    private String label; // 라벨
     private Integer capacity; // 최대 신청 인원
     private Integer currentApplicants; // 현재까지 신청 인원
     private String serviceProvided; // 제공 내역
-    private String requirement;
+    private String requirement; // 요청 사항
     private List<String> keywords; // 홍보용 키워드
     private Boolean pointPayment; // 포인트 지급 여부
     private Integer pointPerPerson; // 1인당 지급 포인트
@@ -56,6 +57,7 @@ public class CampaignResponse {
                 .pointPerPerson(campaign.getPointPerPerson())
                 .totalPoints(campaign.getTotalPoints())
                 .address(campaign.getAddress()) // 주소
+                .postalCode(campaign.getPostalCode()) // 우편번호
                 .latitude(campaign.getLatitude()) // 위도
                 .longitude(campaign.getLongitude()) // 경도
                 .availableDays(campaign.getAvailableDays()) // 체험 가능 요일

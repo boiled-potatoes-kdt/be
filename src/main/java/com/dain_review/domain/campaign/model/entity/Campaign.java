@@ -65,6 +65,8 @@ public class Campaign extends BaseEntity {
 
     private String address; // 방문 체험할 장소의 주소
 
+    private Integer postalCode; // 우편번호
+
     private Double latitude; // 위도
 
     private Double longitude; // 경도
