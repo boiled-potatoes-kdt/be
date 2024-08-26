@@ -43,12 +43,12 @@ public class Campaign extends BaseEntity {
 
     private String contactNumber; // 연락처
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "available_days", joinColumns = @JoinColumn(name = "campaign_id"))
     @Column(name = "day")
     private List<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "campaign_id"))
     @Column(name = "keyword")
     private List<String> keywords; // 홍보용 키워드(태그) 최대 3개, 각 키워드는 10자 이내
@@ -56,6 +56,8 @@ public class Campaign extends BaseEntity {
     private Boolean pointPayment; // 포인트 지급 여부 (예/아니오)
 
     private Integer capacity; // 총 모집 인원 수
+
+    private Integer currentApplicants; // 현재 까지 신청 인원 수
 
     private Integer pointPerPerson; // 1인당 지급 포인트
 

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -33,6 +35,13 @@ public class CampaignController {
         CampaignResponse campaignResponse =
                 campaignService.createCampaign(
                         customUserDetails.getUserId(), campaignRequest, imageFile);
+        return API.OK(campaignResponse);
+    }
+
+    // 체험단 단건 조회
+    @GetMapping("/{campaignId}")
+    public ResponseEntity<?> getCampaign(@PathVariable Long campaignId) {
+        CampaignResponse campaignResponse = campaignService.getCampaignById(campaignId);
         return API.OK(campaignResponse);
     }
 }

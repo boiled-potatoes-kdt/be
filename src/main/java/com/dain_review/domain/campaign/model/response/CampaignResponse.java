@@ -23,6 +23,7 @@ public class CampaignResponse {
     private String platform; // 플랫폼
     private String label;
     private Integer capacity; // 최대 신청 인원
+    private Integer currentApplicants; // 현재까지 신청 인원
     private String serviceProvided; // 제공 내역
     private String requirement;
     private List<String> keywords; // 홍보용 키워드
@@ -47,6 +48,7 @@ public class CampaignResponse {
                 .platform(campaign.getPlatform().getDisplayName())
                 .label(campaign.getLabel() != null ? campaign.getLabel().getDisplayName() : null)
                 .capacity(campaign.getCapacity())
+                .currentApplicants(campaign.getCurrentApplicants())
                 .serviceProvided(campaign.getServiceProvided())
                 .requirement(campaign.getRequirement())
                 .keywords(campaign.getKeywords())

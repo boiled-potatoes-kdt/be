@@ -2,6 +2,8 @@ package com.dain_review.domain.campaign.service;
 
 import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 
+import com.dain_review.domain.campaign.exception.CampaignException;
+import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.State;
@@ -133,5 +135,17 @@ public class CampaignService {
                         : null;
 
         return CampaignResponse.fromEntity(campaign, imageUrl);
+    }
+
+    // 체험단 단건 조회
+    @Transactional(readOnly = true)
+    public CampaignResponse getCampaignById(Long campaignId) {
+        Campaign campaign =
+                campaignRepository
+                        .findById(campaignId)
+                        .orElseThrow(
+                                () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+
+        return convertToCampaignResponse(campaign);
     }
 }
