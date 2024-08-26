@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,10 +39,19 @@ public class CampaignController {
         return API.OK(campaignResponse);
     }
 
-    // 체험단 단건 조회
-    @GetMapping("/{campaignId}")
+    @GetMapping("/{campaignId}") // 체험단 단건 조회
     public ResponseEntity<?> getCampaign(@PathVariable Long campaignId) {
         CampaignResponse campaignResponse = campaignService.getCampaignById(campaignId);
         return API.OK(campaignResponse);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ENTERPRISER')")
+    @DeleteMapping("/{campaignId}") // 체험단 삭제(취소)
+    public ResponseEntity<?> deleteCampaign(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long campaignId) {
+
+        campaignService.deleteCampaign(customUserDetails.getUserId(), campaignId);
+        return API.OK();
     }
 }

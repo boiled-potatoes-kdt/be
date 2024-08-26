@@ -94,4 +94,8 @@ public class Campaign extends BaseEntity {
     private LocalDateTime reviewDate; // 리뷰 마감일
 
     private Boolean isDeleted; // 삭제 여부
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
 }

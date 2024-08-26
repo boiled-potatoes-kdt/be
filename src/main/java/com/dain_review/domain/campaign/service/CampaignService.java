@@ -108,6 +108,33 @@ public class CampaignService {
         return convertToCampaignResponse(campaign);
     }
 
+    @Transactional(readOnly = true)
+    public CampaignResponse getCampaignById(Long campaignId) { // 체험단 단건 조회
+        Campaign campaign =
+                campaignRepository
+                        .findById(campaignId)
+                        .orElseThrow(
+                                () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+
+        return convertToCampaignResponse(campaign);
+    }
+
+    public void deleteCampaign(Long userId, Long campaignId) { // 체험단 삭제(취소)
+        User user = getUser(userId);
+        Campaign campaign =
+                campaignRepository
+                        .findById(campaignId)
+                        .orElseThrow(
+                                () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+
+        if (!campaign.getUser().getId().equals(user.getId())) {
+            throw new CampaignException(CampaignErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        campaign.setIsDeleted(true);
+        campaignRepository.save(campaign);
+    }
+
     private String[] extractCityAndDistrict(String address) {
         String[] addressParts = address.split(" ");
         String rawCity = addressParts[0]; // 시/도
@@ -135,17 +162,5 @@ public class CampaignService {
                         : null;
 
         return CampaignResponse.fromEntity(campaign, imageUrl);
-    }
-
-    // 체험단 단건 조회
-    @Transactional(readOnly = true)
-    public CampaignResponse getCampaignById(Long campaignId) {
-        Campaign campaign =
-                campaignRepository
-                        .findById(campaignId)
-                        .orElseThrow(
-                                () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
-
-        return convertToCampaignResponse(campaign);
     }
 }
