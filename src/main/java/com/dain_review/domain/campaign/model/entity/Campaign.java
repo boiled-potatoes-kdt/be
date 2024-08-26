@@ -1,22 +1,22 @@
 package com.dain_review.domain.campaign.model.entity;
 
 
-import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.Category;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
+import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
-import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -31,85 +31,81 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Campaign extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    private String name;
-    private Double latitude;
-    private Double longitude;
-    private String region1;
-    private String region2;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user; // 체험단을 등록한 사용자
 
     @Enumerated(EnumType.STRING)
-    private Type type;
+    private Platform platform; // 광고를 원하는 플랫폼 (예: 블로그, 인스타그램)
 
     @Enumerated(EnumType.STRING)
-    private Category category;
+    private Type type; // 광고를 원하는 유형 (예: 방문형, 구매형)
 
     @Enumerated(EnumType.STRING)
-    private Platform platform;
+    private Category category; // 광고를 원하는 카테고리 (예: 음식, 뷰티)
 
-    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
-    List<AvaliableDay> avaliableDayList;
+    private String serviceProvided; // 제공 내역
 
-    private Integer capacity;
-    private Integer applicant;
-    private Long likeCount;
-    private String campaignImage;
-    private String reward;
+    private String businessName; // 상호명
 
-    private String notation;
-    private String information;
-    private String requirement;
-    private Boolean today;
-    private LocalDateTime approvalDate;
-    private LocalDateTime applicationStartDate;
-    private LocalDateTime applicationEndDate;
-    private LocalDateTime announcementDate;
-    private LocalDateTime experienceStartDate;
-    private LocalDateTime experienceEndDate;
-    private LocalDateTime reviewDate;
+    private String imageUrl; // 이미지 등록 URL
+
+    private String contactNumber; // 연락처
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "available_days", joinColumns = @JoinColumn(name = "campaign_id"))
+    @Column(name = "day")
+    private List<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "campaign_id"))
+    @Column(name = "keyword")
+    private List<String> keywords; // 홍보용 키워드(태그) 최대 3개, 각 키워드는 10자 이내
+
+    private Boolean pointPayment; // 포인트 지급 여부 (예/아니오)
+
+    private Integer capacity; // 총 모집 인원 수
+
+    private Integer currentApplicants; // 현재까지 신청 인원 수
+
+    private Integer pointPerPerson; // 1인당 지급 포인트
+
+    private Integer totalPoints; // 총 지급 포인트 (총 모집 인원 * 1인당 지급 포인트 * 수수료 20%)
+
+    private String address; // 방문 체험할 장소의 주소
+
+    private Integer postalCode; // 우편번호
+
+    private Double latitude; // 위도
+
+    private Double longitude; // 경도
+
+    private String city; // 시/도
+
+    private String district; // 구/군
 
     @Enumerated(EnumType.STRING)
-    private Label label;
+    private State state; // 체험단 상태 (검수중, 모집중 등)
 
     @Enumerated(EnumType.STRING)
-    private CampaignState campaignState;
+    private Label label; // 라벨 (예: 다인체험단, 프리미엄, 일반체험단)
 
-    private Boolean isDeleted;
+    private String requirement; // 사업주 요청 사항
 
-    public CampaignResponse toCampaignResponse() {
-        // 지원 마감까지 남은 일수
-        LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(now, this.getApplicationEndDate());
-        Long applicationDeadline = Math.max(duration.toDays(), 0);
+    private LocalDateTime applicationStartDate; // 모집 시작일
 
-        // 취소가능한지 여부 - 모집중, 모집완료, 체험&리뷰 단계에서만 가능
-        Boolean isCancel = !CampaignState.REVIEW_CLOSED.equals(this.getCampaignState());
+    private LocalDateTime applicationEndDate; // 모집 종료일
 
-        // 찜한 캠페인인지
-        // Todo - 이부분을 어떻게 구현해야할지
-        //        this.getLikeList().
+    private LocalDateTime announcementDate; // 선정자 발표일
 
-        // CampaignResponse 로 변환
-        return new CampaignResponse(
-                this.getId(),
-                this.getUser().getNickname(),
-                this.getReward(),
-                this.getRegion1(),
-                this.getRegion2(),
-                this.getType(),
-                this.getPlatform(),
-                this.getUser().getProfileImage(),
-                this.getCampaignState(),
-                this.getCapacity(),
-                this.getApplicant(),
-                this.getExperienceStartDate(),
-                this.getExperienceEndDate(),
-                applicationDeadline,
-                isCancel,
-                this.getLabel(),
-                false);
+    private LocalDateTime experienceStartDate; // 체험 시작일
+
+    private LocalDateTime experienceEndDate; // 체험 종료일
+
+    private LocalDateTime reviewDate; // 리뷰 마감일
+
+    private Boolean isDeleted; // 삭제 여부
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

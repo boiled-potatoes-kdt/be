@@ -2,8 +2,8 @@ package com.dain_review.domain.application.repository;
 
 
 import com.dain_review.domain.application.model.entity.Application;
-import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
+import com.dain_review.domain.campaign.model.entity.enums.State;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,14 +16,14 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     @Query(
             "SELECT a FROM Application a "
-                    + "WHERE (:campaignState IS NULL OR a.campaign.campaignState = :campaignState) "
+                    + "WHERE (:campaignState IS NULL OR a.campaign.state = :campaignState) "
                     + "AND (:platform IS NULL OR a.campaign.platform = :platform) "
-                    + "AND (:keyword IS NULL OR a.campaign.name LIKE %:keyword%) "
+                    + "AND (:keyword IS NULL OR a.campaign.businessName LIKE %:keyword%) "
                     + "AND a.campaign.isDeleted = false "
                     + "AND a.user.id = :userId "
                     + "AND a.isDeleted = false")
     Page<Application> findByStateAndPlatformAndNameContainingAndUserId(
-            @Param("campaignState") CampaignState campaignState,
+            @Param("campaignState") State campaignState,
             @Param("platform") Platform platform,
             @Param("keyword") String keyword,
             @Param("userId") Long userId,

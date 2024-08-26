@@ -2,7 +2,7 @@ package com.dain_review.domain.user.model.entity;
 
 
 import com.dain_review.domain.application.model.entity.Application;
-import com.dain_review.domain.application.model.entity.enums.State;
+import com.dain_review.domain.application.model.entity.enums.ApplicationState;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.user.model.entity.enums.Role;
@@ -157,7 +157,10 @@ public class User extends BaseEntity {
         // 선정된 캠페인 수
         Long selectedCampaignCount =
                 this.applicationList.stream()
-                        .filter(application -> application.getState() == State.APPROVED)
+                        .filter(
+                                application ->
+                                        application.getApplicationState()
+                                                == ApplicationState.APPROVED)
                         .count();
 
         // 진행중인 캠페인 수
