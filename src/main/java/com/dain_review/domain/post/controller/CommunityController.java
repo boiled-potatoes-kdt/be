@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/communities")
@@ -35,11 +37,11 @@ public class CommunityController {
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestPart("data") CommunityRequest communityRequest,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
 
         CommunityResponse communityResponse =
                 communityService.createPost(
-                        customUserDetails.getUserId(), communityRequest, imageFile);
+                        customUserDetails.getUserId(), communityRequest, imageFiles);
         return API.OK(communityResponse);
     }
 
@@ -60,11 +62,11 @@ public class CommunityController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @RequestPart("data") CommunityRequest communityRequest,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
 
         CommunityResponse communityResponse =
                 communityService.updatePost(
-                        customUserDetails.getUserId(), postId, communityRequest, imageFile);
+                        customUserDetails.getUserId(), postId, communityRequest, imageFiles);
         return API.OK(communityResponse);
     }
 

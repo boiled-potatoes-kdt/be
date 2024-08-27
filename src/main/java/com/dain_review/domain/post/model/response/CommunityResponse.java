@@ -3,6 +3,8 @@ package com.dain_review.domain.post.model.response;
 
 import com.dain_review.domain.post.model.entity.Post;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +17,7 @@ public class CommunityResponse {
     private Long id;
     private String title;
     private String content;
-    private String imageUrl;
+    private List<String> imageUrls;
     private String nickName; // 작성자 닉네임
     private String category;
     private String communityType;
@@ -41,12 +43,12 @@ public class CommunityResponse {
     }
 
     // 게시글 미리보기가 포함되지 않은 응답 (이미지 url 포함)
-    public static CommunityResponse responseWithoutContentPreview(Post post, String imageUrl) {
+    public static CommunityResponse responseWithoutContentPreview(Post post, List<String> imageUrls) {
         return CommunityResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .imageUrl(imageUrl)
+                .imageUrls(imageUrls)
                 .nickName(post.getUser().getNickname())
                 .category(post.getCategoryType().getDisplayName())
                 .communityType(post.getCommunityType().getDisplayName())

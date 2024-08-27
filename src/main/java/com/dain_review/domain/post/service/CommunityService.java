@@ -5,18 +5,21 @@ import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.exception.PostException;
 import com.dain_review.domain.post.exception.errorcode.PostErrorCode;
+import com.dain_review.domain.post.model.entity.AttachedFile;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.PostMeta;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.CommunityType;
 import com.dain_review.domain.post.model.request.CommunityRequest;
 import com.dain_review.domain.post.model.response.CommunityResponse;
+import com.dain_review.domain.post.repository.AttachedFileRepository;
 import com.dain_review.domain.post.repository.PostRepository;
 import com.dain_review.domain.user.exception.UserException;
 import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
+import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
 import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
@@ -38,22 +41,19 @@ import org.springframework.web.multipart.MultipartFile;
 public class CommunityService {
 
     private final PostRepository postRepository;
-    private final ApplicationEventPublisher eventPublisher;
     private final UserRepository userRepository;
+    private final AttachedFileRepository attachedFileRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
     private final S3Util s3Util;
 
+    private final String S3_PATH_PREFIX = S3PathPrefixType.S3_COMMUNITY_PATH.toString();
+
     public CommunityResponse createPost(
-            Long userId, CommunityRequest communityRequest, MultipartFile imageFile) {
+            Long userId, CommunityRequest communityRequest, List<MultipartFile> imageFiles
+    ) {
 
         User user = getUser(userId);
-
-        String fileName = null;
-        if (imageFile != null && !imageFile.isEmpty()) {
-            if (!isValidImageFile(imageFile)) {
-                throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
-            }
-            fileName = s3Util.saveImage(imageFile).join();
-        }
 
         Post post =
                 Post.builder()
@@ -62,7 +62,6 @@ public class CommunityService {
                         .title(communityRequest.title())
                         .content(communityRequest.content())
                         .communityType(communityRequest.communityType())
-                        .imageUrl(fileName) // 파일명만 저장
                         .build();
 
         PostMeta postMeta =
@@ -75,8 +74,11 @@ public class CommunityService {
         post.setPostMeta(postMeta);
         postRepository.save(post);
 
-        String imageUrl = (fileName != null) ? s3Util.selectImage(fileName) : null;
-        return CommunityResponse.responseWithoutContentPreview(post, imageUrl);
+        // 이미지 저장 및 url 반환
+        saveImageFiles(imageFiles, post);
+        List<String> imageUrls = findImageUrls(post.getId());
+
+        return CommunityResponse.responseWithoutContentPreview(post, imageUrls);
     }
 
     public CommunityResponse getPost(Long userId, Long postId) {
@@ -86,17 +88,17 @@ public class CommunityService {
                         .findById(postId)
                         .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
 
-        String imageUrl =
-                (post.getImageUrl() != null) ? s3Util.selectImage(post.getImageUrl()) : null;
+        // 게시물의 모든 이미지 url 리스트를 반환
+        List<String> imageUrls = findImageUrls(post.getId());
 
         // 조회 이벤트 발생 시, 이미 조회된 Post 객체를 전달
         eventPublisher.publishEvent(new PostReadEvent(post));
 
-        return CommunityResponse.responseWithoutContentPreview(post, imageUrl);
+        return CommunityResponse.responseWithoutContentPreview(post, imageUrls);
     }
 
     public CommunityResponse updatePost(
-            Long userId, Long postId, CommunityRequest communityRequest, MultipartFile imageFile) {
+            Long userId, Long postId, CommunityRequest communityRequest, List<MultipartFile> imageFiles) {
         User user = getUser(userId);
 
         Post existingPost =
@@ -106,14 +108,6 @@ public class CommunityService {
 
         if (!existingPost.getUser().getId().equals(user.getId())) {
             throw new PostException(PostErrorCode.UNAUTHORIZED_ACCESS);
-        }
-
-        String fileName = existingPost.getImageUrl();
-        if (imageFile != null && !imageFile.isEmpty()) {
-            if (!isValidImageFile(imageFile)) {
-                throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
-            }
-            fileName = s3Util.saveImage(imageFile).join();
         }
 
         PostMeta existingPostMeta = existingPost.getPostMeta();
@@ -126,7 +120,6 @@ public class CommunityService {
                         .title(communityRequest.title()) // 새 제목 설정
                         .content(communityRequest.content()) // 새 내용 설정
                         .communityType(communityRequest.communityType())
-                        .imageUrl(fileName) // 파일명만 저장
                         .createdAt(existingPost.getCreatedAt())
                         .updatedAt(LocalDateTime.now()) // 업데이트 시각 설정
                         .postMeta(existingPostMeta)
@@ -134,8 +127,13 @@ public class CommunityService {
 
         postRepository.save(updatedPost);
 
-        String imageUrl = (fileName != null) ? s3Util.selectImage(fileName) : null;
-        return CommunityResponse.responseWithoutContentPreview(updatedPost, imageUrl);
+        // 새로 추가된 이미지 저장
+        saveImageFiles(imageFiles, updatedPost);
+        // 기존 이미지 중 삭제된 이미지 파일명 리스트를 전달받아 해당하는 파일 삭제처리
+        deleteImageFiles(communityRequest.deleted());
+        List<String> imageUrls = findImageUrls(updatedPost.getId());
+
+        return CommunityResponse.responseWithoutContentPreview(updatedPost, imageUrls);
     }
 
     public void deletePost(Long userId, Long postId) {
@@ -193,5 +191,41 @@ public class CommunityService {
         return userRepository
                 .findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    private void saveImageFiles(List<MultipartFile> imageFiles, Post post) {
+        for (MultipartFile imageFile : imageFiles) {
+            String fileName = null;
+
+            if (imageFile != null && !imageFile.isEmpty()) {
+                if (!isValidImageFile(imageFile)) {
+                    throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
+                }
+
+                fileName = s3Util.saveImage(imageFile, S3_PATH_PREFIX).join();
+                // attached_file 테이블에 레코드 추가
+                AttachedFile file = AttachedFile.builder()
+                        .post(post)
+                        .fileName(fileName)
+                        .build();
+
+                attachedFileRepository.save(file);
+            }
+        }
+    }
+
+    private void deleteImageFiles(List<String> fileNames) {
+        for (String fileName : fileNames) {
+            s3Util.deleteImage(fileName, S3_PATH_PREFIX);
+            AttachedFile file = attachedFileRepository.findByFileName(fileName);
+            attachedFileRepository.delete(file);
+        }
+    }
+
+    private List<String> findImageUrls(Long postId) {
+        List<AttachedFile> attachedFiles = attachedFileRepository.findByPostId(postId);
+        return attachedFiles.stream().map(it -> {
+            return (it != null) ? s3Util.selectImage(it.getFileName(), S3_PATH_PREFIX) : null;
+        }).toList();
     }
 }
