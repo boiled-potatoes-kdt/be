@@ -23,11 +23,18 @@ public class S3Util {
 
     private final AmazonS3 s3Client;
 
+    /**
+     * 리소스 저장
+     * @param file  저장할 리소스
+     * @param path  리소스가 저장될 경로
+     * @return      저장된 리소스의 확장자 포함 파일명
+     */
     @Async("S3PoolTask")
-    public CompletableFuture<String> saveImage(MultipartFile file) {
+    public CompletableFuture<String> saveImage(MultipartFile file, String path) {
         String fileName = System.currentTimeMillis() + "." + extractExtensionName(file);
+        String savePath = bucketName + path;
         try {
-            s3Client.putObject(bucketName, fileName, file.getInputStream(), null);
+            s3Client.putObject(savePath, fileName, file.getInputStream(), null);
         } catch (IOException e) {
             throw new S3Exception(S3ErrorCode.IMAGE_UPLOAD_FAILED);
         }
@@ -35,26 +42,33 @@ public class S3Util {
     }
 
     /**
-     * 이미지 조회
-     *
-     * @param fileName 조회할 이미지 확장자 포함 이름
-     * @return fileName 과 일치하는 이름의 이미지 url 반환
+     * 리소스 조회
+     * @param fileName  조회할 파일 확장자 포함 이름
+     * @param path      파일이 저장된 경로
+     * @return          fileName 과 일치하는 이름의 리소스 url 반환
      */
-    public String selectImage(String fileName) {
-        s3Client.getObject(new GetObjectRequest(bucketName, fileName));
-        URL url = s3Client.getUrl(bucketName, fileName);
+    public String selectImage(String fileName, String path) {
+        String selectPath = bucketName + path;
+        s3Client.getObject(new GetObjectRequest(selectPath, fileName));
+        URL url = s3Client.getUrl(selectPath, fileName);
         return url.toString();
     }
 
     /**
-     * 이미지 삭제
-     *
-     * @param fileName 삭제할 이미지 확장자 포함 이름
+     * 리소스 삭제
+     * @param fileName  삭제할 파일 확장자 포함 이름
+     * @param path      파일이 저장된 경로
      */
-    public void deleteImage(String fileName) {
-        s3Client.deleteObject(new DeleteObjectRequest(bucketName, fileName));
+    public void deleteImage(String fileName, String path) {
+        String deletePath = bucketName + path;
+        s3Client.deleteObject(new DeleteObjectRequest(deletePath, fileName));
     }
 
+    /**
+     * 확장자명 추출
+     * @param file  확장자명 추출할 대상 파일
+     * @return      확장자명
+     */
     private String extractExtensionName(MultipartFile file) {
         String fileName = file.getOriginalFilename();
         String[] div = fileName.split("\\.");
