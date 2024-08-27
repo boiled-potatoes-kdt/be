@@ -40,6 +40,8 @@ public class CommentService {
     private final S3Util s3Util;
     private final ApplicationEventPublisher eventPublisher;
 
+    private final String S3_PATH_PREFIX = "/profile-image/";
+
     /**
      * 댓글 size 10개로 페이지네이션, 대댓글 리스트 조회
      *
@@ -58,7 +60,7 @@ public class CommentService {
                         .map(
                                 comment -> {
                                     String profileUrl =
-                                            s3Util.selectImage(comment.getUser().getProfileImage());
+                                            s3Util.selectImage(comment.getUser().getProfileImage(), S3_PATH_PREFIX);
                                     return CommentResponse.from(
                                             comment, comment.getUser().getNickname(), profileUrl);
                                 })
@@ -193,7 +195,7 @@ public class CommentService {
                 .map(
                         comment -> {
                             String profileUrl =
-                                    s3Util.selectImage(comment.getUser().getProfileImage());
+                                    s3Util.selectImage(comment.getUser().getProfileImage(), S3_PATH_PREFIX);
                             return CommentResponse.from(
                                     comment, comment.getUser().getNickname(), profileUrl);
                         })
