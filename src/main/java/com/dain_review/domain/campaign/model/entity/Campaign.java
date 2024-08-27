@@ -51,12 +51,12 @@ public class Campaign extends BaseEntity {
 
     private String contactNumber; // 연락처
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "available_days", joinColumns = @JoinColumn(name = "campaign_id"))
     @Column(name = "day")
     private List<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "campaign_id"))
     @Column(name = "keyword")
     private List<String> keywords; // 홍보용 키워드(태그) 최대 3개, 각 키워드는 10자 이내
