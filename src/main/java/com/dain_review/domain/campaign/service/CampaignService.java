@@ -16,6 +16,7 @@ import com.dain_review.domain.user.exception.UserException;
 import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
+import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
 import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
@@ -35,6 +36,8 @@ public class CampaignService {
     private final UserRepository userRepository;
     private final S3Util s3Util;
 
+    private final String S3_PATH_PREFIX = S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString();
+
     public CampaignResponse createCampaign(
             Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
         User user = getUser(userId);
@@ -45,7 +48,7 @@ public class CampaignService {
             if (!isValidImageFile(imageFile)) {
                 throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
             }
-            imageFileName = s3Util.saveImage(imageFile).join();
+            imageFileName = s3Util.saveImage(imageFile, S3_PATH_PREFIX).join();
         }
 
         Integer totalPoints = null;
@@ -143,7 +146,7 @@ public class CampaignService {
         return campaignPage.map(
                 campaign ->
                         CampaignSummaryResponse.fromEntity(
-                                campaign, s3Util.selectImage(campaign.getImageUrl())));
+                                campaign, s3Util.selectImage(campaign.getImageUrl(), S3_PATH_PREFIX)));
     }
 
     private String[] extractCityAndDistrict(String address) {
@@ -167,7 +170,7 @@ public class CampaignService {
         /*이미지 url 반환*/
         String imageUrl =
                 (campaign.getImageUrl() != null)
-                        ? s3Util.selectImage(campaign.getImageUrl())
+                        ? s3Util.selectImage(campaign.getImageUrl(), S3_PATH_PREFIX)
                         : null;
         return CampaignResponse.fromEntity(campaign, imageUrl);
     }
