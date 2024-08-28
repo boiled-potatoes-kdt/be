@@ -2,7 +2,7 @@ package com.dain_review.domain.application;
 
 
 import com.dain_review.domain.application.model.entity.Application;
-import com.dain_review.domain.application.model.entity.enums.State;
+import com.dain_review.domain.application.model.entity.enums.ApplicationState;
 import com.dain_review.domain.application.model.request.ApplicationRequest;
 import com.dain_review.domain.application.service.ApplicationService;
 import com.dain_review.domain.campaign.model.entity.Campaign;
@@ -30,7 +30,7 @@ public class ApplicationBusiness {
                         .user(user)
                         .campaign(campaign)
                         .message(applicationRequest.message())
-                        .state(State.PENDING)
+                        .applicationState(ApplicationState.PENDING)
                         .isDeleted(false)
                         .build();
 

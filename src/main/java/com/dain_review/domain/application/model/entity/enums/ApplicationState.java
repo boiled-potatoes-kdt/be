@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum State {
+public enum ApplicationState {
     PENDING("대기"),
     APPROVED("승인"),
     REJECTED("거부");

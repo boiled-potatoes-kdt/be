@@ -1,16 +1,16 @@
-package com.dain_review.domain.post.exception;
+package com.dain_review.domain.campaign.exception;
 
 
 import com.dain_review.global.exception.ErrorCode;
 import com.dain_review.global.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "게시글 에러")
-public class PostException extends GlobalException {
+@Slf4j(topic = "체험단 에러")
+public class CampaignException extends GlobalException {
 
     private final ErrorCode errorCode;
 
-    public PostException(ErrorCode errorCode) {
+    public CampaignException(ErrorCode errorCode) {
         super(errorCode);
         this.errorCode = errorCode;
     }

@@ -1,4 +1,4 @@
-package com.dain_review.domain.application.exception;
+package com.dain_review.domain.application.exception.errortype;
 
 
 import com.dain_review.global.exception.ErrorCode;

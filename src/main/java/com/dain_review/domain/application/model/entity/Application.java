@@ -1,10 +1,10 @@
 package com.dain_review.domain.application.model.entity;
 
 
-import com.dain_review.domain.application.model.entity.enums.State;
+import com.dain_review.domain.application.model.entity.enums.ApplicationState;
 import com.dain_review.domain.campaign.model.entity.Campaign;
-import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
-import com.dain_review.domain.campaign.model.response.CampaignResponse;
+import com.dain_review.domain.campaign.model.entity.enums.State;
+import com.dain_review.domain.campaign.model.response.ApplicationCampaignResponse;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
@@ -37,7 +37,7 @@ public class Application extends BaseEntity {
     private String message;
 
     @Enumerated(EnumType.STRING)
-    private State state;
+    private ApplicationState applicationState;
 
     private Boolean isDeleted;
 
@@ -45,33 +45,28 @@ public class Application extends BaseEntity {
         this.isDeleted = true;
     }
 
-    public CampaignResponse toCampaignResponse() {
-
-        // 지원 마감까지 남은 일수
+    public ApplicationCampaignResponse toApplicationCampaignResponse() {
+        // 지원 마감까지 남은 일수 계산
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(now, this.campaign.getApplicationEndDate());
         Long applicationDeadline = Math.max(duration.toDays(), 0);
 
-        // 취소가능한지 여부 - 모집중, 모집완료, 체험&리뷰 단계에서만 가능
-        Boolean isCancel = !CampaignState.REVIEW_CLOSED.equals(this.campaign.getCampaignState());
+        // 취소 가능 여부 판단 - 리뷰 종료 단계가 아닌 경우
+        Boolean isCancel = !State.REVIEW_CLOSED.equals(this.campaign.getState());
 
-        // 찜한 캠페인인지
-        // Todo - 이부분을 어떻게 구현해야할지
-        //        this.campaign.getLikeList().
-
-        // CampaignResponse 로 변환
-        return new CampaignResponse(
+        // CampaignToResponse 객체로 변환
+        return new ApplicationCampaignResponse(
                 this.campaign.getId(),
                 this.campaign.getUser().getNickname(),
-                this.campaign.getReward(),
-                this.campaign.getRegion1(),
-                this.campaign.getRegion2(),
+                this.campaign.getServiceProvided(),
+                this.campaign.getCity(),
+                this.campaign.getDistrict(),
                 this.campaign.getType(),
                 this.campaign.getPlatform(),
                 this.campaign.getUser().getProfileImage(),
-                this.campaign.getCampaignState(),
+                this.campaign.getState(),
                 this.campaign.getCapacity(),
-                this.campaign.getApplicant(),
+                this.campaign.getCurrentApplicants(),
                 this.campaign.getExperienceStartDate(),
                 this.campaign.getExperienceEndDate(),
                 applicationDeadline,

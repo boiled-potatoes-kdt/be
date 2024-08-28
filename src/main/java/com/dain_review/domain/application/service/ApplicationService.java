@@ -1,18 +1,18 @@
 package com.dain_review.domain.application.service;
 
 
-import com.dain_review.domain.application.exception.ApplicationErrorCode;
 import com.dain_review.domain.application.exception.ApplicationException;
+import com.dain_review.domain.application.exception.errortype.ApplicationErrorCode;
 import com.dain_review.domain.application.model.entity.Application;
 import com.dain_review.domain.application.repository.ApplicationRepository;
-import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
+import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
-import com.dain_review.domain.campaign.model.response.CampaignResponse;
-import jakarta.transaction.Transactional;
+import com.dain_review.domain.campaign.model.response.ApplicationCampaignResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,12 +21,10 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
 
     public void save(Application application) {
-
-        Application savedApplication = applicationRepository.save(application);
+        applicationRepository.save(application);
     }
 
     public Application getApplication(Long applicationId, Long userId) {
-
         return applicationRepository
                 .findByIdAndUserId(applicationId, userId)
                 .orElseThrow(
@@ -35,40 +33,30 @@ public class ApplicationService {
                                         ApplicationErrorCode.NOT_FOUND_BY_ID_USERID));
     }
 
-    public Page<CampaignResponse> get(
+    public Page<ApplicationCampaignResponse> getApplications(
             CampaignFilterRequest campaignFilterRequest, Pageable pageable, Long userId) {
-
-        // 필터조건으로 Page<Application> 가져오기
-        Page<Application> applicationPage =
-                applicationRepository.findByStateAndPlatformAndNameContainingAndUserId(
-                        campaignFilterRequest.campaignState(),
+        // JPQL 쿼리를 사용하여 애플리케이션 검색 및 정렬
+        return applicationRepository
+                .findByStateAndPlatformAndNameContainingAndUserId(
+                        campaignFilterRequest.state(),
                         campaignFilterRequest.platform(),
                         campaignFilterRequest.keyword(),
                         userId,
-                        pageable);
-
-        // Page<Application> -> Page<CampaignResponse> 변환
-        return applicationPage.map(Application::toCampaignResponse);
+                        pageable // 정렬 및 페이징 정보를 직접 전달
+                        )
+                .map(Application::toApplicationCampaignResponse);
     }
 
     @Transactional
-    public void cancel(Long applicationId, Long userId) {
-        // 해당 id, userId 의 Application 가져오기
-        Application application = this.getApplication(applicationId, userId);
+    public void cancelApplication(Long applicationId, Long userId) {
+        Application application = getApplication(applicationId, userId);
+        State state = application.getCampaign().getState();
 
-        // 취소 가능한 단계인지 검증
-        CampaignState campaignState = application.getCampaign().getCampaignState();
-
-        // 리뷰마감 단계이면 삭제 불가능
-        if (CampaignState.REVIEW_CLOSED.equals(campaignState)) {
+        if (State.REVIEW_CLOSED.equals(state)) {
             throw new ApplicationException(ApplicationErrorCode.FAIL_CANCEL);
-        }
-        // 모집중 단계이면 취소가능(취소 횟수 증가 X) -> 디비에서 삭제
-        else if (CampaignState.RECRUITING.equals(campaignState)) {
+        } else if (State.RECRUITING.equals(state)) {
             applicationRepository.deleteById(applicationId);
-        }
-        // 체험&리뷰 단계이거나 모집완료 단계이면 취소가능(취소횟수 증가) -> is_delete = true 변경
-        else {
+        } else {
             applicationRepository.softDeleteById(applicationId);
         }
     }
