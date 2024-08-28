@@ -139,16 +139,15 @@ public class CommunityService {
     public void deletePost(Long userId, Long postId) {
         User user = getUser(userId);
 
-        Post post =
-                postRepository
-                        .findById(postId)
-                        .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
 
         if (!post.getUser().getId().equals(user.getId())) {
             throw new PostException(PostErrorCode.UNAUTHORIZED_ACCESS);
         }
 
-        postRepository.delete(post);
+        post.setDeleted(true); // 논리적 삭제로 변경
+        postRepository.save(post);
     }
 
     public PagedResponse<CommunityResponse> getAllPosts(Long userId, int page, int size) {

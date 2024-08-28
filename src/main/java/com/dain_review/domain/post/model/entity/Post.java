@@ -4,9 +4,11 @@ package com.dain_review.domain.post.model.entity;
 import com.dain_review.domain.comment.model.entity.Comment;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.CommunityType;
+import com.dain_review.domain.post.model.entity.enums.FollowType;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,7 +21,9 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -46,6 +50,14 @@ public class Post extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private CommunityType communityType;
+
+    @Enumerated(EnumType.STRING)
+    private FollowType followType;
+
+    @Setter
+    @Column(name = "is_deleted")
+    @ColumnDefault("false")
+    private boolean deleted;
 
     @OneToOne(
             mappedBy = "post",
