@@ -63,32 +63,30 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize());
 
-        // 정렬 조건 설정
+        // 정렬 조건 설정 - created_at 대신 id로 정렬
         if (searchRequest.sortBy() == SortBy.POPULAR) { // 인기순
             query.orderBy(
                     campaign.currentApplicants.desc(),
-                    campaign.label.desc(),
-                    campaign.createdAt.desc());
+                    campaign.labelOrdering.ordering.asc(),
+                    campaign.id.desc());
         } else if (searchRequest.sortBy() == SortBy.CLOSING_SOON) { // 마감임박순
             query.orderBy(
                     campaign.applicationEndDate.asc(),
                     campaign.experienceStartDate.asc(),
-                    campaign.label.desc(),
-                    campaign.createdAt.desc());
+                    campaign.labelOrdering.ordering.asc(),
+                    campaign.id.desc());
         } else if (searchRequest.sortBy() == SortBy.NEWEST) { // 최신순
-            query.orderBy(campaign.createdAt.desc(), campaign.label.desc());
+            query.orderBy(campaign.id.desc(), campaign.labelOrdering.ordering.asc());
         } else { // 기본 정렬 값은 추천순
             query.orderBy(
                     campaign.totalPoints.desc(),
                     campaign.currentApplicants.asc(),
-                    campaign.label.desc(),
-                    campaign.createdAt.desc());
+                    campaign.labelOrdering.ordering.asc(),
+                    campaign.id.desc());
         }
 
         List<Campaign> results = query.fetch();
-
         long total = queryFactory.selectFrom(campaign).where(builder).fetchCount();
-
         return new PageImpl<>(results, pageable, total);
     }
 }

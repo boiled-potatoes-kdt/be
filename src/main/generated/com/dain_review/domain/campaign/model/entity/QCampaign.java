@@ -66,6 +66,8 @@ public class QCampaign extends EntityPathBase<Campaign> {
 
     public final EnumPath<com.dain_review.domain.campaign.model.entity.enums.Label> label = createEnum("label", com.dain_review.domain.campaign.model.entity.enums.Label.class);
 
+    public final QLabelOrdering labelOrdering;
+
     public final NumberPath<Double> latitude = createNumber("latitude", Double.class);
 
     public final NumberPath<Double> longitude = createNumber("longitude", Double.class);
@@ -113,6 +115,7 @@ public class QCampaign extends EntityPathBase<Campaign> {
 
     public QCampaign(Class<? extends Campaign> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.labelOrdering = inits.isInitialized("labelOrdering") ? new QLabelOrdering(forProperty("labelOrdering")) : null;
         this.user = inits.isInitialized("user") ? new com.dain_review.domain.user.model.entity.QUser(forProperty("user"), inits.get("user")) : null;
     }
 

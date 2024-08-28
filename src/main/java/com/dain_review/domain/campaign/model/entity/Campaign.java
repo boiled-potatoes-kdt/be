@@ -15,8 +15,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -29,6 +31,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
+@Table(
+        name = "campaign",
+        indexes = {@Index(name = "idx_is_deleted", columnList = "isDeleted")})
 public class Campaign extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,6 +55,10 @@ public class Campaign extends BaseEntity {
     private String imageUrl; // 이미지 등록 URL
 
     private String contactNumber; // 연락처
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "label_ordering_id")
+    private LabelOrdering labelOrdering;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "available_days", joinColumns = @JoinColumn(name = "campaign_id"))
