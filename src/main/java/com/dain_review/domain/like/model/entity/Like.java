@@ -4,12 +4,15 @@ package com.dain_review.domain.like.model.entity;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -17,6 +20,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
+@Table(name = "likes")
 public class Like extends BaseEntity {
 
     @ManyToOne
@@ -26,4 +30,8 @@ public class Like extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "campaign_id")
     private Campaign campaign;
+
+    @Column(name = "is_liked", nullable = false)
+    @Setter
+    private boolean isLiked;
 }

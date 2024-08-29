@@ -32,6 +32,8 @@ public class QLike extends EntityPathBase<Like> {
     //inherited
     public final NumberPath<Long> id = _super.id;
 
+    public final BooleanPath isLiked = createBoolean("isLiked");
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
 
