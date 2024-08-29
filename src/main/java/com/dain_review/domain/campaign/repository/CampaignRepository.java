@@ -32,5 +32,5 @@ public interface CampaignRepository
 
     // @EntityGraph 적용하여 Lazy 로딩된 컬렉션을 즉시 로딩
     @EntityGraph(attributePaths = {"keywords", "availableDays"})
-    Optional<Campaign> findById(Long id);
+    Optional<Campaign> findWithDetailsById(Long id);
 }

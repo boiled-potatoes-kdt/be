@@ -111,7 +111,7 @@ public class CampaignService {
     public CampaignResponse getCampaignById(Long campaignId) { // 체험단 단건 조회
         Campaign campaign =
                 campaignRepository
-                        .findById(campaignId)
+                        .findWithDetailsById(campaignId)
                         .orElseThrow(
                                 () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
 
