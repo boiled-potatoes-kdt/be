@@ -32,7 +32,7 @@ public class QCampaign extends EntityPathBase<Campaign> {
 
     public final DateTimePath<java.time.LocalDateTime> applicationStartDate = createDateTime("applicationStartDate", java.time.LocalDateTime.class);
 
-    public final ListPath<String, StringPath> availableDays = this.<String, StringPath>createList("availableDays", String.class, StringPath.class, PathInits.DIRECT2);
+    public final SetPath<String, StringPath> availableDays = this.<String, StringPath>createSet("availableDays", String.class, StringPath.class, PathInits.DIRECT2);
 
     public final StringPath businessName = createString("businessName");
 
@@ -62,7 +62,7 @@ public class QCampaign extends EntityPathBase<Campaign> {
 
     public final BooleanPath isDeleted = createBoolean("isDeleted");
 
-    public final ListPath<String, StringPath> keywords = this.<String, StringPath>createList("keywords", String.class, StringPath.class, PathInits.DIRECT2);
+    public final SetPath<String, StringPath> keywords = this.<String, StringPath>createSet("keywords", String.class, StringPath.class, PathInits.DIRECT2);
 
     public final EnumPath<com.dain_review.domain.campaign.model.entity.enums.Label> label = createEnum("label", com.dain_review.domain.campaign.model.entity.enums.Label.class);
 

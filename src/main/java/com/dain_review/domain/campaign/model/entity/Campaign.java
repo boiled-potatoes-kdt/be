@@ -20,7 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -63,12 +63,12 @@ public class Campaign extends BaseEntity {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "available_days", joinColumns = @JoinColumn(name = "campaign_id"))
     @Column(name = "day")
-    private List<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
+    private Set<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "campaign_id"))
     @Column(name = "keyword")
-    private List<String> keywords; // 홍보용 키워드(태그) 최대 3개, 각 키워드는 10자 이내
+    private Set<String> keywords; // 홍보용 키워드(태그) 최대 3개, 각 키워드는 10자 이내
 
     private Boolean pointPayment; // 포인트 지급 여부 (예/아니오)
 

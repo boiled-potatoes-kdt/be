@@ -21,6 +21,7 @@ import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.util.S3Util;
 import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
+import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -79,7 +80,8 @@ public class CampaignService {
                         .address(campaignRequest.address())
                         .latitude(campaignRequest.latitude())
                         .longitude(campaignRequest.longitude())
-                        .availableDays(campaignRequest.availableDays())
+                        .availableDays(
+                                new HashSet<>(campaignRequest.availableDays())) // List를 Set으로 변환
                         .type(campaignRequest.type())
                         .category(campaignRequest.category())
                         .platform(campaignRequest.platform())
@@ -89,7 +91,7 @@ public class CampaignService {
                         .capacity(campaignRequest.capacity())
                         .serviceProvided(campaignRequest.serviceProvided())
                         .requirement(campaignRequest.requirement())
-                        .keywords(campaignRequest.keywords())
+                        .keywords(new HashSet<>(campaignRequest.keywords())) // List를 Set으로 변환
                         .pointPayment(campaignRequest.pointPayment())
                         .pointPerPerson(campaignRequest.pointPerPerson())
                         .totalPoints(totalPoints)
