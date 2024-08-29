@@ -10,7 +10,8 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum CampaignErrorCode implements ErrorCode {
     CAMPAIGN_NOT_FOUND(HttpStatus.BAD_REQUEST, "체험단을 찾을 수 없습니다."),
-    UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+    UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "이미지를 등록해주세요.");
 
     private final HttpStatus status;
     private final String msg;

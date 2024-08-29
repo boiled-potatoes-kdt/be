@@ -3,7 +3,7 @@ package com.dain_review.domain.campaign.model.response;
 
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -19,7 +19,7 @@ public class CampaignResponse {
     private Integer postalCode; // 우편번호
     private Double latitude; // 위도
     private Double longitude; // 경도
-    private List<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
+    private Set<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
     private String type; // 체험단 유형
     private String category; // 카테고리
     private String platform; // 플랫폼
@@ -28,7 +28,7 @@ public class CampaignResponse {
     private Integer currentApplicants; // 현재까지 신청 인원
     private String serviceProvided; // 제공 내역
     private String requirement; // 요청 사항
-    private List<String> keywords; // 홍보용 키워드
+    private Set<String> keywords; // 홍보용 키워드
     private Boolean pointPayment; // 포인트 지급 여부
     private Integer pointPerPerson; // 1인당 지급 포인트
     private Integer totalPoints; // 총 지급 포인트

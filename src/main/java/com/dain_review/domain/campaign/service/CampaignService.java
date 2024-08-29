@@ -9,6 +9,7 @@ import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
+import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
@@ -16,9 +17,12 @@ import com.dain_review.domain.user.exception.UserException;
 import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
+import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.util.S3Util;
 import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
+import java.util.HashSet;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,13 +44,15 @@ public class CampaignService {
         User user = getUser(userId);
 
         // 이미지 업로드 처리
-        String imageFileName = null;
-        if (imageFile != null && !imageFile.isEmpty()) {
-            if (!isValidImageFile(imageFile)) {
-                throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
-            }
-            imageFileName = s3Util.saveImage(imageFile).join();
+        if (imageFile == null || imageFile.isEmpty()) {
+            throw new CampaignException(CampaignErrorCode.IMAGE_REQUIRED);
         }
+
+        if (!isValidImageFile(imageFile)) {
+            throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
+        }
+
+        String imageFileName = s3Util.saveImage(imageFile).join();
 
         Integer totalPoints = null;
         Integer pointPerPerson = null;
@@ -74,7 +80,8 @@ public class CampaignService {
                         .address(campaignRequest.address())
                         .latitude(campaignRequest.latitude())
                         .longitude(campaignRequest.longitude())
-                        .availableDays(campaignRequest.availableDays())
+                        .availableDays(
+                                new HashSet<>(campaignRequest.availableDays())) // List를 Set으로 변환
                         .type(campaignRequest.type())
                         .category(campaignRequest.category())
                         .platform(campaignRequest.platform())
@@ -84,7 +91,7 @@ public class CampaignService {
                         .capacity(campaignRequest.capacity())
                         .serviceProvided(campaignRequest.serviceProvided())
                         .requirement(campaignRequest.requirement())
-                        .keywords(campaignRequest.keywords())
+                        .keywords(new HashSet<>(campaignRequest.keywords())) // List를 Set으로 변환
                         .pointPayment(campaignRequest.pointPayment())
                         .pointPerPerson(campaignRequest.pointPerPerson())
                         .totalPoints(totalPoints)
@@ -99,19 +106,18 @@ public class CampaignService {
                         .build();
 
         campaignRepository.save(campaign);
-
-        return convertToImageUrlResponse(campaign);
+        return CampaignResponse.fromEntity(campaign, s3Util.selectImage(campaign.getImageUrl()));
     }
 
     @Transactional(readOnly = true)
     public CampaignResponse getCampaignById(Long campaignId) { // 체험단 단건 조회
         Campaign campaign =
                 campaignRepository
-                        .findById(campaignId)
+                        .findWithDetailsById(campaignId)
                         .orElseThrow(
                                 () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
 
-        return convertToImageUrlResponse(campaign);
+        return CampaignResponse.fromEntity(campaign, s3Util.selectImage(campaign.getImageUrl()));
     }
 
     public void deleteCampaign(Long userId, Long campaignId) { // 체험단 삭제(취소)
@@ -125,9 +131,7 @@ public class CampaignService {
         if (!campaign.getUser().getId().equals(user.getId())) {
             throw new CampaignException(CampaignErrorCode.UNAUTHORIZED_ACCESS);
         }
-
         campaign.setIsDeleted(true);
-        campaignRepository.save(campaign);
     }
 
     // 사업주가 등록한 체험단 목록 조회
@@ -146,6 +150,23 @@ public class CampaignService {
                                 campaign, s3Util.selectImage(campaign.getImageUrl())));
     }
 
+    // 체험단 검색
+    public PagedResponse<CampaignSummaryResponse> searchCampaigns(
+            CampaignSearchRequest searchRequest, Pageable pageable) {
+        Page<Campaign> campaignPage = campaignRepository.searchCampaigns(searchRequest, pageable);
+        List<CampaignSummaryResponse> content =
+                campaignPage
+                        .map(
+                                campaign ->
+                                        CampaignSummaryResponse.fromEntity(
+                                                campaign,
+                                                s3Util.selectImage(campaign.getImageUrl())))
+                        .getContent();
+
+        return new PagedResponse<>(
+                content, campaignPage.getTotalElements(), campaignPage.getTotalPages());
+    }
+
     private String[] extractCityAndDistrict(String address) {
         String[] addressParts = address.split(" ");
         String rawCity = addressParts[0]; // 시/도
@@ -161,15 +182,6 @@ public class CampaignService {
     private Integer calculateTotalPoints(Integer capacity, Integer pointPerPerson) {
         /*총포인트 계산*/
         return (int) Math.round(capacity * pointPerPerson * 1.2);
-    }
-
-    private CampaignResponse convertToImageUrlResponse(Campaign campaign) {
-        /*이미지 url 반환*/
-        String imageUrl =
-                (campaign.getImageUrl() != null)
-                        ? s3Util.selectImage(campaign.getImageUrl())
-                        : null;
-        return CampaignResponse.fromEntity(campaign, imageUrl);
     }
 
     public Campaign getCampaign(Long campaignId) {
