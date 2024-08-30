@@ -219,4 +219,8 @@ public class User extends BaseEntity {
                 this.influencer.getBirthday(),
                 this.influencer.getGender());
     }
+
+    public boolean isNotSame(Long userId) {
+        return !this.getId().equals(userId);
+    }
 }
