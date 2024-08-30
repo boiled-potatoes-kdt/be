@@ -5,6 +5,7 @@ import com.dain_review.domain.comment.model.request.CommentRequest;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -41,6 +42,7 @@ public class Comment extends BaseEntity {
 
     private String content;
 
+    @Column(name = "is_deleted")
     @ColumnDefault("false")
     private boolean deleted;
 

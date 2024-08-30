@@ -17,6 +17,7 @@ import com.dain_review.domain.user.exception.UserException;
 import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
+import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.util.S3Util;
 import com.dain_review.global.util.error.S3Exception;
@@ -39,20 +40,22 @@ public class CampaignService {
     private final UserRepository userRepository;
     private final S3Util s3Util;
 
+    private final String S3_PATH_PREFIX = S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString();
+
     public CampaignResponse createCampaign(
             Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
         User user = getUser(userId);
 
         // 이미지 업로드 처리
+
         if (imageFile == null || imageFile.isEmpty()) {
             throw new CampaignException(CampaignErrorCode.IMAGE_REQUIRED);
         }
-
         if (!isValidImageFile(imageFile)) {
             throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
         }
 
-        String imageFileName = s3Util.saveImage(imageFile).join();
+        String imageFileName = s3Util.saveImage(imageFile, S3_PATH_PREFIX).join();
 
         Integer totalPoints = null;
         Integer pointPerPerson = null;
@@ -106,7 +109,7 @@ public class CampaignService {
                         .build();
 
         campaignRepository.save(campaign);
-        return CampaignResponse.fromEntity(campaign, s3Util.selectImage(campaign.getImageUrl()));
+        return CampaignResponse.fromEntity(campaign, s3Util.selectImage(campaign.getImageUrl(), S3_PATH_PREFIX));
     }
 
     @Transactional(readOnly = true)
@@ -117,7 +120,7 @@ public class CampaignService {
                         .orElseThrow(
                                 () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
 
-        return CampaignResponse.fromEntity(campaign, s3Util.selectImage(campaign.getImageUrl()));
+        return CampaignResponse.fromEntity(campaign, s3Util.selectImage(campaign.getImageUrl(), S3_PATH_PREFIX));
     }
 
     public void deleteCampaign(Long userId, Long campaignId) { // 체험단 삭제(취소)
@@ -147,7 +150,7 @@ public class CampaignService {
         return campaignPage.map(
                 campaign ->
                         CampaignSummaryResponse.fromEntity(
-                                campaign, s3Util.selectImage(campaign.getImageUrl())));
+                                campaign, s3Util.selectImage(campaign.getImageUrl(), S3_PATH_PREFIX)));
     }
 
     // 체험단 검색
@@ -160,7 +163,7 @@ public class CampaignService {
                                 campaign ->
                                         CampaignSummaryResponse.fromEntity(
                                                 campaign,
-                                                s3Util.selectImage(campaign.getImageUrl())))
+                                                s3Util.selectImage(campaign.getImageUrl(), S3_PATH_PREFIX)))
                         .getContent();
 
         return new PagedResponse<>(
