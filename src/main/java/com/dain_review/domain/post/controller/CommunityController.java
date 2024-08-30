@@ -1,14 +1,17 @@
 package com.dain_review.domain.post.controller;
 
 
+import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.CommunityType;
-import com.dain_review.domain.post.model.request.CommunityRequest;
-import com.dain_review.domain.post.model.response.CommunityResponse;
-import com.dain_review.domain.post.service.CommunityService;
+import com.dain_review.domain.post.model.request.PostRequest;
+import com.dain_review.domain.post.model.response.PostResponse;
+import com.dain_review.domain.post.service.PostService;
 import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
 import com.dain_review.global.model.response.PagedResponse;
+import com.dain_review.global.type.S3PathPrefixType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,34 +28,35 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/communities")
+@RequestMapping("/api/post/communities")
 public class CommunityController {
 
-    private final CommunityService communityService;
+    private final PostService postService;
+    private final String S3_PATH_PREFIX = S3PathPrefixType.S3_COMMUNITY_PATH.toString();
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @PostMapping // 커뮤니티 게시글 생성
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestPart("data") CommunityRequest communityRequest,
+            @RequestPart("data") PostRequest postRequest,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
 
-        CommunityResponse communityResponse =
-                communityService.createPost(
-                        customUserDetails.getUserId(), communityRequest, imageFiles);
+        log.info("image files is null: {}", imageFiles==null);
+        PostResponse communityResponse =
+                postService.createPost(
+                        S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
         return API.OK(communityResponse);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/{postId}") // 커뮤니티 게시글 단건 조회
-    public ResponseEntity<?> getPost(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long postId) {
+    public ResponseEntity<?> getPost(@PathVariable Long postId) {
 
-        CommunityResponse communityResponse =
-                communityService.getPost(customUserDetails.getUserId(), postId);
+        PostResponse communityResponse =
+                postService.getPost(S3_PATH_PREFIX, postId);
         return API.OK(communityResponse);
     }
 
@@ -61,12 +65,12 @@ public class CommunityController {
     public ResponseEntity<?> updatePost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
-            @RequestPart("data") CommunityRequest communityRequest,
+            @RequestPart("data") PostRequest postRequest,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
 
-        CommunityResponse communityResponse =
-                communityService.updatePost(
-                        customUserDetails.getUserId(), postId, communityRequest, imageFiles);
+        PostResponse communityResponse =
+                postService.updatePost(
+                        S3_PATH_PREFIX, customUserDetails.getUserId(), postId, postRequest, imageFiles);
         return API.OK(communityResponse);
     }
 
@@ -76,46 +80,43 @@ public class CommunityController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId) {
 
-        communityService.deletePost(customUserDetails.getUserId(), postId);
+        postService.deletePost(customUserDetails.getUserId(), postId);
         return API.OK();
     }
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping
     public ResponseEntity<?> getAllPosts( // 커뮤니티 게시글 전체 목록 조회
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        PagedResponse<CommunityResponse> communities =
-                communityService.getAllPosts(customUserDetails.getUserId(), page, size);
+        PagedResponse<PostResponse> communities =
+                postService.getAllPosts(page, size, CategoryType.COMMUNITY);
         return API.OK(communities);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
-    @GetMapping("type/{communityType}")
+    @GetMapping("/type/{communityType}")
     public ResponseEntity<?> getPostsByCommunityType( // 커뮤니티 게시글 카테고리 별 목록 조회
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable CommunityType communityType,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        PagedResponse<CommunityResponse> communities =
-                communityService.getPostsByCommunityType(
-                        customUserDetails.getUserId(), communityType, page, size);
+        PagedResponse<PostResponse> communities =
+                postService.getPostsByCommunityType(
+                        communityType, page, size);
         return API.OK(communities);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/search")
     public ResponseEntity<?> searchPosts( // 커뮤니티 게시글 키워드 검색
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        PagedResponse<CommunityResponse> communities =
-                communityService.searchPosts(customUserDetails.getUserId(), keyword, page, size);
+        PagedResponse<PostResponse> communities =
+                postService.searchPosts(CategoryType.COMMUNITY, keyword, page, size);
         return API.OK(communities);
     }
 }
