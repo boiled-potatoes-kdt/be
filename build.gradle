@@ -55,6 +55,12 @@ dependencies {
     implementation 'org.redisson:redisson-spring-boot-starter:3.31.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    //QueryDsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
     //actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
@@ -80,7 +86,28 @@ dependencies {
         archiveFileName = 'DainReview.jar'
     }
 
-// git hook 설정
+    def generatedDir = file("src/main/generated")
+
+    sourceSets {
+        main {
+            java {
+                srcDir generatedDir
+            }
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        options.compilerArgs += '-parameters'
+        options.annotationProcessorGeneratedSourcesDirectory = generatedDir
+    }
+
+    tasks.clean {
+        delete generatedDir
+    }
+
+
+    // git hook 설정
     spotless {
         java {
             target("src/main/java/**/*.java")
