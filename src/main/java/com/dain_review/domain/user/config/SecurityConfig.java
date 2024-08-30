@@ -50,10 +50,9 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(
                 matcher ->
-                        matcher.requestMatchers(HttpMethod.POST, "/api/login")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated());
+                        matcher.requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/post/notices/**").permitAll()
+                                .anyRequest().authenticated());
 
         // TODO: Front 주소 확정시
         //        http.cors(httpSecurityCorsConfigurer ->
