@@ -14,6 +14,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
+    // 게시글 단건 조회
+    Post findByIdAndDeletedFalse(Long id);
+
     // 커뮤니티 전체 게시글 조회 (최신순 정렬)
     @Query(
             "SELECT p FROM Post p LEFT JOIN FETCH p.postMeta WHERE p.categoryType = :categoryType AND p.deleted = false ORDER BY p.createdAt DESC")
