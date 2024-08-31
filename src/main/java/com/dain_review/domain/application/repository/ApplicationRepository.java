@@ -9,7 +9,6 @@ import com.dain_review.domain.campaign.model.entity.enums.Platform;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -36,8 +35,4 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             Pageable pageable);
 
     void deleteByIdAndUserId(Long id, Long userId);
-
-    @Modifying
-    @Query("UPDATE Application a SET a.isDeleted = true WHERE a.id = :applicationId")
-    void softDeleteById(@Param("applicationId") Long applicationId);
 }

@@ -2,6 +2,7 @@ package com.dain_review.domain.campaign.service;
 
 import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 
+import com.dain_review.domain.application.model.response.ApplicantResponse;
 import com.dain_review.domain.campaign.exception.CampaignException;
 import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.campaign.model.entity.Campaign;
@@ -13,6 +14,8 @@ import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
+import com.dain_review.domain.review.model.response.ReviewerResponse;
+import com.dain_review.domain.select.model.response.SelectedInfluencerResponse;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
@@ -186,5 +189,21 @@ public class CampaignService {
     private Integer calculateTotalPoints(Integer capacity, Integer pointPerPerson) {
         /*총포인트 계산*/
         return (int) Math.round(capacity * pointPerPerson * 1.2);
+    }
+
+    public List<ApplicantResponse> getApplicants(Long campaignId, Long userId) {
+        Campaign campaign = campaignRepository.getCampaignById(campaignId);
+
+        return ApplicantResponse.from(campaign, userId);
+    }
+
+    public List<SelectedInfluencerResponse> getSelectedInfluencers(Long campaignId, Long userId) {
+        Campaign campaign = campaignRepository.getCampaignById(campaignId);
+        return SelectedInfluencerResponse.from(campaign, userId);
+    }
+
+    public List<ReviewerResponse> getReviews(Long campaignId, Long userId) {
+        Campaign campaign = campaignRepository.getCampaignById(campaignId);
+        return ReviewerResponse.from(campaign, userId);
     }
 }

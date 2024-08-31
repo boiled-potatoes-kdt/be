@@ -15,7 +15,7 @@ public record InfluencerResponse(
         Long appliedCampaignCount, // 신청한 캠페인 수
         Long selectedCampaignCount, // 선정된 캠페인 수
         Long ongoingCampaignCount, // 진행중인 캠페인 수
-        Long cancelledCampaignCount // 취소한 캠페인 수
+        Long cancelledApplicationCount // 취소한 신청 수
         ) {
 
     public static InfluencerResponse from(User user) {
@@ -60,7 +60,7 @@ public record InfluencerResponse(
                         .count();
 
         // 취소한 캠페인 수
-        Long cancelledCampaignCount =
+        Long cancelledApplicationCount =
                 user.getApplicationList().stream().filter(Application::getIsDeleted).count();
 
         return new InfluencerResponse(
@@ -71,6 +71,6 @@ public record InfluencerResponse(
                 appliedCampaignCount,
                 selectedCampaignCount,
                 ongoingCampaignCount,
-                cancelledCampaignCount);
+                cancelledApplicationCount);
     }
 }
