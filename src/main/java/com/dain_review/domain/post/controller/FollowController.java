@@ -1,5 +1,6 @@
 package com.dain_review.domain.post.controller;
 
+
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.FollowType;
 import com.dain_review.domain.post.model.request.PostRequest;
@@ -9,6 +10,7 @@ import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,8 +26,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/post/follows")
@@ -40,21 +40,18 @@ public class FollowController {
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
-    ) {
-        PostResponse postResponse = postService.createPost(
-                S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+        PostResponse postResponse =
+                postService.createPost(
+                        S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
         return API.OK(postResponse);
     }
 
     // 단건조회
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPost(
-            @PathVariable Long postId
-    ) {
-        PostResponse postResponse =
-                postService.getPost(S3_PATH_PREFIX, postId);
+    public ResponseEntity<?> getPost(@PathVariable Long postId) {
+        PostResponse postResponse = postService.getPost(S3_PATH_PREFIX, postId);
         return API.OK(postResponse);
     }
 
@@ -65,10 +62,14 @@ public class FollowController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
-    ) {
-        PostResponse postResponse = postService.updatePost(
-                        S3_PATH_PREFIX, customUserDetails.getUserId(), postId, postRequest, imageFiles);
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+        PostResponse postResponse =
+                postService.updatePost(
+                        S3_PATH_PREFIX,
+                        customUserDetails.getUserId(),
+                        postId,
+                        postRequest,
+                        imageFiles);
         return API.OK(postResponse);
     }
 
@@ -77,8 +78,7 @@ public class FollowController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long postId
-    ) {
+            @PathVariable Long postId) {
         postService.deletePost(customUserDetails.getUserId(), postId);
         return API.OK();
     }
@@ -88,8 +88,7 @@ public class FollowController {
     @GetMapping
     public ResponseEntity<?> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.getAllPosts(page, size, CategoryType.FOLLOW);
         return API.OK(follows);
@@ -100,11 +99,9 @@ public class FollowController {
     public ResponseEntity<?> getPostsByFollowType(
             @PathVariable FollowType followType,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
-                postService.getPostsByFollowType(
-                        followType, page, size);
+                postService.getPostsByFollowType(followType, page, size);
         return API.OK(follows);
     }
 
@@ -113,8 +110,7 @@ public class FollowController {
     public ResponseEntity<?> searchPosts(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.searchPosts(CategoryType.FOLLOW, keyword, page, size);
         return API.OK(follows);

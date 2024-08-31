@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 public enum RedisPrefixType {
     DEFAULT("default:"),
     POST_VIEW_COUNT("postViewCount:"),
-    POST_COMMENT_COUNT("postCommentCount:")
-    ;
+    POST_COMMENT_COUNT("postCommentCount:");
 
     private final String prefix;
 

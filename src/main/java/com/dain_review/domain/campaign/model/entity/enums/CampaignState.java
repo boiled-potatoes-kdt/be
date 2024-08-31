@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum State {
+public enum CampaignState {
     INSPECTION("검수증"),
     RECRUITING("모집중"),
     RECRUITMENT_COMPLETED("모집완료"),

@@ -7,6 +7,9 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
@@ -34,4 +37,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
      * @return 부모 댓글에 대한 대댓글 리스트
      */
     List<Comment> findByParentIdInAndDeletedFalseOrderByParentId(List<Long> parentIdList);
+
+    // 해당 사용자가 작성한 댓글들 삭제
+    @Modifying
+    @Query("DELETE FROM Comment c WHERE c.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 }

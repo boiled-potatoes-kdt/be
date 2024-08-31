@@ -37,8 +37,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
             builder.and(campaign.type.eq(searchRequest.type()));
         }
 
-        if (searchRequest.state() != null) {
-            builder.and(campaign.state.eq(searchRequest.state()));
+        if (searchRequest.campaignState() != null) {
+            builder.and(campaign.campaignState.eq(searchRequest.campaignState()));
         }
 
         if (searchRequest.keyword() != null) {

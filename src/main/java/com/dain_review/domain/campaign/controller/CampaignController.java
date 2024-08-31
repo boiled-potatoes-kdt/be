@@ -1,15 +1,19 @@
 package com.dain_review.domain.campaign.controller;
 
 
+import com.dain_review.domain.application.model.response.ApplicantResponse;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.service.CampaignService;
+import com.dain_review.domain.review.model.response.ReviewerResponse;
+import com.dain_review.domain.select.model.response.SelectedInfluencerResponse;
 import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
 import com.dain_review.global.model.response.PagedResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/campaigns")
+@RequestMapping("/api/campaign")
 @RequiredArgsConstructor
 public class CampaignController {
 
@@ -64,7 +68,7 @@ public class CampaignController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ENTERPRISER')")
-    @GetMapping
+    @GetMapping("/me")
     public ResponseEntity<Page<CampaignSummaryResponse>>
             getRegisteredCampaigns( // 사업주가 등록한 체험단 목록 조회
                     @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -85,5 +89,38 @@ public class CampaignController {
         PagedResponse<CampaignSummaryResponse> campaigns =
                 campaignService.searchCampaigns(searchRequest, pageable);
         return ResponseEntity.ok(campaigns);
+    }
+
+    // 캠페인 관리 페이지 - 모집중
+    @GetMapping("/{campaignId}/management/recruiting")
+    public ResponseEntity<List<ApplicantResponse>> getApplicants(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long campaignId) {
+
+        List<ApplicantResponse> applicantResponseList =
+                campaignService.getApplicants(campaignId, customUserDetails.getUserId());
+        return API.OK(applicantResponseList);
+    }
+
+    // 캠페인 관리 페이지 - 모집완료
+    @GetMapping("/{campaignId}/management/recruitmentCompleted")
+    public ResponseEntity<List<SelectedInfluencerResponse>> getSelectedInfluencers(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long campaignId) {
+
+        List<SelectedInfluencerResponse> selectedInfluencerResponseList =
+                campaignService.getSelectedInfluencers(campaignId, customUserDetails.getUserId());
+        return API.OK(selectedInfluencerResponseList);
+    }
+
+    // 캠페인 관리 페이지 - 체험&리뷰, 리뷰마감
+    @GetMapping("/{campaignId}/management/review")
+    public ResponseEntity<List<ReviewerResponse>> getReviews(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long campaignId) {
+
+        List<ReviewerResponse> selectedInfluencerResponseList =
+                campaignService.getReviews(campaignId, customUserDetails.getUserId());
+        return API.OK(selectedInfluencerResponseList);
     }
 }

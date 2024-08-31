@@ -10,6 +10,7 @@ import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -44,7 +43,7 @@ public class CommunityController {
             @RequestPart("data") PostRequest postRequest,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
 
-        log.info("image files is null: {}", imageFiles==null);
+        log.info("image files is null: {}", imageFiles == null);
         PostResponse communityResponse =
                 postService.createPost(
                         S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
@@ -55,8 +54,7 @@ public class CommunityController {
     @GetMapping("/{postId}") // 커뮤니티 게시글 단건 조회
     public ResponseEntity<?> getPost(@PathVariable Long postId) {
 
-        PostResponse communityResponse =
-                postService.getPost(S3_PATH_PREFIX, postId);
+        PostResponse communityResponse = postService.getPost(S3_PATH_PREFIX, postId);
         return API.OK(communityResponse);
     }
 
@@ -70,7 +68,11 @@ public class CommunityController {
 
         PostResponse communityResponse =
                 postService.updatePost(
-                        S3_PATH_PREFIX, customUserDetails.getUserId(), postId, postRequest, imageFiles);
+                        S3_PATH_PREFIX,
+                        customUserDetails.getUserId(),
+                        postId,
+                        postRequest,
+                        imageFiles);
         return API.OK(communityResponse);
     }
 
@@ -103,8 +105,7 @@ public class CommunityController {
             @RequestParam(defaultValue = "10") int size) {
 
         PagedResponse<PostResponse> communities =
-                postService.getPostsByCommunityType(
-                        communityType, page, size);
+                postService.getPostsByCommunityType(communityType, page, size);
         return API.OK(communities);
     }
 

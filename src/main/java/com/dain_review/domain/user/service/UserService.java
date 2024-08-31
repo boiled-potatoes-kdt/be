@@ -36,6 +36,11 @@ public class UserService {
                         .findById(id)
                         .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND_BY_ID));
 
+        // 사업주가 체험단을 등록했거나 인플루언서가 체험단을 신청 중일 때는 탈퇴가 불가능
+        if (user.getCampaignList().size() != 0 || user.getApplicationList().size() != 0) {
+            throw new RuntimeException();
+        }
+
         user.delete();
     }
 }

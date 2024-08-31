@@ -1,5 +1,6 @@
 package com.dain_review.domain.post.event;
 
+
 import com.dain_review.domain.post.model.entity.Post;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

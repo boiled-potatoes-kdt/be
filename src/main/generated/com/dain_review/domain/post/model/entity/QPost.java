@@ -24,6 +24,8 @@ public class QPost extends EntityPathBase<Post> {
 
     public final com.dain_review.global.model.entity.QBaseEntity _super = new com.dain_review.global.model.entity.QBaseEntity(this);
 
+    public final ListPath<AttachedFile, QAttachedFile> attachedFile = this.<AttachedFile, QAttachedFile>createList("attachedFile", AttachedFile.class, QAttachedFile.class, PathInits.DIRECT2);
+
     public final EnumPath<com.dain_review.domain.post.model.entity.enums.CategoryType> categoryType = createEnum("categoryType", com.dain_review.domain.post.model.entity.enums.CategoryType.class);
 
     public final ListPath<com.dain_review.domain.comment.model.entity.Comment, com.dain_review.domain.comment.model.entity.QComment> commentList = this.<com.dain_review.domain.comment.model.entity.Comment, com.dain_review.domain.comment.model.entity.QComment>createList("commentList", com.dain_review.domain.comment.model.entity.Comment.class, com.dain_review.domain.comment.model.entity.QComment.class, PathInits.DIRECT2);
@@ -35,10 +37,12 @@ public class QPost extends EntityPathBase<Post> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
+    public final BooleanPath deleted = createBoolean("deleted");
+
+    public final EnumPath<com.dain_review.domain.post.model.entity.enums.FollowType> followType = createEnum("followType", com.dain_review.domain.post.model.entity.enums.FollowType.class);
+
     //inherited
     public final NumberPath<Long> id = _super.id;
-
-    public final StringPath imageUrl = createString("imageUrl");
 
     public final QPostMeta postMeta;
 
