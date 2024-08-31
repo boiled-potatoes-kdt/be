@@ -1,15 +1,17 @@
 package com.dain_review.domain.user.model.request;
 
 
-import com.dain_review.global.validation.type.AddressFieldsValidation;
+import com.dain_review.global.validation.type.AllOrNone;
+import jakarta.validation.constraints.NotBlank;
 
-@AddressFieldsValidation
+@AllOrNone(fields = {"address", "addressDetail", "postalCode"})
+@AllOrNone(fields = {"oldPassword", "newPassword"})
 public record EnterpriserChangeRequest(
         String oldPassword,
         String newPassword,
-        String name,
-        String nickname,
-        String phone,
+        @NotBlank String name,
+        @NotBlank String nickname,
+        @NotBlank String phone,
         String address,
         String addressDetail,
         String postalCode) {}

@@ -5,15 +5,13 @@ import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 import com.dain_review.domain.campaign.exception.CampaignException;
 import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.campaign.model.entity.Campaign;
+import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
-import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
-import com.dain_review.domain.user.exception.UserException;
-import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.util.S3Util;
@@ -37,7 +35,8 @@ public class CampaignService {
 
     public CampaignResponse createCampaign(
             Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
-        User user = getUser(userId);
+
+        User user = userRepository.getUserById(userId);
 
         // 이미지 업로드 처리
         String imageFileName = null;
@@ -94,7 +93,7 @@ public class CampaignService {
                         .experienceStartDate(campaignRequest.experienceStartDate())
                         .experienceEndDate(campaignRequest.experienceEndDate())
                         .reviewDate(campaignRequest.reviewDate())
-                        .state(State.INSPECTION) // 기본 상태를 "검수중"으로 설정
+                        .campaignState(CampaignState.INSPECTION) // 기본 상태를 "검수중"으로 설정
                         .isDeleted(false) // 기본 값은 삭제되지 않음
                         .build();
 
@@ -105,22 +104,14 @@ public class CampaignService {
 
     @Transactional(readOnly = true)
     public CampaignResponse getCampaignById(Long campaignId) { // 체험단 단건 조회
-        Campaign campaign =
-                campaignRepository
-                        .findById(campaignId)
-                        .orElseThrow(
-                                () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+        Campaign campaign = campaignRepository.getCampaignById(campaignId);
 
         return convertToImageUrlResponse(campaign);
     }
 
     public void deleteCampaign(Long userId, Long campaignId) { // 체험단 삭제(취소)
-        User user = getUser(userId);
-        Campaign campaign =
-                campaignRepository
-                        .findById(campaignId)
-                        .orElseThrow(
-                                () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+        User user = userRepository.getUserById(userId);
+        Campaign campaign = campaignRepository.getCampaignById(campaignId);
 
         if (!campaign.getUser().getId().equals(user.getId())) {
             throw new CampaignException(CampaignErrorCode.UNAUTHORIZED_ACCESS);
@@ -133,16 +124,18 @@ public class CampaignService {
     // 사업주가 등록한 체험단 목록 조회
     public Page<CampaignSummaryResponse> getRegisteredCampaigns(
             CampaignFilterRequest campaignFilterRequest, Pageable pageable, Long userId) {
+
         Page<Campaign> campaignPage =
                 campaignRepository.findByStateAndPlatformAndNameContainingAndUserId(
-                        campaignFilterRequest.state(),
+                        campaignFilterRequest.campaignState(),
                         campaignFilterRequest.platform(),
                         campaignFilterRequest.keyword(),
                         userId,
                         pageable);
+
         return campaignPage.map(
                 campaign ->
-                        CampaignSummaryResponse.fromEntity(
+                        CampaignSummaryResponse.from(
                                 campaign, s3Util.selectImage(campaign.getImageUrl())));
     }
 
@@ -170,17 +163,5 @@ public class CampaignService {
                         ? s3Util.selectImage(campaign.getImageUrl())
                         : null;
         return CampaignResponse.fromEntity(campaign, imageUrl);
-    }
-
-    public Campaign getCampaign(Long campaignId) {
-        return campaignRepository
-                .findById(campaignId)
-                .orElseThrow(() -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
-    }
-
-    private User getUser(Long userId) {
-        return userRepository
-                .findById(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 }

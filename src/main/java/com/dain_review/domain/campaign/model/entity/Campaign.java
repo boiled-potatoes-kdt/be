@@ -1,10 +1,10 @@
 package com.dain_review.domain.campaign.model.entity;
 
 
+import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.Category;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
-import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
@@ -84,7 +84,7 @@ public class Campaign extends BaseEntity {
     private String district; // 구/군
 
     @Enumerated(EnumType.STRING)
-    private State state; // 체험단 상태 (검수중, 모집중 등)
+    private CampaignState campaignState; // 체험단 상태 (검수중, 모집중 등)
 
     @Enumerated(EnumType.STRING)
     private Label label; // 라벨 (예: 다인체험단, 프리미엄, 일반체험단)

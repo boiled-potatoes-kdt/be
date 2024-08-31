@@ -27,19 +27,16 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody ProfileChangeRequest profileChangeRequest) {
 
-        Long userId = customUserDetails.getUserId();
-        userService.update(userId, profileChangeRequest);
+        userService.update(customUserDetails.getUserId(), profileChangeRequest);
 
         return API.OK();
     }
 
-    // Todo - 응답형식 어떻게 해야하는지 물어보기
     // 회원 탈퇴
     @DeleteMapping("")
     public ResponseEntity delete(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        Long userId = customUserDetails.getUserId();
-        userService.delete(userId);
+        userService.delete(customUserDetails.getUserId());
 
         return API.OK();
     }

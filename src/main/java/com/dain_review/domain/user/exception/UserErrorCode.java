@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @Getter
 public enum UserErrorCode implements ErrorCode {
-    NOT_FOUND_BY_ID(HttpStatus.BAD_REQUEST, "해당 id의 사용자가 없습니다.");
+    NOT_FOUND_BY_ID(HttpStatus.BAD_REQUEST, "해당 id의 사용자가 없습니다."),
+    FAILED_CHANGE(HttpStatus.BAD_REQUEST, "회원정보 변경에 실패하였습니다.");
 
     private final HttpStatus status;
     private final String msg;
