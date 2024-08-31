@@ -121,4 +121,8 @@ public class User extends BaseEntity {
     public void change(String profileImage) {
         this.profileImage = profileImage;
     }
+
+    public boolean isNotSame(Long userId) {
+        return !this.getId().equals(userId);
+    }
 }

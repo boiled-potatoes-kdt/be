@@ -20,8 +20,17 @@ public class PostReadEventListener {
     @Transactional
     @EventListener
     public void onReceive(PostReadEvent event) {
-        log.info("이벤트 수신 완료 postId: {}", event.getPost().getId());
+        log.info("조회수 이벤트 수신 완료 postId: {}", event.getPost().getId());
         postMetaService.incrementViewCount(event.getPost().getId());
-        log.info("이벤트 처리 완료 postId: {}", event.getPost().getId());
+        log.info("조회수 이벤트 처리 완료 postId: {}", event.getPost().getId());
+    }
+
+    @Async("asyncExecutor")
+    @Transactional
+    @EventListener
+    public void onReceiveComment(PostCommentEvent event) {
+        log.info("댓글수 이벤트 수신 완료 postId: {}", event.getPost().getId());
+        postMetaService.incrementCommentCount(event.getPost().getId());
+        log.info("댓글수 이벤트 처리 완료 postId: {}", event.getPost().getId());
     }
 }

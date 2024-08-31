@@ -3,11 +3,13 @@ package com.dain_review.domain.campaign.controller;
 
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
+import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.service.CampaignService;
 import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
+import com.dain_review.global.model.response.PagedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -73,6 +75,15 @@ public class CampaignController {
                 campaignService.getRegisteredCampaigns(
                         campaignFilterRequest, pageable, customUserDetails.getUserId());
 
+        return ResponseEntity.ok(campaigns);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<PagedResponse<CampaignSummaryResponse>> searchCampaigns( // 검색 필터로 체험단 검색
+            CampaignSearchRequest searchRequest, @PageableDefault(size = 10) Pageable pageable) {
+
+        PagedResponse<CampaignSummaryResponse> campaigns =
+                campaignService.searchCampaigns(searchRequest, pageable);
         return ResponseEntity.ok(campaigns);
     }
 }
