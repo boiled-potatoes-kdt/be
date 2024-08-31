@@ -50,7 +50,7 @@ public class ApplicationController {
     }
 
     // 신청한 체험단 리스트 페이지네이션으로 가져오기
-    @GetMapping
+    @GetMapping("/me")
     public ResponseEntity<Page<ApplicationCampaignResponse>> getApplications(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute CampaignFilterRequest campaignFilterRequest,

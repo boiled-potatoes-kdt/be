@@ -64,7 +64,7 @@ public class CampaignController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ENTERPRISER')")
-    @GetMapping
+    @GetMapping("/me")
     public ResponseEntity<Page<CampaignSummaryResponse>>
             getRegisteredCampaigns( // 사업주가 등록한 체험단 목록 조회
                     @AuthenticationPrincipal CustomUserDetails customUserDetails,

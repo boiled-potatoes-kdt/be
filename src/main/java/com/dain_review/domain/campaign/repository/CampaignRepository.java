@@ -24,12 +24,11 @@ public interface CampaignRepository
 
     @Query(
             "SELECT c FROM Campaign c "
-                    + "WHERE c.campaignState = :campaignState "
-                    + "AND c.platform = :platform "
-                    + "AND c.businessName LIKE %:keyword% "
+                    + "WHERE (:campaignState IS NULL OR c.campaignState = :campaignState) "
+                    + "AND (:platform IS NULL OR c.platform = :platform) "
+                    + "AND (:keyword IS NULL OR c.businessName LIKE %:keyword%) "
                     + "AND c.user.id = :userId "
-                    + "AND c.isDeleted = false "
-                    + "ORDER BY c.id DESC")
+                    + "AND c.isDeleted = false ")
     Page<Campaign> findByStateAndPlatformAndNameContainingAndUserId(
             @Param("campaignState") CampaignState campaignState,
             @Param("platform") Platform platform,

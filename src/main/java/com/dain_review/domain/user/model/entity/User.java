@@ -4,8 +4,6 @@ package com.dain_review.domain.user.model.entity;
 import com.dain_review.domain.application.model.entity.Application;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.post.model.entity.Post;
-import com.dain_review.domain.user.exception.UserErrorCode;
-import com.dain_review.domain.user.exception.UserException;
 import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.domain.user.model.request.EnterpriserChangeRequest;
 import com.dain_review.domain.user.model.request.EnterpriserExtraRegisterRequest;
@@ -75,9 +73,7 @@ public class User extends BaseEntity {
     }
 
     public void change(EnterpriserChangeRequest enterpriserChangeRequest) {
-        if (!this.password.equals(enterpriserChangeRequest.oldPassword())) {
-            throw new UserException(UserErrorCode.FAILED_CHANGE);
-        }
+        // Todo 비밀번호 일치하는지 검증로직 추가
         this.password = enterpriserChangeRequest.newPassword();
         this.name = enterpriserChangeRequest.name();
         this.nickname = enterpriserChangeRequest.nickname();
@@ -105,9 +101,7 @@ public class User extends BaseEntity {
     }
 
     public void change(InfluencerChangeRequest influencerChangeRequest) {
-        if (!this.password.equals(influencerChangeRequest.oldPassword())) {
-            throw new UserException(UserErrorCode.FAILED_CHANGE);
-        }
+        // Todo 비밀번호 일치하는지 검증로직 추가
         this.password = influencerChangeRequest.newPassword();
         this.name = influencerChangeRequest.name();
         this.nickname = influencerChangeRequest.nickname();
