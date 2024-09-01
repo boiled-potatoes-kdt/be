@@ -15,6 +15,7 @@ import lombok.Getter;
 public class PostResponse {
     private Long id;
     private String authorNickName; // 작성자 닉네임
+    private String authorProfileImageUrl;
     private String title;
     private String content;
     private String noticeBoardType;
@@ -25,10 +26,12 @@ public class PostResponse {
     private Long commentCount;
     private String contentPreview; // 글 내용 미리보기
 
-    public static PostResponse responseWithContentPreview(Post post) {
+    public static PostResponse responseWithContentPreview(Post post, String profileImageUrl) {
+
         return PostResponse.builder()
                 .id(post.getId())
                 .authorNickName(post.getUser().getNickname())
+                .authorProfileImageUrl(profileImageUrl)
                 .title(post.getTitle())
                 .content(post.getContent())
                 .noticeBoardType(post.getCategoryType().getDisplayName())
@@ -40,12 +43,13 @@ public class PostResponse {
                 .build();
     }
 
-    public static PostResponse responseWithoutContentPreview(Post post, List<String> imageUrls) {
+    public static PostResponse responseWithoutContentPreview(Post post, String profileImageUrl, List<String> imageUrls) {
         return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .authorNickName(post.getUser().getNickname())
+                .authorProfileImageUrl(profileImageUrl)
                 .noticeBoardType(post.getCategoryType().getDisplayName())
                 .categoryType(determinePostCategoryType(post))
                 .attachedFileUrls(imageUrls)

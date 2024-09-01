@@ -50,6 +50,9 @@ public class S3Util {
      * @return fileName 과 일치하는 이름의 리소스 url 반환
      */
     public String selectImage(String fileName, String path) {
+        if (fileName == null || fileName.isEmpty()) {
+            return null;
+        }
         String selectPath = bucketName + path;
         s3Client.getObject(new GetObjectRequest(selectPath, fileName));
         URL url = s3Client.getUrl(selectPath, fileName);
