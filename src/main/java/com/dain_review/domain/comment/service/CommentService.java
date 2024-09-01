@@ -14,6 +14,7 @@ import com.dain_review.domain.post.repository.PostRepository;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
+import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class CommentService {
     private final S3Util s3Util;
     private final ApplicationEventPublisher eventPublisher;
 
-    private final String S3_PATH_PREFIX = "/profile-image/";
+    private final String S3_PROFILE_PATH_PREFIX = S3PathPrefixType.S3_PROFILE_IMAGE_PATH.toString();
 
     /**
      * 댓글 size 10개로 페이지네이션, 대댓글 리스트 조회
@@ -50,23 +51,17 @@ public class CommentService {
                         postId, PageRequest.of(page - 1, size));
 
         List<CommentResponse> commentResponseList =
-                comments.get()
-                        .map(
-                                comment -> {
-                                    String profileUrl =
-                                            s3Util.selectImage(
-                                                    comment.getUser().getProfileImage(),
-                                                    S3_PATH_PREFIX);
-                                    return CommentResponse.from(
-                                            comment, comment.getUser().getNickname(), profileUrl);
-                                })
-                        .toList();
+                comments.get().map(comment -> {
+                    String profileUrl = s3Util.selectImage(comment.getUser().getProfileImage(), S3_PROFILE_PATH_PREFIX);
+                    return CommentResponse.from(comment, comment.getUser().getNickname(), profileUrl);
+                }).toList();
+
+        // 대댓글 리스트 조회 (parentId 순 정렬)
         List<CommentResponse> replyList =
                 findChildCommentsByCommentId(comments.get().map(Comment::getId).toList());
 
         PagedResponse<CommentResponse> pagedComments =
-                new PagedResponse<>(
-                        commentResponseList, comments.getTotalElements(), comments.getTotalPages());
+                new PagedResponse<>(commentResponseList, comments.getTotalElements(), comments.getTotalPages());
         return new CommentsAndRepliesResponse(pagedComments, replyList);
     }
 
@@ -76,24 +71,17 @@ public class CommentService {
      * @param request postId:작성할 댓글의 대상 게시글 ID, parentId:생성 대댓글의 부모 댓글 ID, content: 댓글 내용
      */
     @Transactional
-    public void createComment(Long userId, CommentRequest request) {
-        User user = getUserInfo(userId);
-        Post post = postRepository.getPostById(request.postId());
-
+    public void createComment(Long userId, Long postId, CommentRequest request) {
+        User user = userRepository.getUserById(userId);
+        Post post = postRepository.getPostById(postId);
         Comment parent = null;
         if (request.parentId() != null)
-            parent =
-                    commentRepository
-                            .findByIdAndDeletedFalse(request.parentId())
-                            .orElseThrow(
-                                    () -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
+            parent = commentRepository.findByIdAndDeletedFalse(request.parentId())
+                            .orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
 
-        Comment saveComment = Comment.from(request, user, post, parent);
-        Comment saved = commentRepository.save(saveComment);
-        if (saved == null) {
-            throw new CommentException(CommentErrorCode.COMMENT_CREATE_FAILED);
-        }
-        eventPublisher.publishEvent(new PostCommentEvent(saved.getPost()));
+        Comment comment = Comment.from(request, user, post, parent);
+        commentRepository.save(comment);
+        eventPublisher.publishEvent(new PostCommentEvent(comment.getPost()));
     }
 
     /**
@@ -102,76 +90,25 @@ public class CommentService {
      * @param request id:댓글 ID, postId:게시글 ID, parentId:부모 댓글 ID, content:댓글 내용
      */
     @Transactional
-    public void updateComment(Long userId, CommentRequest request) {
-        Comment comment = checkAuthorMismatch(userId, request.id());
+    public void updateComment(Long userId, Long commentId, CommentRequest request) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
 
-        Comment updateComment = Comment.from(request, comment);
-        Comment updated = commentRepository.save(updateComment);
-        if (updated == null) {
-            throw new CommentException(CommentErrorCode.COMMENT_UPDATE_FAILED);
-        }
+        comment.updateBy(userId, request);
     }
 
     /**
      * 댓글 삭제 메서드, deleted 필드 값을 1로 update
      *
-     * @param request id:댓글 ID
+     * @param userId    요청 클라이언트 userId
+     * @param commentId 삭제할 댓글 id
      */
     @Transactional
-    public void deleteComment(Long userId, CommentRequest request) {
-        Comment comment = checkAuthorMismatch(userId, request.id());
-
-        Comment delete =
-                Comment.builder()
-                        .id(comment.getId())
-                        .post(comment.getPost())
-                        .parent(comment.getParent())
-                        .children(comment.getChildren())
-                        .content(comment.getContent())
-                        .deleted(true)
-                        .build();
-        Comment deleted = commentRepository.save(delete);
-        if (deleted == null) {
-            throw new CommentException(CommentErrorCode.COMMENT_DELETE_FAILED);
-        }
-    }
-
-    /**
-     * 해당 id의 댓글의 존재 여부를 확인
-     *
-     * @param commentId 확인할 댓글 ID
-     * @return (댓글이 존재할 시) 해당 ID의 댓글 정보 반환
-     */
-    private Comment checkCommentExistence(Long commentId) {
-        return commentRepository
-                .findByIdAndDeletedFalse(commentId)
+    public void deleteComment(Long userId, Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
-    }
 
-    /**
-     * 요청 클라이언트의 정보를 반환
-     *
-     * @param userId 해당 유저의 User ID
-     * @return 유저 정보 반환
-     */
-    private User getUserInfo(Long userId) {
-        return userRepository.getUserById(userId);
-    }
-
-    /**
-     * 요청 클라이언트와 댓글 작성자 일치여부 확인
-     *
-     * @param userId 요청을 보낸 클라이언트 User ID
-     * @param commentId 대상 댓글의 ID
-     * @return (요청 클라이언트와 댓글 저자 일치 시) 해당 ID의 댓글 정보 반환
-     */
-    private Comment checkAuthorMismatch(Long userId, Long commentId) {
-        Comment comment = checkCommentExistence(commentId);
-        User commentAuthor = getUserInfo(comment.getUser().getId());
-        if (!commentAuthor.getId().equals(userId)) {
-            throw new CommentException(CommentErrorCode.COMMENT_AUTHOR_MISMATCH);
-        }
-        return comment;
+        comment.deleteBy(userId);
     }
 
     /**
@@ -181,17 +118,12 @@ public class CommentService {
      * @return 대댓글 리스트
      */
     private List<CommentResponse> findChildCommentsByCommentId(List<Long> commentIds) {
-        List<Comment> replies =
-                commentRepository.findByParentIdInAndDeletedFalseOrderByParentId(commentIds);
+        List<Comment> replies = commentRepository.findByParentIdInAndDeletedFalseOrderByParentId(commentIds);
         return replies.stream()
                 .map(
                         comment -> {
-                            String profileUrl =
-                                    s3Util.selectImage(
-                                            comment.getUser().getProfileImage(), S3_PATH_PREFIX);
-                            return CommentResponse.from(
-                                    comment, comment.getUser().getNickname(), profileUrl);
-                        })
-                .toList();
+                            String profileUrl = s3Util.selectImage(comment.getUser().getProfileImage(), S3_PROFILE_PATH_PREFIX);
+                            return CommentResponse.from(comment, comment.getUser().getNickname(), profileUrl);
+                        }).toList();
     }
 }

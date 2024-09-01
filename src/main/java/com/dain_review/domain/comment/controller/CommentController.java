@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,14 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/comments")
+@RequestMapping("/api/post/{post_id}/comments")
 public class CommentController {
 
     private final CommentService commentService;
 
     @GetMapping
     public ResponseEntity<?> getComments(
-            @RequestParam(value = "post_id") Long postId,
+            @PathVariable(value = "post_id") Long postId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         CommentsAndRepliesResponse response = commentService.getComments(postId, page, size);
@@ -37,24 +38,26 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<?> createComment(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable(value = "post_id") Long postId,
             @RequestBody CommentRequest request) {
-        commentService.createComment(customUserDetails.getUserId(), request);
-        return API.OK();
+        commentService.createComment(customUserDetails.getUserId(), postId, request);
+        return API.OK("댓글 작성이 완료되었습니다.");
     }
 
-    @PatchMapping
+    @PatchMapping("/{comment_id}")
     public ResponseEntity<?> updateComment(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable(value = "comment_id") Long commentId,
             @RequestBody CommentRequest request) {
-        commentService.updateComment(customUserDetails.getUserId(), request);
-        return API.OK();
+        commentService.updateComment(customUserDetails.getUserId(), commentId, request);
+        return API.OK("댓글 수정이 완료 되었습니다.");
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{comment_id}")
     public ResponseEntity<?> deleteComment(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody CommentRequest request) {
-        commentService.deleteComment(customUserDetails.getUserId(), request);
-        return API.OK();
+            @PathVariable(value = "comment_id") Long commentId) {
+        commentService.deleteComment(customUserDetails.getUserId(), commentId);
+        return API.OK("댓글 삭제가 완료 되었습니다.");
     }
 }
