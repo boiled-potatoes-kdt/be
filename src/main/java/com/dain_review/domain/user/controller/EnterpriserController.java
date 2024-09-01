@@ -8,6 +8,7 @@ import com.dain_review.domain.user.model.response.EnterpriserChangeResponse;
 import com.dain_review.domain.user.model.response.EnterpriserResponse;
 import com.dain_review.domain.user.service.EnterpriserService;
 import com.dain_review.global.api.API;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,19 +20,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/owner")
+@RequestMapping("/api/enterpriser")
 @RequiredArgsConstructor
 public class EnterpriserController {
 
     private final EnterpriserService enterpriserService;
 
-    // Todo - 응답형식 어떻게 해야하는지 물어보기
     // 사업주 회원가입 추가정보 입력
     @PostMapping("/sign-up/extra")
     public ResponseEntity register(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest) {
-        enterpriserService.save(customUserDetails.getUserId(), enterpriserExtraRegisterRequest);
+            @Valid @RequestBody EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest) {
+
+        enterpriserService.signUpExtra(
+                customUserDetails.getUserId(), enterpriserExtraRegisterRequest);
 
         return API.OK();
     }
@@ -42,7 +44,7 @@ public class EnterpriserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         EnterpriserResponse enterpriserResponse =
-                enterpriserService.get(customUserDetails.getUserId());
+                enterpriserService.getMyPage(customUserDetails.getUserId());
 
         return API.OK(enterpriserResponse);
     }
@@ -53,7 +55,7 @@ public class EnterpriserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         EnterpriserChangeResponse enterpriserChangeResponse =
-                enterpriserService.getChange(customUserDetails.getUserId());
+                enterpriserService.getChangePage(customUserDetails.getUserId());
 
         return API.OK(enterpriserChangeResponse);
     }
@@ -62,10 +64,11 @@ public class EnterpriserController {
     @PatchMapping("")
     public ResponseEntity<EnterpriserChangeResponse> change(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody EnterpriserChangeRequest enterpriserChangeRequest) {
+            @Valid @RequestBody EnterpriserChangeRequest enterpriserChangeRequest) {
 
         EnterpriserChangeResponse enterpriserChangeResponse =
-                enterpriserService.change(enterpriserChangeRequest, customUserDetails.getUserId());
+                enterpriserService.changeInformation(
+                        enterpriserChangeRequest, customUserDetails.getUserId());
 
         return API.OK(enterpriserChangeResponse);
     }

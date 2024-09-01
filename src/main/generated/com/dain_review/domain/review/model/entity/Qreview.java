@@ -11,16 +11,16 @@ import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * Qreview is a Querydsl query type for review
+ * QReview is a Querydsl query type for Review
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class Qreview extends EntityPathBase<review> {
+public class QReview extends EntityPathBase<Review> {
 
-    private static final long serialVersionUID = 813221900L;
+    private static final long serialVersionUID = -102910932L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final Qreview review = new Qreview("review");
+    public static final QReview review = new QReview("review");
 
     public final com.dain_review.global.model.entity.QBaseEntity _super = new com.dain_review.global.model.entity.QBaseEntity(this);
 
@@ -41,23 +41,23 @@ public class Qreview extends EntityPathBase<review> {
 
     public final com.dain_review.domain.user.model.entity.QUser user;
 
-    public Qreview(String variable) {
-        this(review.class, forVariable(variable), INITS);
+    public QReview(String variable) {
+        this(Review.class, forVariable(variable), INITS);
     }
 
-    public Qreview(Path<? extends review> path) {
+    public QReview(Path<? extends Review> path) {
         this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
-    public Qreview(PathMetadata metadata) {
+    public QReview(PathMetadata metadata) {
         this(metadata, PathInits.getFor(metadata, INITS));
     }
 
-    public Qreview(PathMetadata metadata, PathInits inits) {
-        this(review.class, metadata, inits);
+    public QReview(PathMetadata metadata, PathInits inits) {
+        this(Review.class, metadata, inits);
     }
 
-    public Qreview(Class<? extends review> type, PathMetadata metadata, PathInits inits) {
+    public QReview(Class<? extends Review> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.application = inits.isInitialized("application") ? new com.dain_review.domain.application.model.entity.QApplication(forProperty("application"), inits.get("application")) : null;
         this.campaign = inits.isInitialized("campaign") ? new com.dain_review.domain.campaign.model.entity.QCampaign(forProperty("campaign"), inits.get("campaign")) : null;

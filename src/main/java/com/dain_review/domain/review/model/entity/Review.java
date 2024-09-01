@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class review extends BaseEntity {
+public class Review extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")

@@ -1,5 +1,7 @@
 package com.dain_review.domain.post.service;
 
+import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
+
 import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.exception.PostException;
 import com.dain_review.domain.post.exception.errortype.PostErrorCode;
@@ -21,6 +23,8 @@ import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.util.S3Util;
 import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -29,11 +33,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 
 @Service
 @Transactional
@@ -49,8 +48,7 @@ public class PostService {
 
     // 목록조회, 삭제 제외하고 이미지 조회 필요함
     public PostResponse createPost(
-            String S3_PATH_PREFIX, Long userId, PostRequest postRequest, List<MultipartFile> imageFiles
-    ) {
+            String S3_PATH_PREFIX, Long userId, PostRequest postRequest, List<MultipartFile> imageFiles) {
         User user = getUser(userId);
         Post post = determineCreatePostCategoryType(postRequest, user);
         PostMeta postMeta =
@@ -85,7 +83,12 @@ public class PostService {
         return PostResponse.responseWithoutContentPreview(post, imageUrls);
     }
 
-    public PostResponse updatePost(String S3_PATH_PREFIX, Long userId, Long postId, PostRequest postRequest, List<MultipartFile> imageFiles) {
+    public PostResponse updatePost(
+            String S3_PATH_PREFIX,
+            Long userId,
+            Long postId,
+            PostRequest postRequest,
+            List<MultipartFile> imageFiles) {
         Post existingPost =
                 postRepository
                         .findById(postId)
@@ -102,8 +105,10 @@ public class PostService {
     }
 
     public void deletePost(Long userId, Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+        Post post =
+                postRepository
+                        .findById(postId)
+                        .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
 
         post.deleteBy(userId);
         postRepository.save(post);
@@ -131,7 +136,8 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
-    public PagedResponse<PostResponse> getPostsByFollowType(FollowType followType, int page, int size) {
+    public PagedResponse<PostResponse> getPostsByFollowType(
+            FollowType followType, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndFollowType(
@@ -147,10 +153,10 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
-    public PagedResponse<PostResponse> searchPosts(CategoryType categoryType, String keyword, int page, int size) {
+    public PagedResponse<PostResponse> searchPosts(
+            CategoryType categoryType, String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Post> postsPage =
-                postRepository.searchByKeyword(categoryType, keyword, pageable);
+        Page<Post> postsPage = postRepository.searchByKeyword(categoryType, keyword, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
@@ -185,10 +191,7 @@ public class PostService {
 
                 fileName = s3Util.saveImage(imageFile, S3_PATH_PREFIX).join();
                 // attached_file 테이블에 레코드 추가
-                AttachedFile file = AttachedFile.builder()
-                        .post(post)
-                        .fileName(fileName)
-                        .build();
+                AttachedFile file = AttachedFile.builder().post(post).fileName(fileName).build();
 
                 attachedFileRepository.save(file);
             }
@@ -205,9 +208,10 @@ public class PostService {
 
     private List<String> findImageUrls(Long postId, String S3_PATH_PREFIX) {
         List<AttachedFile> attachedFiles = attachedFileRepository.findByPostId(postId);
-        return attachedFiles.stream().map(it -> {
-            return (it != null) ? s3Util.selectImage(it.getFileName(), S3_PATH_PREFIX) : null;
-        }).toList();
+        return attachedFiles.stream()
+                .map(it -> {
+                            return (it != null) ? s3Util.selectImage(it.getFileName(), S3_PATH_PREFIX) : null;
+                }).toList();
     }
 
     private Post determineCreatePostCategoryType(PostRequest postRequest, User user) {

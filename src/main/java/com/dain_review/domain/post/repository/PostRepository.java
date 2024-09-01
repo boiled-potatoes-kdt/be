@@ -1,6 +1,8 @@
 package com.dain_review.domain.post.repository;
 
 
+import com.dain_review.domain.post.exception.PostException;
+import com.dain_review.domain.post.exception.errortype.PostErrorCode;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.CommunityType;
@@ -14,6 +16,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
+    default Post getPostById(Long id) {
+        return findById(id).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+    }
 
     // 게시글 단건 조회
     Post findByIdAndDeletedFalse(Long id);
@@ -59,15 +64,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "UPDATE PostMeta pm SET pm.viewCount = pm.viewCount + :viewCount WHERE pm.post.id = :postId")
     void updateViewCount(@Param("postId") Long postId, @Param("viewCount") int viewCount);
 
+    // 해당 사용자가 작성한 게시글들 삭제
+    @Modifying
+    @Query("DELETE FROM Post p WHERE p.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
+
     @Modifying
     @Query(
             "UPDATE PostMeta pm SET pm.commentCount = pm.commentCount + :commentCount WHERE pm.post.id = :postId")
     void updateCommentCount(@Param("postId") Long postId, @Param("commentCount") int commentCount);
 
     // 맞팔/서이추 타입별 조회
-    @Query("SELECT p FROM Post p WHERE p.categoryType = :categoryType " +
-            "AND p.followType = :followType " +
-            "AND p.deleted = false ORDER BY p.createdAt DESC")
+    @Query(
+            "SELECT p FROM Post p WHERE p.categoryType = :categoryType "
+                    + "AND p.followType = :followType "
+                    + "AND p.deleted = false ORDER BY p.createdAt DESC")
     Page<Post> findByCategoryTypeAndFollowType(
             @Param("categoryType") CategoryType categoryType,
             @Param("followType") FollowType followType,

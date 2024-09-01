@@ -30,11 +30,15 @@ public class QCampaign extends EntityPathBase<Campaign> {
 
     public final DateTimePath<java.time.LocalDateTime> applicationEndDate = createDateTime("applicationEndDate", java.time.LocalDateTime.class);
 
+    public final ListPath<com.dain_review.domain.application.model.entity.Application, com.dain_review.domain.application.model.entity.QApplication> applicationList = this.<com.dain_review.domain.application.model.entity.Application, com.dain_review.domain.application.model.entity.QApplication>createList("applicationList", com.dain_review.domain.application.model.entity.Application.class, com.dain_review.domain.application.model.entity.QApplication.class, PathInits.DIRECT2);
+
     public final DateTimePath<java.time.LocalDateTime> applicationStartDate = createDateTime("applicationStartDate", java.time.LocalDateTime.class);
 
     public final SetPath<String, StringPath> availableDays = this.<String, StringPath>createSet("availableDays", String.class, StringPath.class, PathInits.DIRECT2);
 
     public final StringPath businessName = createString("businessName");
+
+    public final EnumPath<com.dain_review.domain.campaign.model.entity.enums.CampaignState> campaignState = createEnum("campaignState", com.dain_review.domain.campaign.model.entity.enums.CampaignState.class);
 
     public final NumberPath<Integer> capacity = createNumber("capacity", Integer.class);
 
@@ -84,9 +88,11 @@ public class QCampaign extends EntityPathBase<Campaign> {
 
     public final DateTimePath<java.time.LocalDateTime> reviewDate = createDateTime("reviewDate", java.time.LocalDateTime.class);
 
-    public final StringPath serviceProvided = createString("serviceProvided");
+    public final ListPath<com.dain_review.domain.review.model.entity.Review, com.dain_review.domain.review.model.entity.QReview> ReviewList = this.<com.dain_review.domain.review.model.entity.Review, com.dain_review.domain.review.model.entity.QReview>createList("ReviewList", com.dain_review.domain.review.model.entity.Review.class, com.dain_review.domain.review.model.entity.QReview.class, PathInits.DIRECT2);
 
-    public final EnumPath<com.dain_review.domain.campaign.model.entity.enums.State> state = createEnum("state", com.dain_review.domain.campaign.model.entity.enums.State.class);
+    public final ListPath<com.dain_review.domain.select.model.entity.Select, com.dain_review.domain.select.model.entity.QSelect> selectList = this.<com.dain_review.domain.select.model.entity.Select, com.dain_review.domain.select.model.entity.QSelect>createList("selectList", com.dain_review.domain.select.model.entity.Select.class, com.dain_review.domain.select.model.entity.QSelect.class, PathInits.DIRECT2);
+
+    public final StringPath serviceProvided = createString("serviceProvided");
 
     public final NumberPath<Integer> totalPoints = createNumber("totalPoints", Integer.class);
 

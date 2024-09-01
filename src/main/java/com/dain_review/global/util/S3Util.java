@@ -25,9 +25,10 @@ public class S3Util {
 
     /**
      * 리소스 저장
-     * @param file  저장할 리소스
-     * @param path  리소스가 저장될 경로
-     * @return      저장된 리소스의 확장자 포함 파일명
+     *
+     * @param file 저장할 리소스
+     * @param path 리소스가 저장될 경로
+     * @return 저장된 리소스의 확장자 포함 파일명
      */
     @Async("S3PoolTask")
     public CompletableFuture<String> saveImage(MultipartFile file, String path) {
@@ -43,9 +44,10 @@ public class S3Util {
 
     /**
      * 리소스 조회
-     * @param fileName  조회할 파일 확장자 포함 이름
-     * @param path      파일이 저장된 경로
-     * @return          fileName 과 일치하는 이름의 리소스 url 반환
+     *
+     * @param fileName 조회할 파일 확장자 포함 이름
+     * @param path 파일이 저장된 경로
+     * @return fileName 과 일치하는 이름의 리소스 url 반환
      */
     public String selectImage(String fileName, String path) {
         String selectPath = bucketName + path;
@@ -56,8 +58,9 @@ public class S3Util {
 
     /**
      * 리소스 삭제
-     * @param fileName  삭제할 파일 확장자 포함 이름
-     * @param path      파일이 저장된 경로
+     *
+     * @param fileName 삭제할 파일 확장자 포함 이름
+     * @param path 파일이 저장된 경로
      */
     public void deleteImage(String fileName, String path) {
         String deletePath = bucketName + path;
@@ -66,8 +69,9 @@ public class S3Util {
 
     /**
      * 확장자명 추출
-     * @param file  확장자명 추출할 대상 파일
-     * @return      확장자명
+     *
+     * @param file 확장자명 추출할 대상 파일
+     * @return 확장자명
      */
     private String extractExtensionName(MultipartFile file) {
         String fileName = file.getOriginalFilename();

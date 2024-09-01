@@ -1,5 +1,6 @@
 package com.dain_review.domain.post.controller;
 
+
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.request.PostRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
@@ -8,8 +9,8 @@ import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/post/notices")
@@ -39,20 +38,18 @@ public class NoticeController {
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
-    ) {
-        PostResponse postResponse = postService.createPost(
-                S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+
+        PostResponse postResponse =
+                postService.createPost(
+                        S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
         return API.OK(postResponse);
     }
 
     // 단건조회
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPost(
-            @PathVariable Long postId
-    ) {
-        PostResponse postResponse =
-                postService.getPost(S3_PATH_PREFIX, postId);
+    public ResponseEntity<?> getPost(@PathVariable Long postId) {
+        PostResponse postResponse = postService.getPost(S3_PATH_PREFIX, postId);
         return API.OK(postResponse);
     }
 
@@ -63,10 +60,9 @@ public class NoticeController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
-    ) {
-        PostResponse postResponse = postService.updatePost(
-                S3_PATH_PREFIX, customUserDetails.getUserId(), postId, postRequest, imageFiles);
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+        PostResponse postResponse =
+                postService.updatePost(S3_PATH_PREFIX, customUserDetails.getUserId(), postId, postRequest, imageFiles);
         return API.OK(postResponse);
     }
 
@@ -75,8 +71,7 @@ public class NoticeController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long postId
-    ) {
+            @PathVariable Long postId) {
         postService.deletePost(customUserDetails.getUserId(), postId);
         return API.OK("게시글이 삭제 완료 되었습니다.");
     }
@@ -85,8 +80,7 @@ public class NoticeController {
     @GetMapping
     public ResponseEntity<?> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.getAllPosts(page, size, CategoryType.NOTICE);
         return API.OK(follows);
@@ -96,8 +90,7 @@ public class NoticeController {
     public ResponseEntity<?> searchPosts(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.searchPosts(CategoryType.NOTICE, keyword, page, size);
         return API.OK(follows);

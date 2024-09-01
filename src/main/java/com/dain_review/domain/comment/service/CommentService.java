@@ -9,19 +9,13 @@ import com.dain_review.domain.comment.model.response.CommentResponse;
 import com.dain_review.domain.comment.model.response.CommentsAndRepliesResponse;
 import com.dain_review.domain.comment.repository.CommentRepository;
 import com.dain_review.domain.post.event.PostCommentEvent;
-import com.dain_review.domain.post.exception.PostException;
-import com.dain_review.domain.post.exception.errortype.PostErrorCode;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.repository.PostRepository;
-import com.dain_review.domain.user.exception.UserException;
-import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.util.S3Util;
-
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -60,7 +54,9 @@ public class CommentService {
                         .map(
                                 comment -> {
                                     String profileUrl =
-                                            s3Util.selectImage(comment.getUser().getProfileImage(), S3_PATH_PREFIX);
+                                            s3Util.selectImage(
+                                                    comment.getUser().getProfileImage(),
+                                                    S3_PATH_PREFIX);
                                     return CommentResponse.from(
                                             comment, comment.getUser().getNickname(), profileUrl);
                                 })
@@ -82,10 +78,8 @@ public class CommentService {
     @Transactional
     public void createComment(Long userId, CommentRequest request) {
         User user = getUserInfo(userId);
-        Post post =
-                postRepository
-                        .findById(request.postId())
-                        .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+        Post post = postRepository.getPostById(request.postId());
+
         Comment parent = null;
         if (request.parentId() != null)
             parent =
@@ -161,15 +155,13 @@ public class CommentService {
      * @return 유저 정보 반환
      */
     private User getUserInfo(Long userId) {
-        return userRepository
-                .findById(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        return userRepository.getUserById(userId);
     }
 
     /**
      * 요청 클라이언트와 댓글 작성자 일치여부 확인
      *
-     * @param userId    요청을 보낸 클라이언트 User ID
+     * @param userId 요청을 보낸 클라이언트 User ID
      * @param commentId 대상 댓글의 ID
      * @return (요청 클라이언트와 댓글 저자 일치 시) 해당 ID의 댓글 정보 반환
      */
@@ -195,7 +187,8 @@ public class CommentService {
                 .map(
                         comment -> {
                             String profileUrl =
-                                    s3Util.selectImage(comment.getUser().getProfileImage(), S3_PATH_PREFIX);
+                                    s3Util.selectImage(
+                                            comment.getUser().getProfileImage(), S3_PATH_PREFIX);
                             return CommentResponse.from(
                                     comment, comment.getUser().getNickname(), profileUrl);
                         })

@@ -32,7 +32,7 @@ public class Influencer extends BaseEntity {
     private User user;
 
     @OneToMany(mappedBy = "influencer", fetch = FetchType.LAZY)
-    private List<Sns> snsList = new ArrayList<>();
+    private List<Sns> snsList;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;

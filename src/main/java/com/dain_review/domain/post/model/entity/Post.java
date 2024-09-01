@@ -73,7 +73,7 @@ public class Post extends BaseEntity {
     }
 
     public void updateBy(Long userId, PostRequest request) {
-        if(this.user.isNotSame(userId)) {
+        if (this.user.isNotSame(userId)) {
             throw new PostException(PostErrorCode.UNAUTHORIZED_ACCESS);
         }
         this.title = request.title();
@@ -88,7 +88,7 @@ public class Post extends BaseEntity {
     }
 
     public void deleteBy(Long userId) {
-        if(this.user.isNotSame(userId)) {
+        if (this.user.isNotSame(userId)) {
             throw new PostException(PostErrorCode.UNAUTHORIZED_ACCESS);
         }
         this.deleted = true;

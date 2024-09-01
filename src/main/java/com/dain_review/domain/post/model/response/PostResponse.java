@@ -1,13 +1,13 @@
 package com.dain_review.domain.post.model.response;
 
+
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Builder
@@ -67,8 +67,7 @@ public class PostResponse {
     private static String determinePostCategoryType(Post post) {
         if (post.getCategoryType().equals(CategoryType.COMMUNITY)) {
             return post.getCommunityType().getDisplayName();
-        }
-        else if (post.getCategoryType().equals(CategoryType.FOLLOW)) {
+        } else if (post.getCategoryType().equals(CategoryType.FOLLOW)) {
             return post.getFollowType().getDisplayName();
         }
         return null;

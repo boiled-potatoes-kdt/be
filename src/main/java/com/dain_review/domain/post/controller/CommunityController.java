@@ -9,6 +9,7 @@ import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,8 +50,7 @@ public class CommunityController {
     @GetMapping("/{postId}") // 커뮤니티 게시글 단건 조회
     public ResponseEntity<?> getPost(@PathVariable Long postId) {
 
-        PostResponse communityResponse =
-                postService.getPost(S3_PATH_PREFIX, postId);
+        PostResponse communityResponse = postService.getPost(S3_PATH_PREFIX, postId);
         return API.OK(communityResponse);
     }
 
@@ -66,7 +64,11 @@ public class CommunityController {
 
         PostResponse communityResponse =
                 postService.updatePost(
-                        S3_PATH_PREFIX, customUserDetails.getUserId(), postId, postRequest, imageFiles);
+                        S3_PATH_PREFIX,
+                        customUserDetails.getUserId(),
+                        postId,
+                        postRequest,
+                        imageFiles);
         return API.OK(communityResponse);
     }
 
