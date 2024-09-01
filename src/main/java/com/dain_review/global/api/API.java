@@ -21,6 +21,10 @@ public class API {
         return ResponseEntity.ok(new GlobalResponse("성공", HttpStatus.OK));
     }
 
+    public static ResponseEntity OK(String msg) {
+        return ResponseEntity.ok(new GlobalResponse(msg, HttpStatus.OK));
+    }
+
     public static ResponseEntity ERROR(GlobalException ex) {
         return ResponseEntity.status(ex.getErrorCode().getStatus()).body(ex.getGlobalResponse());
     }

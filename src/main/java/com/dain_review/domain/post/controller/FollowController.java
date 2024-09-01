@@ -80,7 +80,7 @@ public class FollowController {
             @PathVariable Long postId
     ) {
         postService.deletePost(customUserDetails.getUserId(), postId);
-        return API.OK();
+        return API.OK("게시글이 삭제 완료 되었습니다.");
     }
 
     // 목록조회

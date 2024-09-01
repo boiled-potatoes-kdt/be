@@ -1,7 +1,6 @@
 package com.dain_review.domain.post.controller;
 
 
-import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.CommunityType;
 import com.dain_review.domain.post.model.request.PostRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
@@ -11,7 +10,6 @@ import com.dain_review.global.api.API;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/post/communities")
@@ -44,7 +41,6 @@ public class CommunityController {
             @RequestPart("data") PostRequest postRequest,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
 
-        log.info("image files is null: {}", imageFiles==null);
         PostResponse communityResponse =
                 postService.createPost(
                         S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
@@ -81,7 +77,7 @@ public class CommunityController {
             @PathVariable Long postId) {
 
         postService.deletePost(customUserDetails.getUserId(), postId);
-        return API.OK();
+        return API.OK("게시글이 삭제 완료 되었습니다.");
     }
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")

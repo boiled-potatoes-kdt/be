@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/post/notices")
@@ -42,7 +41,6 @@ public class NoticeController {
             @RequestPart("data") PostRequest postRequest,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
     ) {
-        log.info("image files is null: {}", imageFiles==null);
         PostResponse postResponse = postService.createPost(
                 S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
         return API.OK(postResponse);
@@ -80,7 +78,7 @@ public class NoticeController {
             @PathVariable Long postId
     ) {
         postService.deletePost(customUserDetails.getUserId(), postId);
-        return API.OK();
+        return API.OK("게시글이 삭제 완료 되었습니다.");
     }
 
     // 목록조회
