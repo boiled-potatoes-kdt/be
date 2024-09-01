@@ -57,7 +57,7 @@ public class CampaignService {
             throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
         }
 
-        String imageFileName = s3Util.saveImage(imageFile, S3_PATH_PREFIX).join();
+        String imageFileName = s3Util.saveImage(imageFile, S3_PATH_PREFIX);
 
         Integer totalPoints = null;
         Integer pointPerPerson = null;

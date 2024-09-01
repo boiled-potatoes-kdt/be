@@ -86,7 +86,7 @@ public class CommunityController {
     @GetMapping
     public ResponseEntity<?> getAllPosts( // 커뮤니티 게시글 전체 목록 조회
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         PagedResponse<PostResponse> communities =
@@ -99,7 +99,7 @@ public class CommunityController {
     public ResponseEntity<?> getPostsByCommunityType( // 커뮤니티 게시글 카테고리 별 목록 조회
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable CommunityType communityType,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         PagedResponse<PostResponse> communities =
@@ -113,7 +113,7 @@ public class CommunityController {
     public ResponseEntity<?> searchPosts( // 커뮤니티 게시글 키워드 검색
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         PagedResponse<PostResponse> communities =

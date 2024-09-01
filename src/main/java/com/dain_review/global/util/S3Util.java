@@ -8,12 +8,16 @@ import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+
+import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 
 @Component
 @RequiredArgsConstructor
@@ -31,7 +35,7 @@ public class S3Util {
      * @return 저장된 리소스의 확장자 포함 파일명
      */
     @Async("S3PoolTask")
-    public CompletableFuture<String> saveImage(MultipartFile file, String path) {
+    public String saveImage(MultipartFile file, String path) {
         String fileName = System.currentTimeMillis() + "." + extractExtensionName(file);
         String savePath = bucketName + path;
         try {
@@ -39,7 +43,7 @@ public class S3Util {
         } catch (IOException e) {
             throw new S3Exception(S3ErrorCode.IMAGE_UPLOAD_FAILED);
         }
-        return CompletableFuture.completedFuture(fileName);
+        return CompletableFuture.completedFuture(fileName).join();
     }
 
     /**
@@ -80,5 +84,27 @@ public class S3Util {
         String fileName = file.getOriginalFilename();
         String[] div = fileName.split("\\.");
         return div[div.length - 1];
+    }
+
+    public List<String> saveImageFiles(List<MultipartFile> imageFiles, String S3_PATH_PREFIX) {
+
+        if (imageFiles == null || imageFiles.isEmpty()) {
+            return null;
+        }
+
+        List<String> savedFileNames = new ArrayList<>();
+        for (MultipartFile imageFile : imageFiles) {
+            String fileName = null;
+
+            if (imageFile != null && !imageFile.isEmpty()) {
+                if (!isValidImageFile(imageFile)) {
+                    throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
+                }
+                fileName = saveImage(imageFile, S3_PATH_PREFIX);
+            }
+            savedFileNames.add(fileName);
+        }
+
+        return savedFileNames;
     }
 }

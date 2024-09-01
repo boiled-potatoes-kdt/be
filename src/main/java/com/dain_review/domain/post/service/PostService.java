@@ -1,7 +1,6 @@
 package com.dain_review.domain.post.service;
 
 import static com.dain_review.domain.post.model.response.PostResponse.responseWithContentPreview;
-import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 
 import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.exception.PostException;
@@ -23,8 +22,6 @@ import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
-import com.dain_review.global.util.error.S3Exception;
-import com.dain_review.global.util.errortype.S3ErrorCode;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -122,20 +119,20 @@ public class PostService {
     }
 
     public PagedResponse<PostResponse> getAllPosts(int page, int size, CategoryType categoryType) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<Post> postsPage = postRepository.findByCategoryType(categoryType, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
     public PagedResponse<PostResponse> getPostsByRole(Long userId, int page, int size) {
         User user = getUser(userId);
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<Post> postsPage = postRepository.findCommunityPostsByRole(user.getRole(), pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
     public PagedResponse<PostResponse> getPostsByCommunityType(Long userId, CommunityType communityType, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         User user = getUser(userId);
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndCommunityType(
@@ -145,7 +142,7 @@ public class PostService {
 
     public PagedResponse<PostResponse> getPostsByFollowType(
             FollowType followType, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndFollowType(
                         CategoryType.FOLLOW, followType, pageable);
@@ -153,7 +150,7 @@ public class PostService {
     }
 
     public PagedResponse<PostResponse> searchPostsByRole(Long userId, String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         User user = getUser(userId);
         Page<Post> postsPage =
                 postRepository.searchByKeywordAndRole(user.getRole(), CategoryType.COMMUNITY, keyword, pageable);
@@ -162,7 +159,7 @@ public class PostService {
 
     public PagedResponse<PostResponse> searchPosts(
             CategoryType categoryType, String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<Post> postsPage = postRepository.searchByKeyword(categoryType, keyword, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
@@ -188,25 +185,12 @@ public class PostService {
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 
+
     private void saveImageFiles(List<MultipartFile> imageFiles, Post post, String S3_PATH_PREFIX) {
-        if (imageFiles == null || imageFiles.isEmpty()) {
-            return;
-        }
-
-        for (MultipartFile imageFile : imageFiles) {
-            String fileName = null;
-
-            if (imageFile != null && !imageFile.isEmpty()) {
-                if (!isValidImageFile(imageFile)) {
-                    throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
-                }
-
-                fileName = s3Util.saveImage(imageFile, S3_PATH_PREFIX).join();
-                // attached_file 테이블에 레코드 추가
-                AttachedFile file = AttachedFile.builder().post(post).fileName(fileName).build();
-
-                attachedFileRepository.save(file);
-            }
+        List<String> fileNames = s3Util.saveImageFiles(imageFiles, S3_PATH_PREFIX);
+        for (String fileName : fileNames) {
+            AttachedFile file = AttachedFile.builder().post(post).fileName(fileName).build();
+            attachedFileRepository.save(file);
         }
     }
 
