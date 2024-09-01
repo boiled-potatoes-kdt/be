@@ -54,6 +54,9 @@ public class ReviewService {
     }
 
     private void saveImageFiles(List<MultipartFile> imageFiles, Review review, String S3_PATH_PREFIX) {
+        if (imageFiles.get(0) == null || imageFiles.get(0).isEmpty()) {
+            return;
+        }
         List<String> fileNames = s3Util.saveImageFiles(imageFiles, S3_PATH_PREFIX);
         for (String fileName : fileNames) {
             ReviewAttachedFile attachedFile = ReviewAttachedFile.builder()

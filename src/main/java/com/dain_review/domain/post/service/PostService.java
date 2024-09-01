@@ -25,6 +25,7 @@ import com.dain_review.global.util.S3Util;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -187,6 +189,10 @@ public class PostService {
 
 
     private void saveImageFiles(List<MultipartFile> imageFiles, Post post, String S3_PATH_PREFIX) {
+        if (imageFiles.get(0) == null || imageFiles.get(0).isEmpty()) {
+            return;
+        }
+
         List<String> fileNames = s3Util.saveImageFiles(imageFiles, S3_PATH_PREFIX);
         for (String fileName : fileNames) {
             AttachedFile file = AttachedFile.builder().post(post).fileName(fileName).build();
