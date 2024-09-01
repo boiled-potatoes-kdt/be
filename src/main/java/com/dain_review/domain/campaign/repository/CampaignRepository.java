@@ -6,6 +6,7 @@ import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,4 +40,7 @@ public interface CampaignRepository
     // @EntityGraph 적용하여 Lazy 로딩된 컬렉션을 즉시 로딩
     @EntityGraph(attributePaths = {"keywords", "availableDays"})
     Optional<Campaign> findWithDetailsById(Long id);
+
+    @EntityGraph(attributePaths = {"keywords", "availableDays"})
+    Page<Campaign> findByIdIn(List<Long> ids, Pageable pageable);
 }

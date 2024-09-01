@@ -49,6 +49,11 @@ public class LikeSyncService {
                             like -> {
                                 like.setLiked(isLiked);
                                 likeRepository.save(like);
+                                log.info(
+                                        "사용자 ID: {}, 캠페인 ID: {}, 좋아요 상태: {}를 DB에 업데이트했습니다.",
+                                        userId,
+                                        campaignId,
+                                        isLiked);
                             },
                             () -> {
                                 if (isLiked) {
@@ -75,6 +80,11 @@ public class LikeSyncService {
                                                     .campaign(campaign)
                                                     .isLiked(true)
                                                     .build());
+                                    log.info(
+                                            "사용자 ID: {}, 캠페인 ID: {}, 좋아요 상태: {}로 새로운 Like 필드를 DB에 생성했습니다.",
+                                            userId,
+                                            campaignId,
+                                            isLiked);
                                 }
                             });
         }

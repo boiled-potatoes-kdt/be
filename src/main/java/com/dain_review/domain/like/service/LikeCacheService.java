@@ -56,4 +56,8 @@ public class LikeCacheService {
         long campaignId = Long.parseLong(parts[1]);
         return new Long[] {userId, campaignId};
     }
+
+    public Set<String> getLikeKeysForUser(Long userId) {
+        return redisTemplate.keys(LIKE_KEY_PREFIX + userId + "::" + "*");
+    }
 }
