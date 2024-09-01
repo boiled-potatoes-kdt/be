@@ -52,7 +52,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // 해당 사용자가 작성한 게시글들 삭제
     @Modifying
     @Query("DELETE FROM Post p WHERE p.user.id = :userId")
-    void deleteByUserId(@Param("userId") Long userId);
+    void deleteByUserId(@Param("userId") Long userId); // Todo: 사용 안하고 있음
 
     @Modifying
     @Query(

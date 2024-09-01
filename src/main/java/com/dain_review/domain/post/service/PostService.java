@@ -201,7 +201,7 @@ public class PostService {
                         it -> {
                             return (it != null)
                                     ? s3Util.selectImage(it.getFileName(), S3_PATH_PREFIX)
-                                    : null;
+                                    : null; // todo: return 필요 없음
                         })
                 .toList();
     }

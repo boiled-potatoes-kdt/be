@@ -43,7 +43,7 @@ public class CommunityController {
             @RequestPart("data") PostRequest postRequest,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
 
-        log.info("image files is null: {}", imageFiles == null);
+        log.info("image files is null: {}", imageFiles == null); // todo: 제거해도 되지 않나
         PostResponse communityResponse =
                 postService.createPost(
                         S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);

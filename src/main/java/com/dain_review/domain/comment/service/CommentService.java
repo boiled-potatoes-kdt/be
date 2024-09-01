@@ -92,7 +92,7 @@ public class CommentService {
         Comment saved = commentRepository.save(saveComment);
         if (saved == null) {
             throw new CommentException(CommentErrorCode.COMMENT_CREATE_FAILED);
-        }
+        } // Todo: saved==null은 항상 false
         eventPublisher.publishEvent(new PostCommentEvent(saved.getPost()));
     }
 
