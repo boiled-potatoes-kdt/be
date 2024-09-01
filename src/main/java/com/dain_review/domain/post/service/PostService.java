@@ -1,5 +1,6 @@
 package com.dain_review.domain.post.service;
 
+import static com.dain_review.domain.post.model.response.PostResponse.responseWithContentPreview;
 import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 
 import com.dain_review.domain.post.event.PostReadEvent;
@@ -20,6 +21,7 @@ import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
+import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
 import com.dain_review.global.util.error.S3Exception;
 import com.dain_review.global.util.errortype.S3ErrorCode;
@@ -46,6 +48,8 @@ public class PostService {
     private final ApplicationEventPublisher eventPublisher;
     private final S3Util s3Util;
 
+    private final String S3_PROFILE_PATH_PREFIX = S3PathPrefixType.S3_PROFILE_IMAGE_PATH.toString();
+
     // 목록조회, 삭제 제외하고 이미지 조회 필요함
     public PostResponse createPost(
             String S3_PATH_PREFIX, Long userId, PostRequest postRequest, List<MultipartFile> imageFiles) {
@@ -65,7 +69,8 @@ public class PostService {
         saveImageFiles(imageFiles, post, S3_PATH_PREFIX);
         List<String> imageUrls = findImageUrls(post.getId(), S3_PATH_PREFIX);
 
-        return PostResponse.responseWithoutContentPreview(post, imageUrls);
+        String userImageUrl = getUserProfileUrl(post.getUser().getProfileImage());
+        return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls);
     }
 
     public PostResponse getPost(String S3_PATH_PREFIX, Long postId) {
@@ -80,7 +85,8 @@ public class PostService {
         // 조회 이벤트 발생 시, 이미 조회된 Post 객체를 전달
         eventPublisher.publishEvent(new PostReadEvent(post));
 
-        return PostResponse.responseWithoutContentPreview(post, imageUrls);
+        String userImageUrl = getUserProfileUrl(post.getUser().getProfileImage());
+        return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls);
     }
 
     public PostResponse updatePost(
@@ -101,7 +107,8 @@ public class PostService {
         deleteImageFiles(postRequest.deletedAttachedFiles(), S3_PATH_PREFIX);
         List<String> imageUrls = findImageUrls(existingPost.getId(), S3_PATH_PREFIX);
 
-        return PostResponse.responseWithoutContentPreview(existingPost, imageUrls);
+        String userImageUrl = getUserProfileUrl(existingPost.getUser().getProfileImage());
+        return PostResponse.responseWithoutContentPreview(existingPost, userImageUrl, imageUrls);
     }
 
     public void deletePost(Long userId, Long postId) {
@@ -161,9 +168,14 @@ public class PostService {
     }
 
     private PagedResponse<PostResponse> mapPostsToPagedResponse(Page<Post> postsPage) {
+
         List<PostResponse> communities =
                 postsPage.stream()
-                        .map(PostResponse::responseWithContentPreview)
+                        .map(post -> {
+                            String userProfileImageName = post.getUser().getProfileImage();
+                            String profileImageUrl = getUserProfileUrl(userProfileImageName);
+                            return responseWithContentPreview(post, profileImageUrl);
+                        })
                         .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -221,5 +233,9 @@ public class PostService {
             return Post.createFollowyPost(postRequest, user);
         }
         return Post.createNoticePost(postRequest, user);
+    }
+
+    private String getUserProfileUrl(String userProfileImageName) {
+        return s3Util.selectImage(userProfileImageName, S3_PROFILE_PATH_PREFIX);
     }
 }
