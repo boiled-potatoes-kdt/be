@@ -1,13 +1,13 @@
 package com.dain_review.domain.application.controller;
 
 
-import com.dain_review.domain.application.ApplicationBusiness;
 import com.dain_review.domain.application.model.request.ApplicationRequest;
+import com.dain_review.domain.application.model.response.ApplicationCampaignResponse;
 import com.dain_review.domain.application.service.ApplicationService;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
-import com.dain_review.domain.campaign.model.response.ApplicationCampaignResponse;
 import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,17 +27,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/influencer/application")
 public class ApplicationController {
 
-    private final ApplicationBusiness applicationBusiness;
     private final ApplicationService applicationService;
 
     // 체험단 신청
     @PostMapping
     public ResponseEntity<?> applyCampaign(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody ApplicationRequest applicationRequest) {
+            @RequestBody @Valid ApplicationRequest applicationRequest) {
 
-        applicationBusiness.save(applicationRequest, customUserDetails.getUserId());
-        return ResponseEntity.ok(API.OK());
+        applicationService.applyCampaign(applicationRequest, customUserDetails.getUserId());
+        return API.OK();
     }
 
     // 체험단 신청 취소
@@ -47,11 +46,11 @@ public class ApplicationController {
             @PathVariable Long applicationId) {
 
         applicationService.cancelApplication(applicationId, customUserDetails.getUserId());
-        return ResponseEntity.ok(API.OK());
+        return API.OK();
     }
 
-    // 인플루언서 마이페이지에서 신청한 체험단 리스트 페이지네이션으로 가져오기
-    @GetMapping
+    // 신청한 체험단 리스트 페이지네이션으로 가져오기
+    @GetMapping("/me")
     public ResponseEntity<Page<ApplicationCampaignResponse>> getApplications(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute CampaignFilterRequest campaignFilterRequest,

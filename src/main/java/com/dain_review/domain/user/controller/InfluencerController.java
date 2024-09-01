@@ -8,6 +8,7 @@ import com.dain_review.domain.user.model.response.InfluencerChangeResponse;
 import com.dain_review.domain.user.model.response.InfluencerResponse;
 import com.dain_review.domain.user.service.InfluencerService;
 import com.dain_review.global.api.API;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,14 +26,14 @@ public class InfluencerController {
 
     private final InfluencerService influencerService;
 
-    // Todo 성공 응답을 어떻게 해야할지 모르겠음
     // 인플루언서 회원가입 추가정보 입력
     @PostMapping("/sign-up/extra")
     public ResponseEntity save(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody InfluencerExtraRegisterRequest influencerExtraRegisterRequest) {
+            @Valid @RequestBody InfluencerExtraRegisterRequest influencerExtraRegisterRequest) {
 
-        influencerService.save(customUserDetails.getUserId(), influencerExtraRegisterRequest);
+        influencerService.signUpExtra(
+                customUserDetails.getUserId(), influencerExtraRegisterRequest);
 
         return API.OK();
     }
@@ -43,7 +44,7 @@ public class InfluencerController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         InfluencerResponse influencerResponse =
-                influencerService.get(customUserDetails.getUserId());
+                influencerService.getMyPage(customUserDetails.getUserId());
 
         return API.OK(influencerResponse);
     }
@@ -54,7 +55,7 @@ public class InfluencerController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         InfluencerChangeResponse influencerChangeResponse =
-                influencerService.getChange(customUserDetails.getUserId());
+                influencerService.getChangePage(customUserDetails.getUserId());
 
         return API.OK(influencerChangeResponse);
     }
@@ -63,10 +64,11 @@ public class InfluencerController {
     @PatchMapping("")
     public ResponseEntity<InfluencerChangeResponse> change(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody InfluencerChangeRequest influencerChangeRequest) {
+            @Valid @RequestBody InfluencerChangeRequest influencerChangeRequest) {
 
         InfluencerChangeResponse influencerChangeResponse =
-                influencerService.change(influencerChangeRequest, customUserDetails.getUserId());
+                influencerService.changeInformation(
+                        influencerChangeRequest, customUserDetails.getUserId());
 
         return API.OK(influencerChangeResponse);
     }

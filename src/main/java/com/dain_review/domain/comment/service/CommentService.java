@@ -8,18 +8,16 @@ import com.dain_review.domain.comment.model.request.CommentRequest;
 import com.dain_review.domain.comment.model.response.CommentResponse;
 import com.dain_review.domain.comment.model.response.CommentsAndRepliesResponse;
 import com.dain_review.domain.comment.repository.CommentRepository;
-import com.dain_review.domain.post.exception.PostException;
-import com.dain_review.domain.post.exception.errortype.PostErrorCode;
+import com.dain_review.domain.post.event.PostCommentEvent;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.repository.PostRepository;
-import com.dain_review.domain.user.exception.UserException;
-import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.util.S3Util;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -34,6 +32,9 @@ public class CommentService {
     private final UserRepository userRepository;
 
     private final S3Util s3Util;
+    private final ApplicationEventPublisher eventPublisher;
+
+    private final String S3_PATH_PREFIX = "/profile-image/";
 
     /**
      * 댓글 size 10개로 페이지네이션, 대댓글 리스트 조회
@@ -53,7 +54,9 @@ public class CommentService {
                         .map(
                                 comment -> {
                                     String profileUrl =
-                                            s3Util.selectImage(comment.getUser().getProfileImage());
+                                            s3Util.selectImage(
+                                                    comment.getUser().getProfileImage(),
+                                                    S3_PATH_PREFIX);
                                     return CommentResponse.from(
                                             comment, comment.getUser().getNickname(), profileUrl);
                                 })
@@ -75,10 +78,8 @@ public class CommentService {
     @Transactional
     public void createComment(Long userId, CommentRequest request) {
         User user = getUserInfo(userId);
-        Post post =
-                postRepository
-                        .findById(request.postId())
-                        .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+        Post post = postRepository.getPostById(request.postId());
+
         Comment parent = null;
         if (request.parentId() != null)
             parent =
@@ -92,6 +93,7 @@ public class CommentService {
         if (saved == null) {
             throw new CommentException(CommentErrorCode.COMMENT_CREATE_FAILED);
         }
+        eventPublisher.publishEvent(new PostCommentEvent(saved.getPost()));
     }
 
     /**
@@ -153,9 +155,7 @@ public class CommentService {
      * @return 유저 정보 반환
      */
     private User getUserInfo(Long userId) {
-        return userRepository
-                .findById(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        return userRepository.getUserById(userId);
     }
 
     /**
@@ -187,7 +187,8 @@ public class CommentService {
                 .map(
                         comment -> {
                             String profileUrl =
-                                    s3Util.selectImage(comment.getUser().getProfileImage());
+                                    s3Util.selectImage(
+                                            comment.getUser().getProfileImage(), S3_PATH_PREFIX);
                             return CommentResponse.from(
                                     comment, comment.getUser().getNickname(), profileUrl);
                         })

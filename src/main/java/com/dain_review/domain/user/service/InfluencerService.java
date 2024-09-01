@@ -1,8 +1,6 @@
 package com.dain_review.domain.user.service;
 
 
-import com.dain_review.domain.user.exception.UserErrorCode;
-import com.dain_review.domain.user.exception.UserException;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.model.request.InfluencerChangeRequest;
 import com.dain_review.domain.user.model.request.InfluencerExtraRegisterRequest;
@@ -19,59 +17,37 @@ public class InfluencerService {
 
     private final UserRepository userRepository;
 
-    // 인플루언서 회원가입 추가정보 입력
     @Transactional
-    public void save(Long id, InfluencerExtraRegisterRequest influencerExtraRegisterRequest) {
+    public void signUpExtra(
+            Long id, InfluencerExtraRegisterRequest influencerExtraRegisterRequest) {
 
-        // 해당 아이디의 유저 조회
-        User user = getUser(id);
-
-        // 추가정보 값 추가
+        User user = userRepository.getUserById(id);
         user.change(influencerExtraRegisterRequest);
     }
 
-    // 인플루언서 마이페이지
     @Transactional
-    public InfluencerResponse get(Long id) {
+    public InfluencerResponse getMyPage(Long id) {
 
-        User user = getUser(id);
-
-        // InfluencerResponse 로 변환
-        return user.toInfluencerResponse();
+        User user = userRepository.getUserById(id);
+        return InfluencerResponse.from(user);
     }
 
     // 인플루언서 회원정보 변경 페이지
     @Transactional
-    public InfluencerChangeResponse getChange(Long id) {
+    public InfluencerChangeResponse getChangePage(Long id) {
 
-        // 해당 아이디의 사용자 조회
-        User user = getUser(id);
-
-        // InfluencerChangeResponse 로 변환
-        return user.toInfluencerChangeResponse();
+        User user = userRepository.getUserById(id);
+        return InfluencerChangeResponse.from(user);
     }
 
     // 인플루언서 회원정보 변경
     @Transactional
-    public InfluencerChangeResponse change(
+    public InfluencerChangeResponse changeInformation(
             InfluencerChangeRequest influencerChangeRequest, Long id) {
 
-        // 해당 아이디의 유저 조회
-        User user = getUser(id);
-
-        // Todo - 이전비밀번호 일치하는지 확인
-
-        // 변경내용 업데이트
+        User user = userRepository.getUserById(id);
         user.change(influencerChangeRequest);
 
-        // InfluencerChangeResponse 로 변환
-        return user.toInfluencerChangeResponse();
-    }
-
-    public User getUser(Long id) {
-        // 해당 아이디의 유저 조회
-        return userRepository
-                .findById(id)
-                .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND_BY_ID));
+        return InfluencerChangeResponse.from(user);
     }
 }

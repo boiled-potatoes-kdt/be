@@ -2,7 +2,6 @@ package com.dain_review.domain.user.model.entity;
 
 
 import com.dain_review.domain.user.model.entity.enums.SnsType;
-import com.dain_review.domain.user.model.response.SnsResponse;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,8 +28,4 @@ public class Sns extends BaseEntity {
     private Influencer influencer;
 
     private String url;
-
-    public SnsResponse toSnsResponse() {
-        return new SnsResponse(this.snsType, this.url);
-    }
 }

@@ -1,11 +1,14 @@
 package com.dain_review.domain.campaign.model.entity;
 
 
+import com.dain_review.domain.application.model.entity.Application;
+import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.Category;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
-import com.dain_review.domain.campaign.model.entity.enums.State;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
+import com.dain_review.domain.review.model.entity.Review;
+import com.dain_review.domain.select.model.entity.Select;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.CollectionTable;
@@ -18,8 +21,10 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,6 +43,15 @@ public class Campaign extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user; // 체험단을 등록한 사용자
+
+    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
+    private List<Application> applicationList;
+
+    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
+    private List<Select> selectList;
+
+    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
+    private List<Review> ReviewList;
 
     @Enumerated(EnumType.STRING)
     private Platform platform; // 광고를 원하는 플랫폼 (예: 블로그, 인스타그램)
@@ -93,7 +107,7 @@ public class Campaign extends BaseEntity {
     private String district; // 구/군
 
     @Enumerated(EnumType.STRING)
-    private State state; // 체험단 상태 (검수중, 모집중 등)
+    private CampaignState campaignState; // 체험단 상태 (검수중, 모집중 등)
 
     @Enumerated(EnumType.STRING)
     private Label label; // 라벨 (예: 다인체험단, 프리미엄, 일반체험단)
