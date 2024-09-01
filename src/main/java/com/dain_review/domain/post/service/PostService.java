@@ -115,11 +115,19 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
-    public PagedResponse<PostResponse> getPostsByCommunityType(CommunityType communityType, int page, int size) {
+    public PagedResponse<PostResponse> getPostsByRole(Long userId, int page, int size) {
+        User user = getUser(userId);
         Pageable pageable = PageRequest.of(page, size);
+        Page<Post> postsPage = postRepository.findCommunityPostsByInfluencers(user.getRole(), pageable);
+        return mapPostsToPagedResponse(postsPage);
+    }
+
+    public PagedResponse<PostResponse> getPostsByCommunityType(Long userId, CommunityType communityType, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        User user = getUser(userId);
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndCommunityType(
-                        CategoryType.COMMUNITY, communityType, pageable);
+                        user.getRole(), CategoryType.COMMUNITY, communityType, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
@@ -128,6 +136,14 @@ public class PostService {
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndFollowType(
                         CategoryType.FOLLOW, followType, pageable);
+        return mapPostsToPagedResponse(postsPage);
+    }
+
+    public PagedResponse<PostResponse> searchPostsByRole(Long userId, String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        User user = getUser(userId);
+        Page<Post> postsPage =
+                postRepository.searchByKeywordAndRole(user.getRole(), CategoryType.COMMUNITY, keyword, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
