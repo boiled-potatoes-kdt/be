@@ -18,8 +18,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // 게시글 단건 조회
     Post findByIdAndDeletedFalse(Long id);
 
-    @Query("SELECT p FROM Post p WHERE p.categoryType = 'COMMUNITY' AND p.user.role = :role AND p.deleted = false ORDER BY p.id DESC")
-    Page<Post> findCommunityPostsByInfluencers(@Param("role") Role role, Pageable pageable);
+    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.user u WHERE p.categoryType = 'COMMUNITY' AND u.role = :role AND p.deleted = false ORDER BY p.id DESC")
+    Page<Post> findCommunityPostsByRole(@Param("role") Role role, Pageable pageable);
 
     // 커뮤니티 전체 게시글 조회 (최신순 정렬)
     @Query(
@@ -29,9 +29,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 게시글을 카테고리로 분류하여 목록 조회 (최신순 정렬)
     @Query(
-            "SELECT p FROM Post p JOIN FETCH p.postMeta WHERE p.categoryType = :categoryType " +
+            "SELECT p FROM Post p LEFT JOIN FETCH p.user u JOIN FETCH p.postMeta WHERE p.categoryType = :categoryType " +
                     "AND p.communityType = :communityType " +
-                    "AND p.deleted = false  AND p.user.role = :role ORDER BY p.createdAt DESC")
+                    "AND p.deleted = false  AND u.role = :role ORDER BY p.createdAt DESC")
     Page<Post> findByCategoryTypeAndCommunityType(
             @Param("role") Role role,
             @Param("categoryType") CategoryType categoryType,
@@ -47,7 +47,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             Pageable pageable);
 
     @Query(
-            "SELECT p FROM Post p LEFT JOIN FETCH p.user u LEFT JOIN FETCH p.postMeta WHERE p.categoryType = :categoryType AND p.user.role = :role AND (p.title LIKE %:keyword% OR p.content LIKE %:keyword% OR u.name LIKE %:keyword%) AND p.deleted = false ORDER BY p.createdAt DESC")
+            "SELECT p FROM Post p LEFT JOIN FETCH p.user u LEFT JOIN FETCH p.postMeta WHERE p.categoryType = :categoryType AND u.role = :role AND (p.title LIKE %:keyword% OR p.content LIKE %:keyword% OR u.name LIKE %:keyword%) AND p.deleted = false ORDER BY p.createdAt DESC")
     Page<Post> searchByKeywordAndRole(
             @Param("role") Role role,
             @Param("categoryType") CategoryType categoryType,

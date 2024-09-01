@@ -118,7 +118,7 @@ public class PostService {
     public PagedResponse<PostResponse> getPostsByRole(Long userId, int page, int size) {
         User user = getUser(userId);
         Pageable pageable = PageRequest.of(page, size);
-        Page<Post> postsPage = postRepository.findCommunityPostsByInfluencers(user.getRole(), pageable);
+        Page<Post> postsPage = postRepository.findCommunityPostsByRole(user.getRole(), pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
