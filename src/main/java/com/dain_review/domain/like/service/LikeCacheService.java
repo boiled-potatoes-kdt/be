@@ -4,6 +4,7 @@ package com.dain_review.domain.like.service;
 import com.dain_review.domain.like.model.entity.Like;
 import com.dain_review.domain.like.repository.LikeRepository;
 import com.dain_review.global.type.RedisPrefixType;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,18 @@ public class LikeCacheService {
     public Boolean getLikeStatus(Long userId, Long campaignId) {
         String key = LIKE_KEY_PREFIX + userId + "::" + campaignId;
         return (Boolean) redisTemplate.opsForValue().get(key);
+    }
+
+    // 캐시에서 사용자의 좋아요된 캠페인 ID 목록을 가져오는 메서드
+    public List<Long> getLikedCampaignIds(Long userId) {
+        Set<String> likedCampaignKeys = getLikeKeysForUser(userId);
+        return likedCampaignKeys.stream()
+                .map(key -> extractIdsFromKey(key)[1]) // campaignId 추출
+                .filter(
+                        campaignId ->
+                                Boolean.TRUE.equals(
+                                        getLikeStatus(userId, campaignId))) // true인 캠페인만 필터링
+                .toList();
     }
 
     public Boolean readThroughLikeStatus(
