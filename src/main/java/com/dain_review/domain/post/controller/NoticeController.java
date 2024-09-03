@@ -11,7 +11,6 @@ import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/post/notices")
@@ -41,7 +39,7 @@ public class NoticeController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestPart("data") PostRequest postRequest,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
-        log.info("image files is null: {}", imageFiles == null);
+
         PostResponse postResponse =
                 postService.createPost(
                         S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
@@ -80,7 +78,7 @@ public class NoticeController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId) {
         postService.deletePost(customUserDetails.getUserId(), postId);
-        return API.OK();
+        return API.OK("게시글이 삭제 완료 되었습니다.");
     }
 
     // 목록조회
