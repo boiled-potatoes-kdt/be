@@ -2,6 +2,8 @@ package com.dain_review.domain.campaign.service;
 
 import static com.dain_review.domain.Image.util.ImageFileValidUtil.isValidImageFile;
 
+import com.dain_review.domain.Image.exception.S3Exception;
+import com.dain_review.domain.Image.exception.errortype.S3ErrorCode;
 import com.dain_review.domain.application.model.response.ApplicantResponse;
 import com.dain_review.domain.campaign.exception.CampaignException;
 import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
@@ -21,8 +23,6 @@ import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
-import com.dain_review.domain.Image.exception.S3Exception;
-import com.dain_review.domain.Image.exception.errortype.S3ErrorCode;
 import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +41,8 @@ public class CampaignService {
     private final UserRepository userRepository;
     private final S3Util s3Util;
 
-
     public CampaignResponse createCampaign(
-        Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
+            Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
 
         User user = userRepository.getUserById(userId);
 
@@ -55,54 +54,66 @@ public class CampaignService {
             throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
         }
 
-        String imageFileName = s3Util.saveImage(imageFile, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString()).join();
+        String imageFileName =
+                s3Util.saveImage(imageFile, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString())
+                        .join();
 
         // 캠페인 생성
         Campaign campaign =
-            Campaign.builder()
-                .user(user)
-                .imageUrl(imageFileName)
-                .businessName(campaignRequest.businessName())
-                .contactNumber(campaignRequest.contactNumber())
-                .address(campaignRequest.address())
-                .latitude(campaignRequest.latitude())
-                .longitude(campaignRequest.longitude())
-                .availableDays(new HashSet<>(campaignRequest.availableDays())) // List를 Set으로 변환
-                .type(campaignRequest.type())
-                .category(campaignRequest.category())
-                .platform(campaignRequest.platform())
-                .label(Boolean.TRUE.equals(campaignRequest.pointPayment()) ? Label.PREMIUM : null)
-                .capacity(campaignRequest.capacity())
-                .pointPayment(campaignRequest.pointPayment())
-                .pointPerPerson(campaignRequest.pointPerPerson())
-                .applicationStartDate(campaignRequest.applicationStartDate())
-                .applicationEndDate(campaignRequest.applicationEndDate())
-                .announcementDate(campaignRequest.announcementDate())
-                .experienceStartDate(campaignRequest.experienceStartDate())
-                .experienceEndDate(campaignRequest.experienceEndDate())
-                .reviewDate(campaignRequest.reviewDate())
-                .campaignState(CampaignState.INSPECTION) // 기본 상태를 "검수중"으로 설정
-                .isDeleted(false) // 기본 값은 삭제되지 않음
-                .build();
+                Campaign.builder()
+                        .user(user)
+                        .imageUrl(imageFileName)
+                        .businessName(campaignRequest.businessName())
+                        .contactNumber(campaignRequest.contactNumber())
+                        .address(campaignRequest.address())
+                        .latitude(campaignRequest.latitude())
+                        .longitude(campaignRequest.longitude())
+                        .availableDays(
+                                new HashSet<>(campaignRequest.availableDays())) // List를 Set으로 변환
+                        .type(campaignRequest.type())
+                        .category(campaignRequest.category())
+                        .platform(campaignRequest.platform())
+                        .label(
+                                Boolean.TRUE.equals(campaignRequest.pointPayment())
+                                        ? Label.PREMIUM
+                                        : null)
+                        .capacity(campaignRequest.capacity())
+                        .pointPayment(campaignRequest.pointPayment())
+                        .pointPerPerson(campaignRequest.pointPerPerson())
+                        .applicationStartDate(campaignRequest.applicationStartDate())
+                        .applicationEndDate(campaignRequest.applicationEndDate())
+                        .announcementDate(campaignRequest.announcementDate())
+                        .experienceStartDate(campaignRequest.experienceStartDate())
+                        .experienceEndDate(campaignRequest.experienceEndDate())
+                        .reviewDate(campaignRequest.reviewDate())
+                        .campaignState(CampaignState.INSPECTION) // 기본 상태를 "검수중"으로 설정
+                        .isDeleted(false) // 기본 값은 삭제되지 않음
+                        .build();
 
         campaign.setAddress(campaignRequest.address());
         campaign.calculateAndSetTotalPoints();
 
         campaignRepository.save(campaign);
         return CampaignResponse.fromEntity(
-            campaign, s3Util.selectImage(campaign.getImageUrl(), S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString()));
+                campaign,
+                s3Util.selectImage(
+                        campaign.getImageUrl(),
+                        S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString()));
     }
 
     @Transactional(readOnly = true)
     public CampaignResponse getCampaignById(Long campaignId) { // 체험단 단건 조회
         Campaign campaign =
-            campaignRepository
-                .findWithDetailsById(campaignId)
-                .orElseThrow(
-                    () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+                campaignRepository
+                        .findWithDetailsById(campaignId)
+                        .orElseThrow(
+                                () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
 
         return CampaignResponse.fromEntity(
-            campaign, s3Util.selectImage(campaign.getImageUrl(), S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString()));
+                campaign,
+                s3Util.selectImage(
+                        campaign.getImageUrl(),
+                        S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString()));
     }
 
     public void deleteCampaign(Long userId, Long campaignId) { // 체험단 삭제(취소)
@@ -117,39 +128,43 @@ public class CampaignService {
 
     // 사업주가 등록한 체험단 목록 조회
     public Page<CampaignSummaryResponse> getRegisteredCampaigns(
-        CampaignFilterRequest campaignFilterRequest, Pageable pageable, Long userId) {
+            CampaignFilterRequest campaignFilterRequest, Pageable pageable, Long userId) {
 
         Page<Campaign> campaignPage =
-            campaignRepository.findByStateAndPlatformAndNameContainingAndUserId(
-                campaignFilterRequest.campaignState(),
-                campaignFilterRequest.platform(),
-                campaignFilterRequest.keyword(),
-                userId,
-                pageable);
+                campaignRepository.findByStateAndPlatformAndNameContainingAndUserId(
+                        campaignFilterRequest.campaignState(),
+                        campaignFilterRequest.platform(),
+                        campaignFilterRequest.keyword(),
+                        userId,
+                        pageable);
 
         return campaignPage.map(
-            campaign ->
-                CampaignSummaryResponse.from(
-                    campaign,
-                    s3Util.selectImage(campaign.getImageUrl(), S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString())));
+                campaign ->
+                        CampaignSummaryResponse.fromEntity(
+                                campaign,
+                                s3Util.selectImage(
+                                        campaign.getImageUrl(),
+                                        S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString())));
     }
 
     // 체험단 검색
     public PagedResponse<CampaignSummaryResponse> searchCampaigns(
-        CampaignSearchRequest searchRequest, Pageable pageable) {
+            CampaignSearchRequest searchRequest, Pageable pageable) {
         Page<Campaign> campaignPage = campaignRepository.searchCampaigns(searchRequest, pageable);
         List<CampaignSummaryResponse> content =
-            campaignPage
-                .map(
-                    campaign ->
-                        CampaignSummaryResponse.from(
-                            campaign,
-                            s3Util.selectImage(
-                                campaign.getImageUrl(), S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString())))
-                .getContent();
+                campaignPage
+                        .map(
+                                campaign ->
+                                        CampaignSummaryResponse.fromEntity(
+                                                campaign,
+                                                s3Util.selectImage(
+                                                        campaign.getImageUrl(),
+                                                        S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH
+                                                                .toString())))
+                        .getContent();
 
         return new PagedResponse<>(
-            content, campaignPage.getTotalElements(), campaignPage.getTotalPages());
+                content, campaignPage.getTotalElements(), campaignPage.getTotalPages());
     }
 
     public List<ApplicantResponse> getApplicants(Long campaignId, Long userId) {

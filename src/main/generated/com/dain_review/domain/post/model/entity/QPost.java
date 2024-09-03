@@ -2,7 +2,6 @@ package com.dain_review.domain.post.model.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.dain_review.domain.Image.entity.ImageFile;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -25,8 +24,6 @@ public class QPost extends EntityPathBase<Post> {
 
     public final com.dain_review.global.model.entity.QBaseEntity _super = new com.dain_review.global.model.entity.QBaseEntity(this);
 
-    public final ListPath<ImageFile, QAttachedFile> attachedFile = this.<ImageFile, QAttachedFile>createList("attachedFile", ImageFile.class, QAttachedFile.class, PathInits.DIRECT2);
-
     public final EnumPath<com.dain_review.domain.post.model.entity.enums.CategoryType> categoryType = createEnum("categoryType", com.dain_review.domain.post.model.entity.enums.CategoryType.class);
 
     public final ListPath<com.dain_review.domain.comment.model.entity.Comment, com.dain_review.domain.comment.model.entity.QComment> commentList = this.<com.dain_review.domain.comment.model.entity.Comment, com.dain_review.domain.comment.model.entity.QComment>createList("commentList", com.dain_review.domain.comment.model.entity.Comment.class, com.dain_review.domain.comment.model.entity.QComment.class, PathInits.DIRECT2);
@@ -44,6 +41,8 @@ public class QPost extends EntityPathBase<Post> {
 
     //inherited
     public final NumberPath<Long> id = _super.id;
+
+    public final ListPath<com.dain_review.domain.Image.entity.ImageFile, com.dain_review.domain.Image.entity.QImageFile> imageFile = this.<com.dain_review.domain.Image.entity.ImageFile, com.dain_review.domain.Image.entity.QImageFile>createList("imageFile", com.dain_review.domain.Image.entity.ImageFile.class, com.dain_review.domain.Image.entity.QImageFile.class, PathInits.DIRECT2);
 
     public final QPostMeta postMeta;
 
