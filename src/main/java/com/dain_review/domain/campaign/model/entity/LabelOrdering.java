@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LabelOrdering {
+    /*Todo: 관리자 기능 생기면 추후에 개발*/
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

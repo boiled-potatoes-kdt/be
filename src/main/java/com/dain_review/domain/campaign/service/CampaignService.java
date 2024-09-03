@@ -68,15 +68,14 @@ public class CampaignService {
                         .address(campaignRequest.address())
                         .latitude(campaignRequest.latitude())
                         .longitude(campaignRequest.longitude())
-                        .availableDays(
-                                new HashSet<>(campaignRequest.availableDays())) // List를 Set으로 변환
+                        .availableDays(new HashSet<>(campaignRequest.availableDays()))
                         .type(campaignRequest.type())
                         .category(campaignRequest.category())
                         .platform(campaignRequest.platform())
                         .label(
                                 Boolean.TRUE.equals(campaignRequest.pointPayment())
                                         ? Label.PREMIUM
-                                        : null)
+                                        : null) // Todo: 관리자 기능이 생기면 추후에 변경
                         .capacity(campaignRequest.capacity())
                         .pointPayment(campaignRequest.pointPayment())
                         .pointPerPerson(campaignRequest.pointPerPerson())
@@ -87,7 +86,7 @@ public class CampaignService {
                         .experienceEndDate(campaignRequest.experienceEndDate())
                         .reviewDate(campaignRequest.reviewDate())
                         .campaignState(CampaignState.INSPECTION) // 기본 상태를 "검수중"으로 설정
-                        .isDeleted(false) // 기본 값은 삭제되지 않음
+                        .isDeleted(false)
                         .build();
 
         campaign.setAddress(campaignRequest.address());
