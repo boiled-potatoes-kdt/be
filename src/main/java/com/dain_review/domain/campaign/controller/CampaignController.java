@@ -100,7 +100,7 @@ public class CampaignController {
         List<ApplicantResponse> applicantResponseList =
                 campaignService.getApplicants(campaignId, customUserDetails.getUserId());
         return API.OK(applicantResponseList);
-    } // Todo: responseEntity<?> 형식으로 변경하기
+    }
 
     // 캠페인 관리 페이지 - 모집완료
     @GetMapping("/{campaignId}/management/recruitmentCompleted")

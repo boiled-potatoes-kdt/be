@@ -7,6 +7,7 @@ import com.dain_review.domain.campaign.model.entity.enums.Category;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
+import com.dain_review.domain.campaign.util.CampaignUtil;
 import com.dain_review.domain.review.model.entity.Review;
 import com.dain_review.domain.select.model.entity.Select;
 import com.dain_review.domain.user.model.entity.User;
@@ -130,5 +131,16 @@ public class Campaign extends BaseEntity {
 
     public void setIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+        String[] cityAndDistrict = CampaignUtil.extractCityAndDistrict(address);
+        this.city = cityAndDistrict[0];
+        this.district = cityAndDistrict[1];
+    }
+
+    public void calculateAndSetTotalPoints() {
+        this.totalPoints = CampaignUtil.calculateTotalPoints(this.capacity, this.pointPerPerson);
     }
 }

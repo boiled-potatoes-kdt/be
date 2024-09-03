@@ -2,6 +2,7 @@ package com.dain_review.domain.post.model.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
+import com.dain_review.domain.Image.entity.ImageFile;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -14,7 +15,7 @@ import com.querydsl.core.types.dsl.PathInits;
  * QAttachedFile is a Querydsl query type for AttachedFile
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QAttachedFile extends EntityPathBase<AttachedFile> {
+public class QAttachedFile extends EntityPathBase<ImageFile> {
 
     private static final long serialVersionUID = 415417180L;
 
@@ -38,10 +39,10 @@ public class QAttachedFile extends EntityPathBase<AttachedFile> {
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
 
     public QAttachedFile(String variable) {
-        this(AttachedFile.class, forVariable(variable), INITS);
+        this(ImageFile.class, forVariable(variable), INITS);
     }
 
-    public QAttachedFile(Path<? extends AttachedFile> path) {
+    public QAttachedFile(Path<? extends ImageFile> path) {
         this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
@@ -50,10 +51,10 @@ public class QAttachedFile extends EntityPathBase<AttachedFile> {
     }
 
     public QAttachedFile(PathMetadata metadata, PathInits inits) {
-        this(AttachedFile.class, metadata, inits);
+        this(ImageFile.class, metadata, inits);
     }
 
-    public QAttachedFile(Class<? extends AttachedFile> type, PathMetadata metadata, PathInits inits) {
+    public QAttachedFile(Class<? extends ImageFile> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.post = inits.isInitialized("post") ? new QPost(forProperty("post"), inits.get("post")) : null;
     }
