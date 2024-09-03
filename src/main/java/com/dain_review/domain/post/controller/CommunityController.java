@@ -43,7 +43,7 @@ public class CommunityController {
             @RequestPart("data") PostRequest postRequest,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
 
-        log.info("image files is null: {}", imageFiles == null);
+        log.info("이미지 파일이 비었습니다.: {}", imageFiles == null);
         PostResponse communityResponse =
                 postService.createPost(
                         S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
