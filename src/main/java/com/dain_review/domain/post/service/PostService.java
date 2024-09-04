@@ -23,6 +23,7 @@ import com.dain_review.global.type.S3PathPrefixType;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -112,14 +114,14 @@ public class PostService {
     }
 
     public PagedResponse<PostResponse> getAllPosts(int page, int size, CategoryType categoryType) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<Post> postsPage = postRepository.findByCategoryType(categoryType, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
     public PagedResponse<PostResponse> getPostsByRole(Long userId, int page, int size) {
         User user = getUser(userId);
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<Post> postsPage = postRepository.findCommunityPostsByRole(user.getRole(), pageable);
         return mapPostsToPagedResponse(postsPage);
     }
@@ -136,7 +138,7 @@ public class PostService {
 
     public PagedResponse<PostResponse> getPostsByFollowType(
             FollowType followType, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndFollowType(
                         CategoryType.FOLLOW, followType, pageable);
@@ -155,7 +157,7 @@ public class PostService {
 
     public PagedResponse<PostResponse> searchPosts(
             CategoryType categoryType, String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<Post> postsPage = postRepository.searchByKeyword(categoryType, keyword, pageable);
         return mapPostsToPagedResponse(postsPage);
     }

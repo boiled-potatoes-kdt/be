@@ -55,8 +55,7 @@ public class CampaignService {
         }
 
         String imageFileName =
-                s3Util.saveImage(imageFile, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString())
-                        .join();
+                s3Util.saveImage(imageFile, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString());
 
         // 캠페인 생성
         Campaign campaign =

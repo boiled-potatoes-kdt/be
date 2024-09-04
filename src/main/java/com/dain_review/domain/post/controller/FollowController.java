@@ -88,7 +88,7 @@ public class FollowController {
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping
     public ResponseEntity<?> getAllPosts(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.getAllPosts(page, size, CategoryType.FOLLOW);
@@ -99,7 +99,7 @@ public class FollowController {
     @GetMapping("/type/{followType}")
     public ResponseEntity<?> getPostsByFollowType(
             @PathVariable FollowType followType,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.getPostsByFollowType(followType, page, size);
@@ -110,7 +110,7 @@ public class FollowController {
     @GetMapping("/search")
     public ResponseEntity<?> searchPosts(
             @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.searchPosts(CategoryType.FOLLOW, keyword, page, size);

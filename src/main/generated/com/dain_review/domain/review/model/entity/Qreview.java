@@ -26,6 +26,8 @@ public class QReview extends EntityPathBase<Review> {
 
     public final com.dain_review.domain.application.model.entity.QApplication application;
 
+    public final ListPath<ReviewAttachedFile, QReviewAttachedFile> attachedFiles = this.<ReviewAttachedFile, QReviewAttachedFile>createList("attachedFiles", ReviewAttachedFile.class, QReviewAttachedFile.class, PathInits.DIRECT2);
+
     public final com.dain_review.domain.campaign.model.entity.QCampaign campaign;
 
     //inherited
