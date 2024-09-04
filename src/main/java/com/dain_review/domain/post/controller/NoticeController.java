@@ -31,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class NoticeController {
 
     private final PostService postService;
-    private final String S3_PATH_PREFIX = S3PathPrefixType.S3_NOTICE_PATH.toString();
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping
@@ -42,14 +41,17 @@ public class NoticeController {
 
         PostResponse postResponse =
                 postService.createPost(
-                        S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
+                        S3PathPrefixType.S3_NOTICE_PATH,
+                        customUserDetails.getUserId(),
+                        postRequest,
+                        imageFiles);
         return API.OK(postResponse);
     }
 
     // 단건조회
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPost(@PathVariable Long postId) {
-        PostResponse postResponse = postService.getPost(S3_PATH_PREFIX, postId);
+        PostResponse postResponse = postService.getPost(S3PathPrefixType.S3_NOTICE_PATH, postId);
         return API.OK(postResponse);
     }
 
@@ -62,7 +64,12 @@ public class NoticeController {
             @RequestPart("data") PostRequest postRequest,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
         PostResponse postResponse =
-                postService.updatePost(S3_PATH_PREFIX, customUserDetails.getUserId(), postId, postRequest, imageFiles);
+                postService.updatePost(
+                        S3PathPrefixType.S3_NOTICE_PATH,
+                        customUserDetails.getUserId(),
+                        postId,
+                        postRequest,
+                        imageFiles);
         return API.OK(postResponse);
     }
 

@@ -1,6 +1,7 @@
-package com.dain_review.domain.post.model.entity;
+package com.dain_review.domain.Image.entity;
 
 
+import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class AttachedFile extends BaseEntity {
+public class ImageFile extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")

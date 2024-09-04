@@ -23,7 +23,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // 게시글 단건 조회
     Post findByIdAndDeletedFalse(Long id);
 
-    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.user u WHERE p.categoryType = 'COMMUNITY' AND u.role = :role AND p.deleted = false ORDER BY p.id DESC")
+    @Query(
+            "SELECT p FROM Post p LEFT JOIN FETCH p.user u WHERE p.categoryType = 'COMMUNITY' AND u.role = :role AND p.deleted = false ORDER BY p.id DESC")
     Page<Post> findCommunityPostsByRole(@Param("role") Role role, Pageable pageable);
 
     // 커뮤니티 전체 게시글 조회 (최신순 정렬)
@@ -34,9 +35,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 게시글을 카테고리로 분류하여 목록 조회 (최신순 정렬)
     @Query(
-            "SELECT p FROM Post p LEFT JOIN FETCH p.user u JOIN FETCH p.postMeta WHERE p.categoryType = :categoryType " +
-                    "AND p.communityType = :communityType " +
-                    "AND p.deleted = false  AND u.role = :role ORDER BY p.createdAt DESC")
+            "SELECT p FROM Post p LEFT JOIN FETCH p.user u JOIN FETCH p.postMeta WHERE p.categoryType = :categoryType "
+                    + "AND p.communityType = :communityType "
+                    + "AND p.deleted = false  AND u.role = :role ORDER BY p.createdAt DESC")
     Page<Post> findByCategoryTypeAndCommunityType(
             @Param("role") Role role,
             @Param("categoryType") CategoryType categoryType,
@@ -67,7 +68,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // 해당 사용자가 작성한 게시글들 삭제
     @Modifying
     @Query("DELETE FROM Post p WHERE p.user.id = :userId")
-    void deleteByUserId(@Param("userId") Long userId);
+    void deleteByUserId(@Param("userId") Long userId); // Todo: 사용 안하고 있음
 
     @Modifying
     @Query(

@@ -35,8 +35,6 @@ public class CommentService {
     private final S3Util s3Util;
     private final ApplicationEventPublisher eventPublisher;
 
-    private final String S3_PROFILE_PATH_PREFIX = S3PathPrefixType.S3_PROFILE_IMAGE_PATH.toString();
-
     /**
      * 댓글 size 10개로 페이지네이션, 대댓글 리스트 조회
      *
@@ -51,17 +49,26 @@ public class CommentService {
                         postId, PageRequest.of(page - 1, size));
 
         List<CommentResponse> commentResponseList =
-                comments.get().map(comment -> {
-                    String profileUrl = s3Util.selectImage(comment.getUser().getProfileImage(), S3_PROFILE_PATH_PREFIX);
-                    return CommentResponse.from(comment, comment.getUser().getNickname(), profileUrl);
-                }).toList();
+                comments.get()
+                        .map(
+                                comment -> {
+                                    String profileUrl =
+                                            s3Util.selectImage(
+                                                    comment.getUser().getProfileImage(),
+                                                    S3PathPrefixType.S3_PROFILE_IMAGE_PATH
+                                                            .toString());
+                                    return CommentResponse.from(
+                                            comment, comment.getUser().getNickname(), profileUrl);
+                                })
+                        .toList();
 
         // 대댓글 리스트 조회 (parentId 순 정렬)
         List<CommentResponse> replyList =
                 findChildCommentsByCommentId(comments.get().map(Comment::getId).toList());
 
         PagedResponse<CommentResponse> pagedComments =
-                new PagedResponse<>(commentResponseList, comments.getTotalElements(), comments.getTotalPages());
+                new PagedResponse<>(
+                        commentResponseList, comments.getTotalElements(), comments.getTotalPages());
         return new CommentsAndRepliesResponse(pagedComments, replyList);
     }
 
@@ -76,8 +83,11 @@ public class CommentService {
         Post post = postRepository.getPostById(postId);
         Comment parent = null;
         if (request.parentId() != null)
-            parent = commentRepository.findByIdAndDeletedFalse(request.parentId())
-                            .orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
+            parent =
+                    commentRepository
+                            .findByIdAndDeletedFalse(request.parentId())
+                            .orElseThrow(
+                                    () -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
 
         Comment comment = Comment.from(request, user, post, parent);
         commentRepository.save(comment);
@@ -91,8 +101,11 @@ public class CommentService {
      */
     @Transactional
     public void updateComment(Long userId, Long commentId, CommentRequest request) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
+        Comment comment =
+                commentRepository
+                        .findById(commentId)
+                        .orElseThrow(
+                                () -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
 
         comment.updateBy(userId, request);
     }
@@ -100,13 +113,16 @@ public class CommentService {
     /**
      * 댓글 삭제 메서드, deleted 필드 값을 1로 update
      *
-     * @param userId    요청 클라이언트 userId
+     * @param userId 요청 클라이언트 userId
      * @param commentId 삭제할 댓글 id
      */
     @Transactional
     public void deleteComment(Long userId, Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
+        Comment comment =
+                commentRepository
+                        .findById(commentId)
+                        .orElseThrow(
+                                () -> new CommentException(CommentErrorCode.COMMENT_NOT_FOUND));
 
         comment.deleteBy(userId);
     }
@@ -118,12 +134,18 @@ public class CommentService {
      * @return 대댓글 리스트
      */
     private List<CommentResponse> findChildCommentsByCommentId(List<Long> commentIds) {
-        List<Comment> replies = commentRepository.findByParentIdInAndDeletedFalseOrderByParentId(commentIds);
+        List<Comment> replies =
+                commentRepository.findByParentIdInAndDeletedFalseOrderByParentId(commentIds);
         return replies.stream()
                 .map(
                         comment -> {
-                            String profileUrl = s3Util.selectImage(comment.getUser().getProfileImage(), S3_PROFILE_PATH_PREFIX);
-                            return CommentResponse.from(comment, comment.getUser().getNickname(), profileUrl);
-                        }).toList();
+                            String profileUrl =
+                                    s3Util.selectImage(
+                                            comment.getUser().getProfileImage(),
+                                            S3PathPrefixType.S3_PROFILE_IMAGE_PATH.toString());
+                            return CommentResponse.from(
+                                    comment, comment.getUser().getNickname(), profileUrl);
+                        })
+                .toList();
     }
 }

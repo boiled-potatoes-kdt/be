@@ -31,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class CommunityController {
 
     private final PostService postService;
-    private final String S3_PATH_PREFIX = S3PathPrefixType.S3_COMMUNITY_PATH.toString();
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @PostMapping // 커뮤니티 게시글 생성
@@ -39,10 +38,12 @@ public class CommunityController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestPart("data") PostRequest postRequest,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
-
         PostResponse communityResponse =
                 postService.createPost(
-                        S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
+                        S3PathPrefixType.S3_COMMUNITY_PATH,
+                        customUserDetails.getUserId(),
+                        postRequest,
+                        imageFiles);
         return API.OK(communityResponse);
     }
 
@@ -50,7 +51,8 @@ public class CommunityController {
     @GetMapping("/{postId}") // 커뮤니티 게시글 단건 조회
     public ResponseEntity<?> getPost(@PathVariable Long postId) {
 
-        PostResponse communityResponse = postService.getPost(S3_PATH_PREFIX, postId);
+        PostResponse communityResponse =
+                postService.getPost(S3PathPrefixType.S3_COMMUNITY_PATH, postId);
         return API.OK(communityResponse);
     }
 
@@ -64,7 +66,7 @@ public class CommunityController {
 
         PostResponse communityResponse =
                 postService.updatePost(
-                        S3_PATH_PREFIX,
+                        S3PathPrefixType.S3_COMMUNITY_PATH,
                         customUserDetails.getUserId(),
                         postId,
                         postRequest,

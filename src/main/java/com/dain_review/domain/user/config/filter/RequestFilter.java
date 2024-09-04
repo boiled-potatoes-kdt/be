@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -44,16 +43,24 @@ public class RequestFilter extends OncePerRequestFilter {
     }
 
     // EXCLUDED_ENDPOINTS 리스트에 URL 패턴과 해당 HTTP 메서드를 정의
-    private static final List<ExcludedEndpoint> EXCLUDED_ENDPOINTS = List.of(
-            new ExcludedEndpoint(Pattern.compile("^/api/post/notices(/\\d+)?$"), "GET"),  // GET /api/post/notices, GET /api/post/notices/40
-            new ExcludedEndpoint(Pattern.compile("^/api/post/notices\\?keyword=.*$"), "GET")  // GET /api/post/notices?keyword=게시글
-    );
+    private static final List<ExcludedEndpoint> EXCLUDED_ENDPOINTS =
+            List.of(
+                    new ExcludedEndpoint(
+                            Pattern.compile("^/api/post/notices(/\\d+)?$"),
+                            "GET"), // GET /api/post/notices, GET /api/post/notices/40
+                    new ExcludedEndpoint(
+                            Pattern.compile("^/api/post/notices\\?keyword=.*$"),
+                            "GET") // GET /api/post/notices?keyword=게시글
+                    );
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String requestURI = request.getRequestURI() + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
+        String requestURI =
+                request.getRequestURI()
+                        + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
         String method = request.getMethod(); // 요청의 HTTP 메서드를 가져옴
-        return EXCLUDED_ENDPOINTS.stream().anyMatch(endpoint -> endpoint.matches(requestURI, method));
+        return EXCLUDED_ENDPOINTS.stream()
+                .anyMatch(endpoint -> endpoint.matches(requestURI, method));
     }
 
     @Override

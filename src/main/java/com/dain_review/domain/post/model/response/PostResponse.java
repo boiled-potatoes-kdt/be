@@ -43,7 +43,8 @@ public class PostResponse {
                 .build();
     }
 
-    public static PostResponse responseWithoutContentPreview(Post post, String profileImageUrl, List<String> imageUrls) {
+    public static PostResponse responseWithoutContentPreview(
+            Post post, String profileImageUrl, List<String> imageUrls) {
         return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())

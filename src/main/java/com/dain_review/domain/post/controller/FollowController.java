@@ -32,8 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class FollowController {
 
     private final PostService postService;
-    private final String S3_PATH_PREFIX = S3PathPrefixType.S3_FOLLOW_PATH.toString();
-
     // 생성
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @PostMapping
@@ -43,7 +41,10 @@ public class FollowController {
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
         PostResponse postResponse =
                 postService.createPost(
-                        S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
+                        S3PathPrefixType.S3_FOLLOW_PATH,
+                        customUserDetails.getUserId(),
+                        postRequest,
+                        imageFiles);
         return API.OK(postResponse);
     }
 
@@ -51,7 +52,7 @@ public class FollowController {
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPost(@PathVariable Long postId) {
-        PostResponse postResponse = postService.getPost(S3_PATH_PREFIX, postId);
+        PostResponse postResponse = postService.getPost(S3PathPrefixType.S3_FOLLOW_PATH, postId);
         return API.OK(postResponse);
     }
 
@@ -65,7 +66,7 @@ public class FollowController {
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
         PostResponse postResponse =
                 postService.updatePost(
-                        S3_PATH_PREFIX,
+                        S3PathPrefixType.S3_FOLLOW_PATH,
                         customUserDetails.getUserId(),
                         postId,
                         postRequest,

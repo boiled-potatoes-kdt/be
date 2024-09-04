@@ -41,7 +41,7 @@ public class CommentController {
             @PathVariable(value = "post_id") Long postId,
             @RequestBody CommentRequest request) {
         commentService.createComment(customUserDetails.getUserId(), postId, request);
-        return API.OK("댓글 작성이 완료되었습니다.");
+        return API.OK();
     }
 
     @PatchMapping("/{comment_id}")
@@ -50,7 +50,7 @@ public class CommentController {
             @PathVariable(value = "comment_id") Long commentId,
             @RequestBody CommentRequest request) {
         commentService.updateComment(customUserDetails.getUserId(), commentId, request);
-        return API.OK("댓글 수정이 완료 되었습니다.");
+        return API.OK();
     }
 
     @DeleteMapping("/{comment_id}")
@@ -58,6 +58,6 @@ public class CommentController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable(value = "comment_id") Long commentId) {
         commentService.deleteComment(customUserDetails.getUserId(), commentId);
-        return API.OK("댓글 삭제가 완료 되었습니다.");
+        return API.OK();
     }
 }

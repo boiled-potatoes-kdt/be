@@ -1,4 +1,4 @@
-package com.dain_review.global.util;
+package com.dain_review.domain.Image.util;
 
 
 import java.util.Arrays;
