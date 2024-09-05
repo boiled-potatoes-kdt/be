@@ -52,6 +52,8 @@ public class SecurityConfig {
                 matcher ->
                         matcher.requestMatchers(HttpMethod.POST, "/api/login")
                                 .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/post/notices/**")
+                                .permitAll()
                                 .anyRequest()
                                 .authenticated());
 

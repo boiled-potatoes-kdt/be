@@ -1,4 +1,4 @@
-package com.dain_review.domain.post.model.entity;
+package com.dain_review.domain.Image.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -11,16 +11,16 @@ import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * QAttachedFile is a Querydsl query type for AttachedFile
+ * QImageFile is a Querydsl query type for ImageFile
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QAttachedFile extends EntityPathBase<AttachedFile> {
+public class QImageFile extends EntityPathBase<ImageFile> {
 
-    private static final long serialVersionUID = 415417180L;
+    private static final long serialVersionUID = 136071491L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QAttachedFile attachedFile = new QAttachedFile("attachedFile");
+    public static final QImageFile imageFile = new QImageFile("imageFile");
 
     public final com.dain_review.global.model.entity.QBaseEntity _super = new com.dain_review.global.model.entity.QBaseEntity(this);
 
@@ -32,30 +32,30 @@ public class QAttachedFile extends EntityPathBase<AttachedFile> {
     //inherited
     public final NumberPath<Long> id = _super.id;
 
-    public final QPost post;
+    public final com.dain_review.domain.post.model.entity.QPost post;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
 
-    public QAttachedFile(String variable) {
-        this(AttachedFile.class, forVariable(variable), INITS);
+    public QImageFile(String variable) {
+        this(ImageFile.class, forVariable(variable), INITS);
     }
 
-    public QAttachedFile(Path<? extends AttachedFile> path) {
+    public QImageFile(Path<? extends ImageFile> path) {
         this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
-    public QAttachedFile(PathMetadata metadata) {
+    public QImageFile(PathMetadata metadata) {
         this(metadata, PathInits.getFor(metadata, INITS));
     }
 
-    public QAttachedFile(PathMetadata metadata, PathInits inits) {
-        this(AttachedFile.class, metadata, inits);
+    public QImageFile(PathMetadata metadata, PathInits inits) {
+        this(ImageFile.class, metadata, inits);
     }
 
-    public QAttachedFile(Class<? extends AttachedFile> type, PathMetadata metadata, PathInits inits) {
+    public QImageFile(Class<? extends ImageFile> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.post = inits.isInitialized("post") ? new QPost(forProperty("post"), inits.get("post")) : null;
+        this.post = inits.isInitialized("post") ? new com.dain_review.domain.post.model.entity.QPost(forProperty("post"), inits.get("post")) : null;
     }
 
 }
