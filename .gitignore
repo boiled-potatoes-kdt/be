@@ -229,5 +229,6 @@ gradle-app.setting
 src/main/resources/*.properties
 src/main/resources/*.yaml
 src/main/resources/*.yml
+src/main/generated/
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,java,windows,macos,data,database

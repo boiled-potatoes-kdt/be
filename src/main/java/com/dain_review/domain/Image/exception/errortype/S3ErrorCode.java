@@ -1,4 +1,4 @@
-package com.dain_review.global.util.errortype;
+package com.dain_review.domain.Image.exception.errortype;
 
 
 import com.dain_review.global.exception.ErrorCode;

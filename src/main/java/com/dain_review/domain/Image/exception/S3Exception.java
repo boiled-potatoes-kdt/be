@@ -1,8 +1,8 @@
-package com.dain_review.global.util.error;
+package com.dain_review.domain.Image.exception;
 
 
+import com.dain_review.domain.Image.exception.errortype.S3ErrorCode;
 import com.dain_review.global.exception.GlobalException;
-import com.dain_review.global.util.errortype.S3ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

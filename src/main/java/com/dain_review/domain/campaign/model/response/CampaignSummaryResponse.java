@@ -29,7 +29,7 @@ public class CampaignSummaryResponse {
     private Long applicationDeadline; // 지원 마감까지 남은 일수
     private Boolean isCancel; // 취소 가능한지 여부
 
-    public static CampaignSummaryResponse from(Campaign campaign, String imageUrl) {
+    public static CampaignSummaryResponse fromEntity(Campaign campaign, String imageUrl) {
         // 지원 마감까지 남은 일수 계산
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(now, campaign.getApplicationEndDate());

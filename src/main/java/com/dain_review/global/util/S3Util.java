@@ -4,8 +4,8 @@ package com.dain_review.global.util;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.dain_review.global.util.error.S3Exception;
-import com.dain_review.global.util.errortype.S3ErrorCode;
+import com.dain_review.domain.Image.exception.S3Exception;
+import com.dain_review.domain.Image.exception.errortype.S3ErrorCode;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
@@ -50,6 +50,9 @@ public class S3Util {
      * @return fileName 과 일치하는 이름의 리소스 url 반환
      */
     public String selectImage(String fileName, String path) {
+        if (fileName == null || fileName.isEmpty()) {
+            return null;
+        }
         String selectPath = bucketName + path;
         s3Client.getObject(new GetObjectRequest(selectPath, fileName));
         URL url = s3Client.getUrl(selectPath, fileName);
