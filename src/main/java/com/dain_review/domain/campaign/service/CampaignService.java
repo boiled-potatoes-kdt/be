@@ -54,7 +54,7 @@ public class CampaignService {
             throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
         }
 
-        String imageFileName =
+        String imageFileName = 
                 s3Util.saveImage(imageFile, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString());
 
         // 캠페인 생성

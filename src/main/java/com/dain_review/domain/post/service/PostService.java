@@ -129,7 +129,7 @@ public class PostService {
 
     public PagedResponse<PostResponse> getPostsByCommunityType(
             Long userId, CommunityType communityType, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         User user = getUser(userId);
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndCommunityType(
@@ -148,7 +148,7 @@ public class PostService {
 
     public PagedResponse<PostResponse> searchPostsByRole(
             Long userId, String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         User user = getUser(userId);
         Page<Post> postsPage =
                 postRepository.searchByKeywordAndRole(
