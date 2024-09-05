@@ -8,16 +8,12 @@ import com.dain_review.domain.Image.exception.S3Exception;
 import com.dain_review.domain.Image.exception.errortype.S3ErrorCode;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-
-import static com.dain_review.global.util.ImageFileValidUtil.isValidImageFile;
 
 @Component
 @RequiredArgsConstructor
@@ -84,27 +80,5 @@ public class S3Util {
         String fileName = file.getOriginalFilename();
         String[] div = fileName.split("\\.");
         return div[div.length - 1];
-    }
-
-    public List<String> saveImageFiles(List<MultipartFile> imageFiles, String S3_PATH_PREFIX) {
-
-        if (imageFiles == null || imageFiles.isEmpty()) {
-            return null;
-        }
-
-        List<String> savedFileNames = new ArrayList<>();
-        for (MultipartFile imageFile : imageFiles) {
-            String fileName = null;
-
-            if (imageFile != null && !imageFile.isEmpty()) {
-                if (!isValidImageFile(imageFile)) {
-                    throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
-                }
-                fileName = saveImage(imageFile, S3_PATH_PREFIX);
-            }
-            savedFileNames.add(fileName);
-        }
-
-        return savedFileNames;
     }
 }

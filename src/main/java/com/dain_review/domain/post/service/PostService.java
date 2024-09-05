@@ -2,6 +2,7 @@ package com.dain_review.domain.post.service;
 
 import static com.dain_review.domain.post.model.response.PostResponse.responseWithContentPreview;
 
+import com.dain_review.domain.Image.entity.enums.ContentType;
 import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.exception.PostException;
@@ -56,8 +57,8 @@ public class PostService {
         postRepository.save(post);
 
         // 이미지 저장 및 url 반환
-        imageFileService.saveImageFiles(imageFiles, post, s3PathPrefixType);
-        List<String> imageUrls = imageFileService.findImageUrls(post.getId(), s3PathPrefixType);
+        imageFileService.saveImageFiles(imageFiles, ContentType.POST, post.getId(), s3PathPrefixType);
+        List<String> imageUrls = imageFileService.findImageUrls(post.getId(), ContentType.POST, s3PathPrefixType);
 
         String userImageUrl = imageFileService.getUserProfileUrl(post.getUser().getProfileImage());
         return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls);
@@ -70,7 +71,7 @@ public class PostService {
         }
 
         // 게시물의 모든 이미지 url 리스트를 반환
-        List<String> imageUrls = imageFileService.findImageUrls(post.getId(), s3PathPrefixType);
+        List<String> imageUrls = imageFileService.findImageUrls(post.getId(), ContentType.POST, s3PathPrefixType);
 
         // 조회 이벤트 발생 시, 이미 조회된 Post 객체를 전달
         eventPublisher.publishEvent(new PostReadEvent(post));
@@ -93,10 +94,10 @@ public class PostService {
         existingPost.updateBy(userId, postRequest);
 
         // 새로 추가된 이미지 저장
-        imageFileService.saveImageFiles(imageFiles, existingPost, s3PathPrefixType);
+        imageFileService.saveImageFiles(imageFiles, ContentType.POST, existingPost.getId(), s3PathPrefixType);
         imageFileService.deleteImageFiles(postRequest.deletedAttachedFiles(), s3PathPrefixType);
         List<String> imageUrls =
-                imageFileService.findImageUrls(existingPost.getId(), s3PathPrefixType);
+                imageFileService.findImageUrls(existingPost.getId(), ContentType.POST, s3PathPrefixType);
 
         String userImageUrl =
                 imageFileService.getUserProfileUrl(existingPost.getUser().getProfileImage());

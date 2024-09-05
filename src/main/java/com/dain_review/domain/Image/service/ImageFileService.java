@@ -2,11 +2,11 @@ package com.dain_review.domain.Image.service;
 
 
 import com.dain_review.domain.Image.entity.ImageFile;
+import com.dain_review.domain.Image.entity.enums.ContentType;
 import com.dain_review.domain.Image.exception.S3Exception;
 import com.dain_review.domain.Image.exception.errortype.S3ErrorCode;
 import com.dain_review.domain.Image.repository.ImageFileRepository;
 import com.dain_review.domain.Image.util.ImageFileValidUtil;
-import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
 import java.util.List;
@@ -23,7 +23,7 @@ public class ImageFileService {
     private final S3Util s3Util;
 
     public void saveImageFiles(
-            List<MultipartFile> imageFiles, Post post, S3PathPrefixType s3PathPrefixType) {
+            List<MultipartFile> imageFiles, ContentType contentType, Long id, S3PathPrefixType s3PathPrefixType) {
         if (imageFiles == null || imageFiles.isEmpty()) {
             return;
         }
@@ -34,8 +34,9 @@ public class ImageFileService {
                     throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
                 }
 
-                String fileName = s3Util.saveImage(imageFile, s3PathPrefixType.toString()).join();
-                ImageFile file = ImageFile.builder().post(post).fileName(fileName).build();
+                String fileName = s3Util.saveImage(imageFile, s3PathPrefixType.toString());
+                String url = s3Util.selectImage(fileName, s3PathPrefixType.toString());
+                ImageFile file = ImageFile.builder().contentType(contentType).contentId(id).fileName(fileName).imageUrl(url).build();
                 imageFileRepository.save(file);
             }
         }
@@ -49,8 +50,8 @@ public class ImageFileService {
         }
     }
 
-    public List<String> findImageUrls(Long postId, S3PathPrefixType s3PathPrefixType) {
-        List<ImageFile> imageFiles = imageFileRepository.findByPostId(postId);
+    public List<String> findImageUrls(Long postId, ContentType contentType, S3PathPrefixType s3PathPrefixType) {
+        List<ImageFile> imageFiles = imageFileRepository.findByContentTypeAndContentId(contentType, postId);
         return imageFiles.stream()
                 .map(it -> s3Util.selectImage(it.getFileName(), s3PathPrefixType.toString()))
                 .collect(Collectors.toList());
