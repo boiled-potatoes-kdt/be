@@ -20,4 +20,8 @@ public class Enterpriser extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+
+    private String company;
+
 }
