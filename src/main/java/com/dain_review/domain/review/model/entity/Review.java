@@ -36,8 +36,5 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "application_id")
     private Application application;
 
-    @OneToMany(mappedBy = "review", fetch = FetchType.LAZY)
-    private List<ReviewAttachedFile> attachedFiles;
-
     private String url;
 }

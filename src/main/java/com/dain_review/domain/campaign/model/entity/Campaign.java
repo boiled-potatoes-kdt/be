@@ -143,4 +143,11 @@ public class Campaign extends BaseEntity {
     public void calculateAndSetTotalPoints() {
         this.totalPoints = CampaignUtil.calculateTotalPoints(this.capacity, this.pointPerPerson);
     }
+
+    public boolean isNotReviewPeriod() {
+        if (LocalDateTime.now().isAfter(reviewDate) || LocalDateTime.now().isBefore(experienceStartDate)) {
+            return true;
+        }
+        return false;
+    }
 }
