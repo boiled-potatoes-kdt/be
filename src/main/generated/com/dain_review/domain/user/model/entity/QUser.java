@@ -68,6 +68,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath profileImage = createString("profileImage");
 
+    public final ListPath<com.dain_review.domain.review.model.entity.Review, com.dain_review.domain.review.model.entity.QReview> reviewList = this.<com.dain_review.domain.review.model.entity.Review, com.dain_review.domain.review.model.entity.QReview>createList("reviewList", com.dain_review.domain.review.model.entity.Review.class, com.dain_review.domain.review.model.entity.QReview.class, PathInits.DIRECT2);
+
     public final EnumPath<com.dain_review.domain.user.model.entity.enums.Role> role = createEnum("role", com.dain_review.domain.user.model.entity.enums.Role.class);
 
     //inherited

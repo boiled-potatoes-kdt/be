@@ -7,8 +7,8 @@ import com.dain_review.domain.campaign.model.entity.enums.Category;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
+import com.dain_review.domain.choice.model.entity.Choice;
 import com.dain_review.domain.review.model.entity.Review;
-import com.dain_review.domain.select.model.entity.Select;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.CollectionTable;
@@ -48,7 +48,7 @@ public class Campaign extends BaseEntity {
     private List<Application> applicationList;
 
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
-    private List<Select> selectList;
+    private List<Choice> choiceList;
 
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
     private List<Review> ReviewList;

@@ -1,4 +1,4 @@
-package com.dain_review.domain.select.model.entity;
+package com.dain_review.domain.choice.model.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -11,16 +11,16 @@ import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * QSelect is a Querydsl query type for Select
+ * QChoice is a Querydsl query type for Choice
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QSelect extends EntityPathBase<Select> {
+public class QChoice extends EntityPathBase<Choice> {
 
-    private static final long serialVersionUID = -910494348L;
+    private static final long serialVersionUID = 2104066622L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QSelect select = new QSelect("select1");
+    public static final QChoice choice = new QChoice("choice");
 
     public final com.dain_review.global.model.entity.QBaseEntity _super = new com.dain_review.global.model.entity.QBaseEntity(this);
 
@@ -37,23 +37,23 @@ public class QSelect extends EntityPathBase<Select> {
 
     public final com.dain_review.domain.user.model.entity.QUser user;
 
-    public QSelect(String variable) {
-        this(Select.class, forVariable(variable), INITS);
+    public QChoice(String variable) {
+        this(Choice.class, forVariable(variable), INITS);
     }
 
-    public QSelect(Path<? extends Select> path) {
+    public QChoice(Path<? extends Choice> path) {
         this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
-    public QSelect(PathMetadata metadata) {
+    public QChoice(PathMetadata metadata) {
         this(metadata, PathInits.getFor(metadata, INITS));
     }
 
-    public QSelect(PathMetadata metadata, PathInits inits) {
-        this(Select.class, metadata, inits);
+    public QChoice(PathMetadata metadata, PathInits inits) {
+        this(Choice.class, metadata, inits);
     }
 
-    public QSelect(Class<? extends Select> type, PathMetadata metadata, PathInits inits) {
+    public QChoice(Class<? extends Choice> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.campaign = inits.isInitialized("campaign") ? new com.dain_review.domain.campaign.model.entity.QCampaign(forProperty("campaign"), inits.get("campaign")) : null;
         this.user = inits.isInitialized("user") ? new com.dain_review.domain.user.model.entity.QUser(forProperty("user"), inits.get("user")) : null;

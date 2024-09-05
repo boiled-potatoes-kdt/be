@@ -8,8 +8,8 @@ import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.service.CampaignService;
+import com.dain_review.domain.choice.model.response.ChoiceInfluencerResponse;
 import com.dain_review.domain.review.model.response.ReviewerResponse;
-import com.dain_review.domain.select.model.response.SelectedInfluencerResponse;
 import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
 import com.dain_review.global.model.response.PagedResponse;
@@ -104,13 +104,13 @@ public class CampaignController {
 
     // 캠페인 관리 페이지 - 모집완료
     @GetMapping("/{campaignId}/management/recruitmentCompleted")
-    public ResponseEntity<List<SelectedInfluencerResponse>> getSelectedInfluencers(
+    public ResponseEntity<List<ChoiceInfluencerResponse>> getSelectedInfluencers(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long campaignId) {
 
-        List<SelectedInfluencerResponse> selectedInfluencerResponseList =
+        List<ChoiceInfluencerResponse> choiceInfluencerResponseList =
                 campaignService.getSelectedInfluencers(campaignId, customUserDetails.getUserId());
-        return API.OK(selectedInfluencerResponseList);
+        return API.OK(choiceInfluencerResponseList);
     }
 
     // 캠페인 관리 페이지 - 체험&리뷰, 리뷰마감
@@ -119,8 +119,8 @@ public class CampaignController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long campaignId) {
 
-        List<ReviewerResponse> selectedInfluencerResponseList =
+        List<ReviewerResponse> reviewerResponseList =
                 campaignService.getReviews(campaignId, customUserDetails.getUserId());
-        return API.OK(selectedInfluencerResponseList);
+        return API.OK(reviewerResponseList);
     }
 }
