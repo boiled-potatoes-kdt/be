@@ -12,7 +12,6 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -24,14 +23,32 @@ import lombok.experimental.SuperBuilder;
 public class Like extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "campaign_id")
+    @JoinColumn(name = "campaign_id", nullable = false)
     private Campaign campaign;
 
     @Column(name = "is_liked", nullable = false)
-    @Setter
     private boolean isLiked;
+
+    // Like 생성 메서드
+    public static Like create(User user, Campaign campaign) {
+        return Like.builder()
+                .user(user)
+                .campaign(campaign)
+                .isLiked(true) // 처음 생성시 무조건 좋아요 상태로 생성
+                .build();
+    }
+
+    // 좋아요 상태 토글 메서드
+    public Like withToggleStatus() {
+        return Like.builder()
+                .id(this.getId())
+                .user(this.getUser())
+                .campaign(this.getCampaign())
+                .isLiked(!this.isLiked) // 현재 상태의 반대로 설정
+                .build();
+    }
 }

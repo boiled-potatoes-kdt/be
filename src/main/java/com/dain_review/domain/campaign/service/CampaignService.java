@@ -7,7 +7,9 @@ import com.dain_review.domain.Image.exception.errortype.S3ErrorCode;
 import com.dain_review.domain.application.model.response.ApplicantResponse;
 import com.dain_review.domain.campaign.exception.CampaignException;
 import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
+import com.dain_review.domain.campaign.model.entity.AvailableDay;
 import com.dain_review.domain.campaign.model.entity.Campaign;
+import com.dain_review.domain.campaign.model.entity.Keyword;
 import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
@@ -23,8 +25,9 @@ import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,15 +71,17 @@ public class CampaignService {
                         .address(campaignRequest.address())
                         .latitude(campaignRequest.latitude())
                         .longitude(campaignRequest.longitude())
-                        .availableDays(new HashSet<>(campaignRequest.availableDays()))
                         .type(campaignRequest.type())
                         .category(campaignRequest.category())
                         .platform(campaignRequest.platform())
                         .label(
                                 Boolean.TRUE.equals(campaignRequest.pointPayment())
                                         ? Label.PREMIUM
-                                        : null) // Todo: 관리자 기능이 생기면 추후에 변경
+                                        : null)
                         .capacity(campaignRequest.capacity())
+                        .postalCode(campaignRequest.postalCode())
+                        .serviceProvided(campaignRequest.serviceProvided())
+                        .requirement(campaignRequest.requirement())
                         .pointPayment(campaignRequest.pointPayment())
                         .pointPerPerson(campaignRequest.pointPerPerson())
                         .applicationStartDate(campaignRequest.applicationStartDate())
@@ -85,9 +90,22 @@ public class CampaignService {
                         .experienceStartDate(campaignRequest.experienceStartDate())
                         .experienceEndDate(campaignRequest.experienceEndDate())
                         .reviewDate(campaignRequest.reviewDate())
-                        .campaignState(CampaignState.INSPECTION) // 기본 상태를 "검수중"으로 설정
+                        .campaignState(CampaignState.INSPECTION)
                         .isDeleted(false)
                         .build();
+        // 2. AvailableDay와 Keyword를 캠페인 객체와 함께 빌드
+        Set<AvailableDay> availableDays =
+                campaignRequest.availableDays().stream()
+                        .map(day -> new AvailableDay(campaign, day)) // AvailableDay로 변환
+                        .collect(Collectors.toSet());
+
+        Set<Keyword> keywords =
+                campaignRequest.keywords().stream()
+                        .map(keyword -> new Keyword(campaign, keyword)) // Keyword로 변환
+                        .collect(Collectors.toSet());
+
+        campaign.setAvailableDays(availableDays);
+        campaign.setKeywords(keywords);
 
         campaign.setAddress(campaignRequest.address());
         campaign.calculateAndSetTotalPoints();
@@ -102,11 +120,7 @@ public class CampaignService {
 
     @Transactional(readOnly = true)
     public CampaignResponse getCampaignById(Long campaignId) { // 체험단 단건 조회
-        Campaign campaign =
-                campaignRepository
-                        .findWithDetailsById(campaignId)
-                        .orElseThrow(
-                                () -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+        Campaign campaign = campaignRepository.getCampaignById(campaignId);
 
         return CampaignResponse.fromEntity(
                 campaign,

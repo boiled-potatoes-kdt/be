@@ -12,9 +12,7 @@ import com.dain_review.domain.review.model.entity.Review;
 import com.dain_review.domain.select.model.entity.Select;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,9 +25,11 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -75,15 +75,19 @@ public class Campaign extends BaseEntity {
     @JoinColumn(name = "label_ordering_id")
     private LabelOrdering labelOrdering;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "available_days", joinColumns = @JoinColumn(name = "campaign_id"))
-    @Column(name = "day")
-    private Set<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
+    @Setter
+    @OneToMany(
+            mappedBy = "campaign",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.PERSIST) // Cascade 추가
+    private Set<AvailableDay> availableDays; // 체험 가능 요일
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "campaign_id"))
-    @Column(name = "keyword")
-    private Set<String> keywords; // 홍보용 키워드(태그) 최대 3개, 각 키워드는 10자 이내
+    @Setter
+    @OneToMany(
+            mappedBy = "campaign",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.PERSIST) // Cascade 추가
+    private Set<Keyword> keywords; // 홍보용 키워드(태그)
 
     private Boolean pointPayment; // 포인트 지급 여부 (예/아니오)
 
@@ -142,5 +146,19 @@ public class Campaign extends BaseEntity {
 
     public void calculateAndSetTotalPoints() {
         this.totalPoints = CampaignUtil.calculateTotalPoints(this.capacity, this.pointPerPerson);
+    }
+
+    // availableDays를 String으로 변환
+    public Set<String> getAvailableDayStrings() {
+        return availableDays.stream()
+                .map(AvailableDay::getDay) // AvailableDay에서 day 값만 가져옴
+                .collect(Collectors.toSet());
+    }
+
+    // keywords를 String으로 변환
+    public Set<String> getKeywordStrings() {
+        return keywords.stream()
+                .map(Keyword::getKeyword) // Keyword에서 keyword 값만 가져옴
+                .collect(Collectors.toSet());
     }
 }

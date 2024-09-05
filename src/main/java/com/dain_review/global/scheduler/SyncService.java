@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ViewCommentScheduler {
+public class SyncService {
 
     private final PostMetaService postMetaService;
     private final RedisTemplate<String, String> redisTemplate;
