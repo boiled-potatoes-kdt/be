@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class like extends BaseEntity {
+public class Like extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")

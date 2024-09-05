@@ -1,5 +1,6 @@
 package com.dain_review.domain.user.config.service;
 
+
 import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.domain.user.exception.AuthException;
 import com.dain_review.domain.user.exception.errortype.AuthErrorCode;
@@ -18,10 +19,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AuthException(AuthErrorCode.LOGIN_ERROR));
 
-        return new CustomUserDetails(user.getId(), user.getEmail(), user.getPassword(), user.getRole());
+        User user =
+                userRepository
+                        .findByEmail(email)
+                        .orElseThrow(() -> new AuthException(AuthErrorCode.LOGIN_ERROR));
+
+        return new CustomUserDetails(
+                user.getId(), user.getEmail(), user.getPassword(), user.getRole());
     }
-
 }

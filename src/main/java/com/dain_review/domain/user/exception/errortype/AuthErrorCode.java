@@ -15,8 +15,7 @@ public enum AuthErrorCode implements ErrorCode {
     JWT_EMPTY(HttpStatus.UNAUTHORIZED, "JWT claims is empty, 잘못된 JWT 토큰 입니다."),
     LOGIN_ERROR(HttpStatus.BAD_REQUEST, "Login 실패 하였습니다."),
     LOGOUT_ERROR(HttpStatus.BAD_REQUEST, "Logout 실패 하였습니다."),
-    NOT_FOUND_TOKEN(HttpStatus.BAD_REQUEST, "토큰을 찾을 수 없습니다.")
-    ;
+    NOT_FOUND_TOKEN(HttpStatus.BAD_REQUEST, "토큰을 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String msg;

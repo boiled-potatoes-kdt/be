@@ -35,6 +35,15 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    //batch
+//    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+    //quartz
+//    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
+    //swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
     //security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -45,6 +54,12 @@ dependencies {
     //redis
     implementation 'org.redisson:redisson-spring-boot-starter:3.31.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    //QueryDsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
     //actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -62,43 +77,64 @@ dependencies {
 
     //sms nurigo
     implementation 'net.nurigo:sdk:4.3.0'
-}
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
-bootJar {
-    archiveFileName = 'DainReview.jar'
-}
-
-// git hook 설정
-spotless {
-    java {
-        target("src/main/java/**/*.java")
-        googleJavaFormat().aosp()
-        importOrder()
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
-        formatAnnotations()
+    tasks.named('test') {
+        useJUnitPlatform()
     }
-}
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-    options.compilerArgs += '-parameters'
-}
-
-tasks.register('updateGitHooks', Copy) {
-    from('./scripts/pre-commit') {
-        rename 'pre-commit', 'pre-commit'
+    bootJar {
+        archiveFileName = 'DainReview.jar'
     }
-    into('.git/hooks')
-    fileMode 0775
 
-    doFirst {
-        file('.git/hooks').mkdirs()
+    def generatedDir = file("src/main/generated")
+
+    sourceSets {
+        main {
+            java {
+                srcDir generatedDir
+            }
+        }
     }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        options.compilerArgs += '-parameters'
+        options.annotationProcessorGeneratedSourcesDirectory = generatedDir
+    }
+
+    tasks.clean {
+        delete generatedDir
+    }
+
+
+    // git hook 설정
+    spotless {
+        java {
+            target("src/main/java/**/*.java")
+            googleJavaFormat().aosp()
+            importOrder()
+            removeUnusedImports()
+            trimTrailingWhitespace()
+            endWithNewline()
+            formatAnnotations()
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        options.compilerArgs += '-parameters'
+    }
+
+    tasks.register('updateGitHooks', Copy) {
+        from('./scripts/pre-commit') {
+            rename 'pre-commit', 'pre-commit'
+        }
+        into('.git/hooks')
+        fileMode 0775
+
+        doFirst {
+            file('.git/hooks').mkdirs()
+        }
+    }
+    compileJava.dependsOn updateGitHooks
 }
-compileJava.dependsOn updateGitHooks
