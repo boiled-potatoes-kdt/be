@@ -35,7 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class PostService {
 
@@ -44,6 +43,7 @@ public class PostService {
     private final ImageFileService imageFileService;
     private final ApplicationEventPublisher eventPublisher;
 
+    @Transactional
     public PostResponse createPost(
             S3PathPrefixType s3PathPrefixType,
             Long userId,
@@ -64,6 +64,7 @@ public class PostService {
         return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls);
     }
 
+    @Transactional
     public PostResponse getPost(S3PathPrefixType s3PathPrefixType, Long postId) {
         Post post = postRepository.findByIdAndDeletedFalse(postId);
         if (post == null) {
@@ -80,6 +81,7 @@ public class PostService {
         return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls);
     }
 
+    @Transactional
     public PostResponse updatePost(
             S3PathPrefixType s3PathPrefixType,
             Long userId,
@@ -104,6 +106,7 @@ public class PostService {
         return PostResponse.responseWithoutContentPreview(existingPost, userImageUrl, imageUrls);
     }
 
+    @Transactional
     public void deletePost(Long userId, Long postId) {
         Post post =
                 postRepository
@@ -114,12 +117,14 @@ public class PostService {
         postRepository.save(post);
     }
 
+    @Transactional
     public PagedResponse<PostResponse> getAllPosts(int page, int size, CategoryType categoryType) {
         Pageable pageable = PageRequest.of(page-1, size);
         Page<Post> postsPage = postRepository.findByCategoryType(categoryType, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
+    @Transactional
     public PagedResponse<PostResponse> getPostsByRole(Long userId, int page, int size) {
         User user = getUser(userId);
         Pageable pageable = PageRequest.of(page-1, size);
@@ -127,6 +132,7 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
+    @Transactional
     public PagedResponse<PostResponse> getPostsByCommunityType(
             Long userId, CommunityType communityType, int page, int size) {
         Pageable pageable = PageRequest.of(page-1, size);
@@ -137,6 +143,7 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
+    @Transactional
     public PagedResponse<PostResponse> getPostsByFollowType(
             FollowType followType, int page, int size) {
         Pageable pageable = PageRequest.of(page-1, size);
@@ -146,6 +153,7 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
+    @Transactional
     public PagedResponse<PostResponse> searchPostsByRole(
             Long userId, String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page-1, size);
@@ -156,6 +164,7 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
+    @Transactional
     public PagedResponse<PostResponse> searchPosts(
             CategoryType categoryType, String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page-1, size);

@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class ReviewService {
 
@@ -31,9 +30,7 @@ public class ReviewService {
     private final ApplicationRepository applicationRepository;
     private final ImageFileService imageFileService;
 
-    private final String S3_PATH_PREFIX = S3PathPrefixType.S3_REVIEW_IMAGE_PATH.toString();
-
-    // 리뷰 등록
+    @Transactional
     public void createReview(Long userId, Long applicationId, ReviewRequest reviewRequest, List<MultipartFile> imageFiles) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
