@@ -1,6 +1,7 @@
 package com.dain_review.domain.like.service;
 
 
+import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
@@ -10,7 +11,6 @@ import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
-import com.dain_review.global.util.S3Util;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final CampaignRepository campaignRepository;
-    private final S3Util s3Util;
+    private final ImageFileService imageFileService;
 
     @Transactional
     public boolean toggleLike(Long userId, Long campaignId) {
@@ -54,13 +54,13 @@ public class LikeService {
         List<CampaignResponse> content =
                 likes.stream()
                         .map(
-                                like ->
-                                        CampaignResponse.from(
-                                                like.getCampaign(),
-                                                s3Util.selectImage(
-                                                        like.getCampaign().getImageUrl(),
-                                                        S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH
-                                                                .toString())))
+                                like -> {
+                                    String imageUrl =
+                                            imageFileService.getImageUrl(
+                                                    like.getCampaign().getImageUrl(),
+                                                    S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
+                                    return CampaignResponse.from(like.getCampaign(), imageUrl);
+                                })
                         .toList();
 
         return new PagedResponse<>(content, likes.getTotalElements(), likes.getTotalPages());
