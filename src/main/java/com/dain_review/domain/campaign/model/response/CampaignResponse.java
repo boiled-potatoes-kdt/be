@@ -1,72 +1,73 @@
 package com.dain_review.domain.campaign.model.response;
 
 
+import com.dain_review.domain.campaign.model.entity.AvailableDay;
 import com.dain_review.domain.campaign.model.entity.Campaign;
+import com.dain_review.domain.campaign.model.entity.Keyword;
 import java.time.LocalDateTime;
 import java.util.Set;
-import lombok.Builder;
-import lombok.Getter;
+import java.util.stream.Collectors;
 
-@Getter
-@Builder
-public class CampaignResponse {
-    private Long id;
-    private String businessName;
-    private String imageUrl;
-    private String contactNumber;
-    private String address;
-    private Integer postalCode;
-    private Double latitude;
-    private Double longitude;
-    private Set<String> availableDays;
-    private String type;
-    private String category;
-    private String platform;
-    private String label;
-    private Integer capacity;
-    private Integer currentApplicants;
-    private String serviceProvided;
-    private String requirement;
-    private Set<String> keywords;
-    private Boolean pointPayment;
-    private Integer pointPerPerson;
-    private Integer totalPoints;
-    private LocalDateTime applicationStartDate;
-    private LocalDateTime applicationEndDate;
-    private LocalDateTime announcementDate;
-    private LocalDateTime experienceStartDate;
-    private LocalDateTime experienceEndDate;
-    private LocalDateTime reviewDate;
-
-    public static CampaignResponse fromEntity(Campaign campaign, String imageUrl) {
-        return CampaignResponse.builder()
-                .id(campaign.getId())
-                .businessName(campaign.getBusinessName())
-                .imageUrl(imageUrl)
-                .contactNumber(campaign.getContactNumber())
-                .type(campaign.getType().getDisplayName())
-                .category(campaign.getCategory().getDisplayName())
-                .platform(campaign.getPlatform().getDisplayName())
-                .label(campaign.getLabel() != null ? campaign.getLabel().getDisplayName() : null)
-                .capacity(campaign.getCapacity())
-                .currentApplicants(campaign.getCurrentApplicants())
-                .serviceProvided(campaign.getServiceProvided())
-                .requirement(campaign.getRequirement())
-                .keywords(campaign.getKeywordStrings())
-                .pointPayment(campaign.getPointPayment())
-                .pointPerPerson(campaign.getPointPerPerson())
-                .totalPoints(campaign.getTotalPoints())
-                .address(campaign.getAddress())
-                .postalCode(campaign.getPostalCode())
-                .latitude(campaign.getLatitude())
-                .longitude(campaign.getLongitude())
-                .availableDays(campaign.getAvailableDayStrings())
-                .applicationStartDate(campaign.getApplicationStartDate())
-                .applicationEndDate(campaign.getApplicationEndDate())
-                .announcementDate(campaign.getAnnouncementDate())
-                .experienceStartDate(campaign.getExperienceStartDate())
-                .experienceEndDate(campaign.getExperienceEndDate())
-                .reviewDate(campaign.getReviewDate())
-                .build();
+public record CampaignResponse(
+        Long id,
+        String businessName,
+        String imageUrl,
+        String contactNumber,
+        String address,
+        Integer postalCode,
+        Double latitude,
+        Double longitude,
+        Set<String> availableDays,
+        String type,
+        String category,
+        String platform,
+        String label,
+        Integer capacity,
+        Integer currentApplicants,
+        String serviceProvided,
+        String requirement,
+        Set<String> keywords,
+        Boolean pointPayment,
+        Integer pointPerPerson,
+        Integer totalPoints,
+        LocalDateTime applicationStartDate,
+        LocalDateTime applicationEndDate,
+        LocalDateTime announcementDate,
+        LocalDateTime experienceStartDate,
+        LocalDateTime experienceEndDate,
+        LocalDateTime reviewDate) {
+    public static CampaignResponse from(Campaign campaign, String imageUrl) {
+        return new CampaignResponse(
+                campaign.getId(),
+                campaign.getBusinessName(),
+                imageUrl,
+                campaign.getContactNumber(),
+                campaign.getAddress(),
+                campaign.getPostalCode(),
+                campaign.getLatitude(),
+                campaign.getLongitude(),
+                campaign.getAvailableDays().stream()
+                        .map(AvailableDay::getDay)
+                        .collect(Collectors.toSet()),
+                campaign.getType().getDisplayName(),
+                campaign.getCategory().getDisplayName(),
+                campaign.getPlatform().getDisplayName(),
+                campaign.getLabel().getDisplayName(),
+                campaign.getCapacity(),
+                campaign.getCurrentApplicants(),
+                campaign.getServiceProvided(),
+                campaign.getRequirement(),
+                campaign.getKeywords().stream()
+                        .map(Keyword::getKeyword)
+                        .collect(Collectors.toSet()),
+                campaign.getPointPayment(),
+                campaign.getPointPerPerson(),
+                campaign.getTotalPoints(),
+                campaign.getApplicationStartDate(),
+                campaign.getApplicationEndDate(),
+                campaign.getAnnouncementDate(),
+                campaign.getExperienceStartDate(),
+                campaign.getExperienceEndDate(),
+                campaign.getReviewDate());
     }
 }

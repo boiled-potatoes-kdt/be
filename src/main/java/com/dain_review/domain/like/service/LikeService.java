@@ -55,7 +55,7 @@ public class LikeService {
                 likes.stream()
                         .map(
                                 like ->
-                                        CampaignResponse.fromEntity(
+                                        CampaignResponse.from(
                                                 like.getCampaign(),
                                                 s3Util.selectImage(
                                                         like.getCampaign().getImageUrl(),

@@ -2,12 +2,15 @@ package com.dain_review.domain.campaign.model.entity;
 
 
 import com.dain_review.domain.application.model.entity.Application;
+import com.dain_review.domain.campaign.exception.CampaignException;
+import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.Category;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
-import com.dain_review.domain.campaign.util.CampaignUtil;
+import com.dain_review.domain.campaign.model.request.CampaignRequest;
+import com.dain_review.domain.campaign.util.AddressAndPointUtil;
 import com.dain_review.domain.review.model.entity.Review;
 import com.dain_review.domain.select.model.entity.Select;
 import com.dain_review.domain.user.model.entity.User;
@@ -133,32 +136,80 @@ public class Campaign extends BaseEntity {
 
     private Boolean isDeleted; // 삭제 여부
 
-    public void setIsDeleted(Boolean isDeleted) {
-        this.isDeleted = isDeleted;
+    public static Campaign create(User user, String imageUrl, CampaignRequest request) {
+        Campaign campaign = new Campaign();
+        campaign.user = user;
+        campaign.imageUrl = imageUrl;
+        campaign.businessName = request.businessName();
+        campaign.contactNumber = request.contactNumber();
+        campaign.postalCode = request.postalCode();
+        campaign.setAddress(request.address());
+        campaign.latitude = request.latitude();
+        campaign.longitude = request.longitude();
+        campaign.platform = request.platform();
+        campaign.type = request.type();
+        campaign.category = request.category();
+        campaign.pointPayment = request.pointPayment();
+        campaign.capacity = request.capacity();
+        campaign.pointPerPerson = request.pointPerPerson();
+        campaign.serviceProvided = request.serviceProvided();
+        campaign.requirement = request.requirement();
+        campaign.applicationStartDate = request.applicationStartDate();
+        campaign.applicationEndDate = request.applicationEndDate();
+        campaign.announcementDate = request.announcementDate();
+        campaign.experienceStartDate = request.experienceStartDate();
+        campaign.experienceEndDate = request.experienceEndDate();
+        campaign.reviewDate = request.reviewDate();
+        campaign.campaignState = CampaignState.INSPECTION; // 기본값
+        campaign.isDeleted = false; // 기본값
+
+        campaign.label = Boolean.TRUE.equals(request.pointPayment()) ? Label.PREMIUM : null;
+
+        Set<AvailableDay> availableDays =
+                request.availableDays().stream()
+                        .map(day -> new AvailableDay(campaign, day))
+                        .collect(Collectors.toSet());
+        campaign.setAvailableDays(availableDays);
+
+        Set<Keyword> keywords =
+                request.keywords().stream()
+                        .map(keyword -> new Keyword(campaign, keyword))
+                        .collect(Collectors.toSet());
+        campaign.setKeywords(keywords);
+
+        campaign.calculateAndSetTotalPoints();
+        return campaign;
+    }
+
+    public void calculateAndSetTotalPoints() {
+        this.totalPoints =
+                AddressAndPointUtil.calculateTotalPoints(this.capacity, this.pointPerPerson);
+    }
+
+    public boolean isCancelable() {
+        return this.campaignState == CampaignState.RECRUITING
+                || this.campaignState == CampaignState.RECRUITMENT_COMPLETED
+                || this.campaignState == CampaignState.EXPERIENCE_AND_REVIEW;
+    }
+
+    // 캠페인 삭제 메서드 (취소 가능 여부와 소유자 검증 포함)
+    public void delete(User user) {
+        // 소유자 검증
+        if (!this.user.getId().equals(user.getId())) {
+            throw new CampaignException(CampaignErrorCode.UNAUTHORIZED_ACCESS);
+        }
+        // 취소 가능 여부 확인
+        if (!isCancelable()) {
+            throw new CampaignException(CampaignErrorCode.CANNOT_DELETE_CAMPAIGN);
+        }
+        // 캠페인 삭제 처리
+        this.isDeleted = true;
     }
 
     public void setAddress(String address) {
         this.address = address;
-        String[] cityAndDistrict = CampaignUtil.extractCityAndDistrict(address);
+        String[] cityAndDistrict = AddressAndPointUtil.extractCityAndDistrict(address);
         this.city = cityAndDistrict[0];
         this.district = cityAndDistrict[1];
-    }
-
-    public void calculateAndSetTotalPoints() {
-        this.totalPoints = CampaignUtil.calculateTotalPoints(this.capacity, this.pointPerPerson);
-    }
-
-    // availableDays를 String으로 변환
-    public Set<String> getAvailableDayStrings() {
-        return availableDays.stream()
-                .map(AvailableDay::getDay) // AvailableDay에서 day 값만 가져옴
-                .collect(Collectors.toSet());
-    }
-
-    // keywords를 String으로 변환
-    public Set<String> getKeywordStrings() {
-        return keywords.stream()
-                .map(Keyword::getKeyword) // Keyword에서 keyword 값만 가져옴
-                .collect(Collectors.toSet());
     }
 }
