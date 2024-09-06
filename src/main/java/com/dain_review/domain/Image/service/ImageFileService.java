@@ -6,6 +6,8 @@ import com.dain_review.domain.Image.exception.S3Exception;
 import com.dain_review.domain.Image.exception.errortype.S3ErrorCode;
 import com.dain_review.domain.Image.repository.ImageFileRepository;
 import com.dain_review.domain.Image.util.ImageFileValidUtil;
+import com.dain_review.domain.campaign.exception.CampaignException;
+import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
@@ -21,6 +23,24 @@ public class ImageFileService {
 
     private final ImageFileRepository imageFileRepository;
     private final S3Util s3Util;
+
+    public String uploadImage(MultipartFile imageFile, S3PathPrefixType pathPrefixType) {
+        if (imageFile == null || imageFile.isEmpty()) {
+            throw new CampaignException(CampaignErrorCode.IMAGE_REQUIRED);
+        }
+        if (!ImageFileValidUtil.isValidImageFile(imageFile)) {
+            throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
+        }
+        return s3Util.saveImage(imageFile, pathPrefixType.toString()).join();
+    }
+
+    public String getImageUrl(String imageName, S3PathPrefixType pathPrefixType) {
+        return s3Util.selectImage(imageName, pathPrefixType.toString());
+    }
+
+    public String selectImage(String imageUrl, S3PathPrefixType pathPrefixType) {
+        return s3Util.selectImage(imageUrl, pathPrefixType.toString());
+    }
 
     public void saveImageFiles(
             List<MultipartFile> imageFiles, Post post, S3PathPrefixType s3PathPrefixType) {

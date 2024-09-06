@@ -2,19 +2,20 @@ package com.dain_review.domain.campaign.model.entity;
 
 
 import com.dain_review.domain.application.model.entity.Application;
+import com.dain_review.domain.campaign.exception.CampaignException;
+import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.Category;
 import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
 import com.dain_review.domain.campaign.model.entity.enums.Type;
-import com.dain_review.domain.campaign.util.CampaignUtil;
+import com.dain_review.domain.campaign.model.request.CampaignRequest;
+import com.dain_review.domain.campaign.util.AddressAndPointUtil;
 import com.dain_review.domain.review.model.entity.Review;
 import com.dain_review.domain.select.model.entity.Select;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,9 +28,11 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -75,15 +78,19 @@ public class Campaign extends BaseEntity {
     @JoinColumn(name = "label_ordering_id")
     private LabelOrdering labelOrdering;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "available_days", joinColumns = @JoinColumn(name = "campaign_id"))
-    @Column(name = "day")
-    private Set<String> availableDays; // 체험 가능 요일 (월, 화, 수, 목, 금, 토, 일)
+    @Setter
+    @OneToMany(
+            mappedBy = "campaign",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.PERSIST) // Cascade 추가
+    private Set<AvailableDay> availableDays; // 체험 가능 요일
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "campaign_id"))
-    @Column(name = "keyword")
-    private Set<String> keywords; // 홍보용 키워드(태그) 최대 3개, 각 키워드는 10자 이내
+    @Setter
+    @OneToMany(
+            mappedBy = "campaign",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.PERSIST) // Cascade 추가
+    private Set<Keyword> keywords; // 홍보용 키워드(태그)
 
     private Boolean pointPayment; // 포인트 지급 여부 (예/아니오)
 
@@ -129,18 +136,80 @@ public class Campaign extends BaseEntity {
 
     private Boolean isDeleted; // 삭제 여부
 
-    public void setIsDeleted(Boolean isDeleted) {
-        this.isDeleted = isDeleted;
+    public static Campaign create(User user, String imageUrl, CampaignRequest request) {
+        Campaign campaign = new Campaign();
+        campaign.user = user;
+        campaign.imageUrl = imageUrl;
+        campaign.businessName = request.businessName();
+        campaign.contactNumber = request.contactNumber();
+        campaign.postalCode = request.postalCode();
+        campaign.setAddress(request.address());
+        campaign.latitude = request.latitude();
+        campaign.longitude = request.longitude();
+        campaign.platform = request.platform();
+        campaign.type = request.type();
+        campaign.category = request.category();
+        campaign.pointPayment = request.pointPayment();
+        campaign.capacity = request.capacity();
+        campaign.pointPerPerson = request.pointPerPerson();
+        campaign.serviceProvided = request.serviceProvided();
+        campaign.requirement = request.requirement();
+        campaign.applicationStartDate = request.applicationStartDate();
+        campaign.applicationEndDate = request.applicationEndDate();
+        campaign.announcementDate = request.announcementDate();
+        campaign.experienceStartDate = request.experienceStartDate();
+        campaign.experienceEndDate = request.experienceEndDate();
+        campaign.reviewDate = request.reviewDate();
+        campaign.campaignState = CampaignState.INSPECTION; // 기본값
+        campaign.isDeleted = false; // 기본값
+
+        campaign.label = Boolean.TRUE.equals(request.pointPayment()) ? Label.PREMIUM : null;
+
+        Set<AvailableDay> availableDays =
+                request.availableDays().stream()
+                        .map(day -> new AvailableDay(campaign, day))
+                        .collect(Collectors.toSet());
+        campaign.setAvailableDays(availableDays);
+
+        Set<Keyword> keywords =
+                request.keywords().stream()
+                        .map(keyword -> new Keyword(campaign, keyword))
+                        .collect(Collectors.toSet());
+        campaign.setKeywords(keywords);
+
+        campaign.calculateAndSetTotalPoints();
+        return campaign;
+    }
+
+    public void calculateAndSetTotalPoints() {
+        this.totalPoints =
+                AddressAndPointUtil.calculateTotalPoints(this.capacity, this.pointPerPerson);
+    }
+
+    public boolean isCancelable() {
+        return this.campaignState == CampaignState.RECRUITING
+                || this.campaignState == CampaignState.RECRUITMENT_COMPLETED
+                || this.campaignState == CampaignState.EXPERIENCE_AND_REVIEW;
+    }
+
+    // 캠페인 삭제 메서드 (취소 가능 여부와 소유자 검증 포함)
+    public void delete(User user) {
+        // 소유자 검증
+        if (!this.user.getId().equals(user.getId())) {
+            throw new CampaignException(CampaignErrorCode.UNAUTHORIZED_ACCESS);
+        }
+        // 취소 가능 여부 확인
+        if (!isCancelable()) {
+            throw new CampaignException(CampaignErrorCode.CANNOT_DELETE_CAMPAIGN);
+        }
+        // 캠페인 삭제 처리
+        this.isDeleted = true;
     }
 
     public void setAddress(String address) {
         this.address = address;
-        String[] cityAndDistrict = CampaignUtil.extractCityAndDistrict(address);
+        String[] cityAndDistrict = AddressAndPointUtil.extractCityAndDistrict(address);
         this.city = cityAndDistrict[0];
         this.district = cityAndDistrict[1];
-    }
-
-    public void calculateAndSetTotalPoints() {
-        this.totalPoints = CampaignUtil.calculateTotalPoints(this.capacity, this.pointPerPerson);
     }
 }
