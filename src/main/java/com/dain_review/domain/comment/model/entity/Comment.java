@@ -45,7 +45,6 @@ public class Comment extends BaseEntity {
     private String content;
 
     @Column(name = "is_deleted")
-    @ColumnDefault("false")
     private boolean deleted;
 
     public static Comment from(CommentRequest request, User user, Post post, Comment parent) {

@@ -6,6 +6,8 @@ import com.dain_review.domain.application.exception.errortype.ApplicationErrorCo
 import com.dain_review.domain.application.model.entity.enums.ApplicationState;
 import com.dain_review.domain.application.model.request.ApplicationRequest;
 import com.dain_review.domain.campaign.model.entity.Campaign;
+import com.dain_review.domain.review.exception.ReviewException;
+import com.dain_review.domain.review.exception.errortype.ReviewErrorCode;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
@@ -58,5 +60,17 @@ public class Application extends BaseEntity {
         }
 
         this.isDeleted = true;
+    }
+
+    public void checkReviewCreateAble(Long userId) {
+        if (this.user.isNotSame(userId)) {
+            throw new ReviewException(ReviewErrorCode.UNAUTHORIZED_ACCESS);
+        }
+        if (!applicationState.equals(ApplicationState.APPROVED)) {
+            throw new ReviewException(ReviewErrorCode.APPLICATION_NOT_APPROVED);
+        }
+        if (this.campaign.isNotReviewPeriod()) {
+            throw new ReviewException(ReviewErrorCode.INVALID_REVIEW_PERIOD);
+        }
     }
 }

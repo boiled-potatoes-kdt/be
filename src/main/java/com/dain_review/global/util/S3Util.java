@@ -31,7 +31,7 @@ public class S3Util {
      * @return 저장된 리소스의 확장자 포함 파일명
      */
     @Async("S3PoolTask")
-    public CompletableFuture<String> saveImage(MultipartFile file, String path) {
+    public String saveImage(MultipartFile file, String path) {
         String fileName = System.currentTimeMillis() + "." + extractExtensionName(file);
         String savePath = bucketName + path;
         try {
@@ -39,7 +39,7 @@ public class S3Util {
         } catch (IOException e) {
             throw new S3Exception(S3ErrorCode.IMAGE_UPLOAD_FAILED);
         }
-        return CompletableFuture.completedFuture(fileName);
+        return CompletableFuture.completedFuture(fileName).join();
     }
 
     /**

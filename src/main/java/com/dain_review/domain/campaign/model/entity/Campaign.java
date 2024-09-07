@@ -212,4 +212,12 @@ public class Campaign extends BaseEntity {
         this.city = cityAndDistrict[0];
         this.district = cityAndDistrict[1];
     }
+
+    public boolean isNotReviewPeriod() {
+        if (LocalDateTime.now().isAfter(reviewDate) || LocalDateTime.now().isBefore(experienceStartDate)) {
+            return true;
+        }
+        return false;
+    }
+
 }
