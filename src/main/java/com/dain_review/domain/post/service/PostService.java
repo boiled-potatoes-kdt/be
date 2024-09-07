@@ -117,14 +117,14 @@ public class PostService {
         postRepository.save(post);
     }
 
-    @Transactional
+    @Transactional(readOnly=true)
     public PagedResponse<PostResponse> getAllPosts(int page, int size, CategoryType categoryType) {
         Pageable pageable = PageRequest.of(page-1, size);
         Page<Post> postsPage = postRepository.findByCategoryType(categoryType, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
-    @Transactional
+    @Transactional(readOnly=true)
     public PagedResponse<PostResponse> getPostsByRole(Long userId, int page, int size) {
         User user = getUser(userId);
         Pageable pageable = PageRequest.of(page-1, size);
@@ -132,7 +132,7 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
-    @Transactional
+    @Transactional(readOnly=true)
     public PagedResponse<PostResponse> getPostsByCommunityType(
             Long userId, CommunityType communityType, int page, int size) {
         Pageable pageable = PageRequest.of(page-1, size);
@@ -143,7 +143,7 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
-    @Transactional
+    @Transactional(readOnly=true)
     public PagedResponse<PostResponse> getPostsByFollowType(
             FollowType followType, int page, int size) {
         Pageable pageable = PageRequest.of(page-1, size);
@@ -153,7 +153,7 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
-    @Transactional
+    @Transactional(readOnly=true)
     public PagedResponse<PostResponse> searchPostsByRole(
             Long userId, String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page-1, size);
@@ -164,7 +164,7 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
-    @Transactional
+    @Transactional(readOnly=true)
     public PagedResponse<PostResponse> searchPosts(
             CategoryType categoryType, String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page-1, size);
