@@ -1,8 +1,10 @@
 package com.dain_review.domain.post.controller;
 
 
+import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.CommunityType;
 import com.dain_review.domain.post.model.request.PostRequest;
+import com.dain_review.domain.post.model.request.PostSearchRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
 import com.dain_review.domain.post.service.PostService;
 import com.dain_review.domain.user.config.model.CustomUserDetails;
@@ -16,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,11 +51,15 @@ public class CommunityController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
-    @GetMapping("/{postId}") // 커뮤니티 게시글 단건 조회
-    public ResponseEntity<?> getPost(@PathVariable Long postId) {
+    @GetMapping("{postId}") // 커뮤니티 게시글 단건 조회
+    public ResponseEntity<?> getPost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long postId,
+            @ModelAttribute PostSearchRequest postRequest
+    ) {
 
         PostResponse communityResponse =
-                postService.getPost(S3PathPrefixType.S3_COMMUNITY_PATH, postId);
+                postService.getPost(S3PathPrefixType.S3_COMMUNITY_PATH, postId, postRequest, customUserDetails.getUserId(), CategoryType.COMMUNITY);
         return API.OK(communityResponse);
     }
 

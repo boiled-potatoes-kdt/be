@@ -3,6 +3,7 @@ package com.dain_review.domain.post.controller;
 
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.request.PostRequest;
+import com.dain_review.domain.post.model.request.PostSearchRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
 import com.dain_review.domain.post.service.PostService;
 import com.dain_review.domain.user.config.model.CustomUserDetails;
@@ -16,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,8 +52,11 @@ public class NoticeController {
 
     // 단건조회
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPost(@PathVariable Long postId) {
-        PostResponse postResponse = postService.getPost(S3PathPrefixType.S3_NOTICE_PATH, postId);
+    public ResponseEntity<?> getPost(
+            @PathVariable Long postId,
+            @ModelAttribute PostSearchRequest postRequest
+    ) {
+        PostResponse postResponse = postService.getPost(S3PathPrefixType.S3_NOTICE_PATH, postId, postRequest, null, CategoryType.NOTICE);
         return API.OK(postResponse);
     }
 

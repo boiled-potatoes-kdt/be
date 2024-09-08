@@ -13,11 +13,13 @@ import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.CommunityType;
 import com.dain_review.domain.post.model.entity.enums.FollowType;
 import com.dain_review.domain.post.model.request.PostRequest;
+import com.dain_review.domain.post.model.request.PostSearchRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
 import com.dain_review.domain.post.repository.PostRepository;
 import com.dain_review.domain.user.exception.UserException;
 import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.User;
+import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
@@ -61,15 +63,24 @@ public class PostService {
         List<String> imageUrls = imageFileService.findImageUrls(post.getId(), ContentType.POST, s3PathPrefixType);
 
         String userImageUrl = imageFileService.getUserProfileUrl(post.getUser().getProfileImage());
-        return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls);
+        return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls, null, null);
     }
 
     @Transactional
-    public PostResponse getPost(S3PathPrefixType s3PathPrefixType, Long postId) {
+    public PostResponse getPost(S3PathPrefixType s3PathPrefixType, Long postId, PostSearchRequest postRequest, Long userId, CategoryType categoryType) {
+
+        Role role = null;
+        if (userId != null) {
+            User user = userRepository.getUserById(userId);
+            role = user.getRole();
+        }
+
         Post post = postRepository.findByIdAndDeletedFalse(postId);
         if (post == null) {
             throw new PostException(PostErrorCode.POST_NOT_FOUND);
         }
+        Long prevPosId = postRepository.findPreviousPost(postId, role, categoryType, postRequest.communityType(), postRequest.followType(), postRequest.keyword());
+        Long nextPostId = postRepository.findNextPost(postId, role, categoryType, postRequest.communityType(), postRequest.followType(), postRequest.keyword());
 
         // 게시물의 모든 이미지 url 리스트를 반환
         List<String> imageUrls = imageFileService.findImageUrls(post.getId(), ContentType.POST, s3PathPrefixType);
@@ -78,7 +89,7 @@ public class PostService {
         eventPublisher.publishEvent(new PostReadEvent(post));
 
         String userImageUrl = imageFileService.getUserProfileUrl(post.getUser().getProfileImage());
-        return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls);
+        return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls, prevPosId, nextPostId);
     }
 
     @Transactional
@@ -103,7 +114,7 @@ public class PostService {
 
         String userImageUrl =
                 imageFileService.getUserProfileUrl(existingPost.getUser().getProfileImage());
-        return PostResponse.responseWithoutContentPreview(existingPost, userImageUrl, imageUrls);
+        return PostResponse.responseWithoutContentPreview(existingPost, userImageUrl, imageUrls, null, null);
     }
 
     @Transactional
@@ -204,4 +215,5 @@ public class PostService {
         }
         return Post.createNoticePost(postRequest, user);
     }
+
 }

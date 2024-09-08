@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
     default Post getPostById(Long id) {
         return findById(id).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
     }
