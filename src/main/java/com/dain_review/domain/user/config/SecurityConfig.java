@@ -12,9 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,14 +55,20 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(
                 matcher ->
-                        matcher.requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/kakao").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/naver").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/google").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/post/notices/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
-                                .anyRequest().authenticated()
-        );
+                        matcher.requestMatchers(HttpMethod.POST, "/api/login")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/kakao")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/naver")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/google")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/post/notices/**")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/actuator/**")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated());
 
         // TODO: Front 주소 확정시
         //        http.cors(httpSecurityCorsConfigurer ->
