@@ -1,5 +1,6 @@
 package com.dain_review.domain.user.config.filter;
 
+
 import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.domain.user.exception.AuthException;
 import com.dain_review.domain.user.exception.errortype.AuthErrorCode;
@@ -9,16 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.io.PrintWriter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-
+@Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JwtUtil jwtUtil;
@@ -30,24 +30,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws AuthenticationException {
+            HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
 
         try {
-            LoginRequest loginRequest = new ObjectMapper().readValue(request.getInputStream(), LoginRequest.class);
+            LoginRequest loginRequest =
+                    new ObjectMapper().readValue(request.getInputStream(), LoginRequest.class);
 
-            return getAuthenticationManager().authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.email(),
-                            loginRequest.password(),
-                            null
-                    )
-            );
+            return getAuthenticationManager()
+                    .authenticate(
+                            new UsernamePasswordAuthenticationToken(
+                                    loginRequest.email(), loginRequest.password(), null));
         } catch (IOException e) {
             throw new AuthException(AuthErrorCode.LOGIN_ERROR);
         }
-
     }
 
     @Override
@@ -55,14 +51,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain chain,
-            Authentication authResult
-    ) throws IOException {
+            Authentication authResult)
+            throws IOException {
         CustomUserDetails userDetails = ((CustomUserDetails) authResult.getPrincipal());
         String email = userDetails.getEmail();
         String role = userDetails.getUserRole().name();
+        Long userId = userDetails.getUserId();
 
-        response.addCookie(jwtUtil.getAccessTokenCookie(email, role));
-        response.addCookie(jwtUtil.getRefreshTokenCookie(email, role));
+        response.addCookie(jwtUtil.getAccessTokenCookie(email, role, userId));
+        response.addCookie(jwtUtil.getRefreshTokenCookie(email, role, userId));
 
         response.setStatus(HttpServletResponse.SC_OK);
         PrintWriter writer = response.getWriter();
@@ -73,9 +70,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void unsuccessfulAuthentication(
             HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException failed
-    ) {
+            AuthenticationException failed) {
+
         jwtUtil.jwtExceptionHandler(response, AuthErrorCode.LOGIN_ERROR);
     }
-
 }

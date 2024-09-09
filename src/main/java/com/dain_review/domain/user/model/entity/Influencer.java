@@ -2,6 +2,8 @@ package com.dain_review.domain.user.model.entity;
 
 
 import com.dain_review.domain.user.model.entity.enums.Gender;
+import com.dain_review.domain.user.model.request.InfluencerChangeRequest;
+import com.dain_review.domain.user.model.request.InfluencerExtraRegisterRequest;
 import com.dain_review.global.model.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,10 +32,27 @@ public class Influencer extends BaseEntity {
     private User user;
 
     @OneToMany(mappedBy = "influencer", fetch = FetchType.LAZY)
-    private List<Sns> snsList;
+    private List<Sns> snsList = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
     private LocalDate birthday;
+
+    // 완료
+    public void change(InfluencerExtraRegisterRequest influencerExtraRegisterRequest) {
+        this.gender = influencerExtraRegisterRequest.gender();
+        this.birthday = influencerExtraRegisterRequest.birthday();
+    }
+
+    // 완료
+    public void change(InfluencerChangeRequest influencerChangeRequest) {
+
+        this.snsList =
+                influencerChangeRequest.snsRequestList().stream()
+                        .map(snsRequest -> snsRequest.toSns(this))
+                        .toList();
+        this.gender = influencerChangeRequest.gender();
+        this.birthday = influencerChangeRequest.birthday();
+    }
 }
