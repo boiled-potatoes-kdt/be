@@ -15,13 +15,19 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
     default Post getPostById(Long id) {
         return findById(id).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
     }
 
     // 게시글 단건 조회
-    Post findByIdAndDeletedFalse(Long id);
+    Optional<Post> findByIdAndDeletedFalse(Long id);
+
+    default Post getPostByIdAndDeletedFalse(Long id) {
+        return findByIdAndDeletedFalse(id).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+    }
 
     @Query(
             "SELECT p FROM Post p LEFT JOIN FETCH p.user u WHERE p.categoryType = 'COMMUNITY' AND u.role = :role AND p.deleted = false ORDER BY p.id DESC")

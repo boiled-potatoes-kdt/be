@@ -1,18 +1,18 @@
 package com.dain_review.domain.post.controller;
 
 
-import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.FollowType;
 import com.dain_review.domain.post.model.request.PostRequest;
 import com.dain_review.domain.post.model.request.PostSearchRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
-import com.dain_review.domain.post.service.PostService;
+import com.dain_review.domain.post.service.FollowPostService;
 import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.global.api.API;
 import com.dain_review.global.model.response.PagedResponse;
-import com.dain_review.global.type.S3PathPrefixType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,92 +33,85 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/post/follows")
 public class FollowController {
 
-    private final PostService postService;
+    private final FollowPostService followPostService;
     // 생성
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @PostMapping
-    public ResponseEntity<?> createPost(
+    public ResponseEntity<?> createFollowPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
-        PostResponse postResponse =
-                postService.createPost(
-                        S3PathPrefixType.S3_FOLLOW_PATH,
-                        customUserDetails.getUserId(),
-                        postRequest,
-                        imageFiles);
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
+    ) {
+        PostResponse postResponse = followPostService.createPost(
+                        customUserDetails.getUserId(), postRequest, imageFiles);
         return API.OK(postResponse);
     }
 
     // 단건조회
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPost(
+    public ResponseEntity<?> getFollowPost(
             @PathVariable Long postId,
             @ModelAttribute PostSearchRequest postRequest
     ) {
-        PostResponse postResponse = postService.getPost(S3PathPrefixType.S3_FOLLOW_PATH, postId, postRequest, null, CategoryType.FOLLOW);
+        PostResponse postResponse = followPostService.getPost(null, postId, postRequest);
         return API.OK(postResponse);
     }
 
     // 수정
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @PatchMapping("/{postId}")
-    public ResponseEntity<?> updatePost(
+    public ResponseEntity<?> updateFollowPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
-        PostResponse postResponse =
-                postService.updatePost(
-                        S3PathPrefixType.S3_FOLLOW_PATH,
-                        customUserDetails.getUserId(),
-                        postId,
-                        postRequest,
-                        imageFiles);
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
+    ) {
+        PostResponse postResponse = followPostService.updatePost(
+                        customUserDetails.getUserId(), postId, postRequest, imageFiles);
         return API.OK(postResponse);
     }
 
     // 삭제(물리적 삭제 x)
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> deletePost(
+    public ResponseEntity<?> deleteFollowPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId) {
-        postService.deletePost(customUserDetails.getUserId(), postId);
+        followPostService.deletePost(customUserDetails.getUserId(), postId);
         return API.OK("게시글이 삭제 완료 되었습니다.");
     }
 
     // 목록조회
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping
-    public ResponseEntity<?> getAllPosts(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<?> getAllFollowPosts(
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
         PagedResponse<PostResponse> follows =
-                postService.getAllPosts(page, size, CategoryType.FOLLOW);
+                followPostService.getAllPosts(null, pageable);
         return API.OK(follows);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/type/{followType}")
-    public ResponseEntity<?> getPostsByFollowType(
+    public ResponseEntity<?> getFollowPostsByFollowType(
             @PathVariable FollowType followType,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
         PagedResponse<PostResponse> follows =
-                postService.getPostsByFollowType(followType, page, size);
+                followPostService.getPostsByFollowType(followType, pageable);
         return API.OK(follows);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/search")
-    public ResponseEntity<?> searchPosts(
+    public ResponseEntity<?> searchFollowPosts(
             @RequestParam String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
         PagedResponse<PostResponse> follows =
-                postService.searchPosts(CategoryType.FOLLOW, keyword, page, size);
+                followPostService.searchPosts(null, keyword, pageable);
         return API.OK(follows);
     }
 }
