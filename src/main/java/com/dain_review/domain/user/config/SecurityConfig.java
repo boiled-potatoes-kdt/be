@@ -63,6 +63,8 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers(HttpMethod.POST, "/login/oauth2/code/google")
                                 .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/post/notices/**")
+                                .permitAll()
                                 .anyRequest()
                                 .authenticated());
 

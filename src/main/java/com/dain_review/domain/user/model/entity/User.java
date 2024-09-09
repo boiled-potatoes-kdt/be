@@ -4,6 +4,7 @@ package com.dain_review.domain.user.model.entity;
 import com.dain_review.domain.application.model.entity.Application;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.post.model.entity.Post;
+import com.dain_review.domain.review.model.entity.Review;
 import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.domain.user.model.request.EnterpriserChangeRequest;
 import com.dain_review.domain.user.model.request.EnterpriserExtraRegisterRequest;
@@ -40,6 +41,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Campaign> campaignList;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Review> reviewList;
 
     @Enumerated(EnumType.STRING)
     private Role role;

@@ -87,6 +87,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
         List<Campaign> results = query.fetch();
         long total = queryFactory.selectFrom(campaign).where(builder).fetchCount();
+
         return new PageImpl<>(results, pageable, total);
     }
 }
