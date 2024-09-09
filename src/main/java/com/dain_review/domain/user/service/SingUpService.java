@@ -1,5 +1,6 @@
 package com.dain_review.domain.user.service;
 
+
 import com.dain_review.domain.user.exception.RegisterException;
 import com.dain_review.domain.user.exception.errortype.RegisterErrorCode;
 import com.dain_review.domain.user.model.request.EmailCheckRequest;
@@ -22,5 +23,4 @@ public class SingUpService {
             throw new RegisterException(RegisterErrorCode.EMAIL_SAME);
         return API.OK();
     }
-
 }

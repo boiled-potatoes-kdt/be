@@ -2,7 +2,6 @@ package com.dain_review.domain.user.config.filter;
 
 
 import com.dain_review.domain.user.config.model.CustomUserDetails;
-import com.dain_review.domain.user.exception.errortype.AuthErrorCode;
 import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.global.type.JwtOptionType;
 import com.dain_review.global.util.JwtUtil;
@@ -36,7 +35,7 @@ public class RequestFilter extends OncePerRequestFilter {
         if (!StringUtils.hasText(accessToken) || !StringUtils.hasText(refreshToken)) {
             jwtUtil.accessTokenCookieClear(request, response);
             jwtUtil.refreshTokenCookieClear(request, response);
-            jwtUtil.jwtExceptionHandler(response, AuthErrorCode.NOT_FOUND_TOKEN);
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -46,7 +45,7 @@ public class RequestFilter extends OncePerRequestFilter {
             // accessToken 검증 X / refreshToken 검증 X
             if (!jwtUtil.validateToken(refreshToken, response)) {
                 jwtUtil.refreshTokenCookieClear(request, response);
-                jwtUtil.jwtExceptionHandler(response, AuthErrorCode.JWT_EMPTY);
+                filterChain.doFilter(request, response);
                 return;
             }
 
@@ -60,6 +59,7 @@ public class RequestFilter extends OncePerRequestFilter {
         } else {
             info = jwtUtil.getUserInfoFromToken(accessToken, response);
         }
+
         Long userId =
                 info.get(JwtOptionType.USER_ID.name()) instanceof Integer
                         ? ((Integer) info.get(JwtOptionType.USER_ID.name())).longValue()

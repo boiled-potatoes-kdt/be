@@ -32,8 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class FollowController {
 
     private final PostService postService;
-    private final String S3_PATH_PREFIX = S3PathPrefixType.S3_FOLLOW_PATH.toString();
-
     // 생성
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @PostMapping
@@ -43,7 +41,10 @@ public class FollowController {
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
         PostResponse postResponse =
                 postService.createPost(
-                        S3_PATH_PREFIX, customUserDetails.getUserId(), postRequest, imageFiles);
+                        S3PathPrefixType.S3_FOLLOW_PATH,
+                        customUserDetails.getUserId(),
+                        postRequest,
+                        imageFiles);
         return API.OK(postResponse);
     }
 
@@ -51,7 +52,7 @@ public class FollowController {
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPost(@PathVariable Long postId) {
-        PostResponse postResponse = postService.getPost(S3_PATH_PREFIX, postId);
+        PostResponse postResponse = postService.getPost(S3PathPrefixType.S3_FOLLOW_PATH, postId);
         return API.OK(postResponse);
     }
 
@@ -65,7 +66,7 @@ public class FollowController {
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
         PostResponse postResponse =
                 postService.updatePost(
-                        S3_PATH_PREFIX,
+                        S3PathPrefixType.S3_FOLLOW_PATH,
                         customUserDetails.getUserId(),
                         postId,
                         postRequest,
@@ -80,14 +81,14 @@ public class FollowController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId) {
         postService.deletePost(customUserDetails.getUserId(), postId);
-        return API.OK();
+        return API.OK("게시글이 삭제 완료 되었습니다.");
     }
 
     // 목록조회
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping
     public ResponseEntity<?> getAllPosts(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.getAllPosts(page, size, CategoryType.FOLLOW);
@@ -98,7 +99,7 @@ public class FollowController {
     @GetMapping("/type/{followType}")
     public ResponseEntity<?> getPostsByFollowType(
             @PathVariable FollowType followType,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.getPostsByFollowType(followType, page, size);
@@ -109,7 +110,7 @@ public class FollowController {
     @GetMapping("/search")
     public ResponseEntity<?> searchPosts(
             @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.searchPosts(CategoryType.FOLLOW, keyword, page, size);

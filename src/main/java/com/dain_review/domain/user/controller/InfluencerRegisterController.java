@@ -1,6 +1,7 @@
 package com.dain_review.domain.user.controller;
 
 
+import com.dain_review.domain.user.model.request.InfluencerOAuthSingUpRequest;
 import com.dain_review.domain.user.model.request.InfluencerSingUpRequest;
 import com.dain_review.domain.user.service.InfluencerService;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,12 @@ public class InfluencerRegisterController {
     private final InfluencerService influencerService;
 
     @PostMapping
-    public ResponseEntity singUpInfluencer(
-            @RequestBody InfluencerSingUpRequest request
-    ) {
+    public ResponseEntity singUpInfluencer(@RequestBody InfluencerSingUpRequest request) {
         return influencerService.singUpInfluencer(request);
     }
 
+    @PostMapping("/oauth")
+    public ResponseEntity singUpOAuthInfluencer(@RequestBody InfluencerOAuthSingUpRequest request) {
+        return influencerService.singUpOAuthInfluencer(request);
+    }
 }

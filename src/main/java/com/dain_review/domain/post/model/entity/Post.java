@@ -45,9 +45,6 @@ public class Post extends BaseEntity {
     private String content;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
-    private List<AttachedFile> attachedFile;
-
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Comment> commentList;
 
     @Enumerated(EnumType.STRING)
@@ -78,6 +75,13 @@ public class Post extends BaseEntity {
         }
         this.title = request.title();
         this.content = request.content();
+
+        if (request.categoryType() != null) {
+            this.communityType = request.communityType();
+        }
+        if (request.followType() != null) {
+            this.followType = request.followType();
+        }
     }
 
     public void deleteBy(Long userId) {

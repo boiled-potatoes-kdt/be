@@ -1,5 +1,6 @@
 package com.dain_review.domain.user.controller;
 
+
 import com.dain_review.domain.user.model.request.EmailCheckRequest;
 import com.dain_review.domain.user.service.SingUpService;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,7 @@ public class SingUpController {
     private final SingUpService service;
 
     @PostMapping("/email/check")
-    public ResponseEntity emailCheck(
-            @RequestBody EmailCheckRequest request
-    ) {
+    public ResponseEntity emailCheck(@RequestBody EmailCheckRequest request) {
         return service.emailCheck(request);
     }
-
 }

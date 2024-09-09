@@ -24,6 +24,8 @@ public class QEnterpriser extends EntityPathBase<Enterpriser> {
 
     public final com.dain_review.global.model.entity.QBaseEntity _super = new com.dain_review.global.model.entity.QBaseEntity(this);
 
+    public final StringPath company = createString("company");
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 

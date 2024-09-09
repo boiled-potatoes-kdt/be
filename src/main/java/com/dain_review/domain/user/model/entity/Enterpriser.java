@@ -21,7 +21,5 @@ public class Enterpriser extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-
     private String company;
-
 }

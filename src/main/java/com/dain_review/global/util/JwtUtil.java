@@ -138,22 +138,20 @@ public class JwtUtil {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException | SignatureException e) {
-            jwtExceptionHandler(response, AuthErrorCode.INVALID_JWT_SIGNATURE);
+            return false;
         } catch (ExpiredJwtException e) {
-            jwtExceptionHandler(response, AuthErrorCode.EXPIRED_JWT_TOKEN);
+            return false;
         } catch (UnsupportedJwtException e) {
-            jwtExceptionHandler(response, AuthErrorCode.UNSUPPORTED_JWT);
+            return false;
         } catch (IllegalArgumentException e) {
-            jwtExceptionHandler(response, AuthErrorCode.JWT_EMPTY);
+            return false;
         }
-        return false;
     }
 
     private String substringToken(String tokenValue, HttpServletResponse response) {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
             return tokenValue.substring(BEARER_PREFIX.length());
         }
-        jwtExceptionHandler(response, AuthErrorCode.NOT_FOUND_TOKEN);
         return "";
     }
 
