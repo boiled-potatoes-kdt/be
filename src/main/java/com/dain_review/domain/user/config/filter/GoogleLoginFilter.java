@@ -37,6 +37,7 @@ public class GoogleLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         TokenResponse token = googleApiClient.getGoogleToken(request.getParameter("code"));
         GoogleUserInfo info = googleApiClient.getGoogleUserInfo(token.getAccessToken());
+        log.info(info.getEmail() + " 로그인 시도");
 
         return getAuthenticationManager()
                 .authenticate(
