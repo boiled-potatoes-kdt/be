@@ -26,20 +26,8 @@
 ### Spring 서버 + 무중단 배포 Script
 ``/home/ubuntu/spring/docker_script.sh``
 ```shell
-docker login ghcr.io -u Domae-back-end -p {TOKEN}
-docker pull ghcr.io/boiled-potatoes-kdt/be/nginx:latest
+docker login ghcr.io -u Domae-back-end -p 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
 docker pull ghcr.io/boiled-potatoes-kdt/be/spring:latest
-
-CONTAINER_NAME="nginx"
-IMAGE_NAME="ghcr.io/boiled-potatoes-kdt/be/nginx:latest"
-
-if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
-                echo "컨테이너가 실행중입니다."
-        else
-                echo "컨테이너가 실행중이지 않습니다. 새로 시작합니다람쥐"
-                docker rm nginx
-                docker run -d --name $CONTAINER_NAME -p 80:80 $IMAGE_NAME
-fi
 
 BLUE_SPRING="spring-blue"
 GREEN_SPRING="spring-green"
@@ -47,23 +35,30 @@ GREEN_SPRING="spring-green"
 if [ "$(docker ps -q -f name=$BLUE_SPRING)" ]; then
         ACTIVE_SPRING=$BLUE_SPRING
         IDELE_SPRING=$GREEN_SPRING
+        OLD_PORT="8081"
         PORT=8080
 else
         ACTIVE_SPRING=$GREEN_SPRING
         IDELE_SPRING=$BLUE_SPRING
+        OLD_PORT="8080"
         PORT=8081
 fi
 
-docker run -d --name $IDELE_SPRING -p $PORT:8080 "ghcr.io/boiled-potatoes-kdt/be/spring"
+docker run -d \
+            --name $IDELE_SPRING \
+            -p $PORT:8080 \
+            "ghcr.io/boiled-potatoes-kdt/be/spring"
 
 sleep 30
 
-docker exec nginx /bin/sh -c "sed -i 's|proxy_pass http://[0-9.]*:[0-9]*;|proxy_pass http://{IP}:$PORT;|' /etc/nginx/nginx.conf"
-docker exec nginx nginx -s reload
+sudo sed -i "s/http:\/\/localhost:$OLD_PORT/http:\/\/localhost:$PORT/g" "/etc/nginx/sites-available/default"
 
+sudo nginx -t
+sudo systemctl restart nginx
 
 docker stop $ACTIVE_SPRING
 docker rm $ACTIVE_SPRING
+
 ```
 
 
