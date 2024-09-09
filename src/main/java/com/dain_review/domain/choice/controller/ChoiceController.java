@@ -1,8 +1,8 @@
-package com.dain_review.domain.select.controller;
+package com.dain_review.domain.choice.controller;
 
 
-import com.dain_review.domain.select.model.request.SelectInfluencerRequest;
-import com.dain_review.domain.select.service.SelectService;
+import com.dain_review.domain.choice.model.request.ChoiceInfluencerRequest;
+import com.dain_review.domain.choice.service.ChoiceService;
 import com.dain_review.global.api.API;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,17 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/enterpriser/select")
-public class SelectController {
+@RequestMapping("/api/enterpriser/choice")
+public class ChoiceController {
 
-    private final SelectService selectService;
+    private final ChoiceService choiceService;
 
     // 체험단을 수행할 인플루언서 선정
     @PostMapping
     public ResponseEntity selectInfluencer(
-            @RequestBody @Valid SelectInfluencerRequest selectInfluencerRequest) {
+            @RequestBody @Valid ChoiceInfluencerRequest choiceInfluencerRequest) {
 
-        selectService.selectInfluencer(selectInfluencerRequest);
+        choiceService.choiceInfluencer(choiceInfluencerRequest);
         return API.OK();
     }
 }

@@ -43,7 +43,10 @@ public class ImageFileService {
     }
 
     public void saveImageFiles(
-            List<MultipartFile> imageFiles, ContentType contentType, Long id, S3PathPrefixType s3PathPrefixType) {
+            List<MultipartFile> imageFiles,
+            ContentType contentType,
+            Long id,
+            S3PathPrefixType s3PathPrefixType) {
         if (imageFiles == null || imageFiles.isEmpty()) {
             return;
         }
@@ -56,7 +59,13 @@ public class ImageFileService {
 
                 String fileName = s3Util.saveImage(imageFile, s3PathPrefixType.toString());
                 String url = s3Util.selectImage(fileName, s3PathPrefixType.toString());
-                ImageFile file = ImageFile.builder().contentType(contentType).contentId(id).fileName(fileName).imageUrl(url).build();
+                ImageFile file =
+                        ImageFile.builder()
+                                .contentType(contentType)
+                                .contentId(id)
+                                .fileName(fileName)
+                                .imageUrl(url)
+                                .build();
                 imageFileRepository.save(file);
             }
         }
@@ -70,8 +79,10 @@ public class ImageFileService {
         }
     }
 
-    public List<String> findImageUrls(Long postId, ContentType contentType, S3PathPrefixType s3PathPrefixType) {
-        List<ImageFile> imageFiles = imageFileRepository.findByContentTypeAndContentId(contentType, postId);
+    public List<String> findImageUrls(
+            Long postId, ContentType contentType, S3PathPrefixType s3PathPrefixType) {
+        List<ImageFile> imageFiles =
+                imageFileRepository.findByContentTypeAndContentId(contentType, postId);
         return imageFiles.stream()
                 .map(it -> s3Util.selectImage(it.getFileName(), s3PathPrefixType.toString()))
                 .collect(Collectors.toList());

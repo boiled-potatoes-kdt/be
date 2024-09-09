@@ -1,4 +1,4 @@
-package com.dain_review.domain.select.model.entity;
+package com.dain_review.domain.choice.model.entity;
 
 
 import com.dain_review.domain.campaign.model.entity.Campaign;
@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class Select extends BaseEntity {
+public class Choice extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -27,7 +27,7 @@ public class Select extends BaseEntity {
     @JoinColumn(name = "campaign_id")
     private Campaign campaign;
 
-    public static Select from(User user, Campaign campaign) {
-        return Select.builder().user(user).campaign(campaign).build();
+    public static Choice from(User user, Campaign campaign) {
+        return Choice.builder().user(user).campaign(campaign).build();
     }
 }
