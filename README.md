@@ -26,7 +26,7 @@
 ### Spring 서버 + 무중단 배포 Script
 ``/home/ubuntu/spring/docker_script.sh``
 ```shell
-docker login ghcr.io -u Domae-back-end -p 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
+docker login ghcr.io -u Domae-back-end -p {token}
 docker pull ghcr.io/boiled-potatoes-kdt/be/spring:latest
 
 BLUE_SPRING="spring-blue"
