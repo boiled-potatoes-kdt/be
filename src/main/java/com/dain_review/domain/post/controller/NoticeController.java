@@ -86,7 +86,7 @@ public class NoticeController {
     // 목록조회
     @GetMapping
     public ResponseEntity<?> getAllPosts(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.getAllPosts(page, size, CategoryType.NOTICE);
@@ -96,7 +96,7 @@ public class NoticeController {
     @GetMapping("/search")
     public ResponseEntity<?> searchPosts(
             @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         PagedResponse<PostResponse> follows =
                 postService.searchPosts(CategoryType.NOTICE, keyword, page, size);

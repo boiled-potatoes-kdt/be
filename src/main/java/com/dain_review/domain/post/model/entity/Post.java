@@ -1,7 +1,6 @@
 package com.dain_review.domain.post.model.entity;
 
 
-import com.dain_review.domain.Image.entity.ImageFile;
 import com.dain_review.domain.comment.model.entity.Comment;
 import com.dain_review.domain.post.exception.PostException;
 import com.dain_review.domain.post.exception.errortype.PostErrorCode;
@@ -44,9 +43,6 @@ public class Post extends BaseEntity {
 
     private String title;
     private String content;
-
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
-    private List<ImageFile> imageFile;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Comment> commentList;

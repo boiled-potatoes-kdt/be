@@ -2,6 +2,7 @@ package com.dain_review.domain.post.service;
 
 import static com.dain_review.domain.post.model.response.PostResponse.responseWithContentPreview;
 
+import com.dain_review.domain.Image.entity.enums.ContentType;
 import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.exception.PostException;
@@ -23,6 +24,7 @@ import com.dain_review.global.type.S3PathPrefixType;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,8 +33,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class PostService {
 
@@ -41,6 +43,7 @@ public class PostService {
     private final ImageFileService imageFileService;
     private final ApplicationEventPublisher eventPublisher;
 
+    @Transactional
     public PostResponse createPost(
             S3PathPrefixType s3PathPrefixType,
             Long userId,
@@ -54,13 +57,16 @@ public class PostService {
         postRepository.save(post);
 
         // 이미지 저장 및 url 반환
-        imageFileService.saveImageFiles(imageFiles, post, s3PathPrefixType);
-        List<String> imageUrls = imageFileService.findImageUrls(post.getId(), s3PathPrefixType);
+        imageFileService.saveImageFiles(
+                imageFiles, ContentType.POST, post.getId(), s3PathPrefixType);
+        List<String> imageUrls =
+                imageFileService.findImageUrls(post.getId(), ContentType.POST, s3PathPrefixType);
 
         String userImageUrl = imageFileService.getUserProfileUrl(post.getUser().getProfileImage());
         return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls);
     }
 
+    @Transactional
     public PostResponse getPost(S3PathPrefixType s3PathPrefixType, Long postId) {
         Post post = postRepository.findByIdAndDeletedFalse(postId);
         if (post == null) {
@@ -68,7 +74,8 @@ public class PostService {
         }
 
         // 게시물의 모든 이미지 url 리스트를 반환
-        List<String> imageUrls = imageFileService.findImageUrls(post.getId(), s3PathPrefixType);
+        List<String> imageUrls =
+                imageFileService.findImageUrls(post.getId(), ContentType.POST, s3PathPrefixType);
 
         // 조회 이벤트 발생 시, 이미 조회된 Post 객체를 전달
         eventPublisher.publishEvent(new PostReadEvent(post));
@@ -77,6 +84,7 @@ public class PostService {
         return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls);
     }
 
+    @Transactional
     public PostResponse updatePost(
             S3PathPrefixType s3PathPrefixType,
             Long userId,
@@ -91,16 +99,19 @@ public class PostService {
         existingPost.updateBy(userId, postRequest);
 
         // 새로 추가된 이미지 저장
-        imageFileService.saveImageFiles(imageFiles, existingPost, s3PathPrefixType);
+        imageFileService.saveImageFiles(
+                imageFiles, ContentType.POST, existingPost.getId(), s3PathPrefixType);
         imageFileService.deleteImageFiles(postRequest.deletedAttachedFiles(), s3PathPrefixType);
         List<String> imageUrls =
-                imageFileService.findImageUrls(existingPost.getId(), s3PathPrefixType);
+                imageFileService.findImageUrls(
+                        existingPost.getId(), ContentType.POST, s3PathPrefixType);
 
         String userImageUrl =
                 imageFileService.getUserProfileUrl(existingPost.getUser().getProfileImage());
         return PostResponse.responseWithoutContentPreview(existingPost, userImageUrl, imageUrls);
     }
 
+    @Transactional
     public void deletePost(Long userId, Long postId) {
         Post post =
                 postRepository
@@ -111,22 +122,25 @@ public class PostService {
         postRepository.save(post);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<PostResponse> getAllPosts(int page, int size, CategoryType categoryType) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
         Page<Post> postsPage = postRepository.findByCategoryType(categoryType, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<PostResponse> getPostsByRole(Long userId, int page, int size) {
         User user = getUser(userId);
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
         Page<Post> postsPage = postRepository.findCommunityPostsByRole(user.getRole(), pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<PostResponse> getPostsByCommunityType(
             Long userId, CommunityType communityType, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
         User user = getUser(userId);
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndCommunityType(
@@ -134,18 +148,20 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<PostResponse> getPostsByFollowType(
             FollowType followType, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndFollowType(
                         CategoryType.FOLLOW, followType, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<PostResponse> searchPostsByRole(
             Long userId, String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
         User user = getUser(userId);
         Page<Post> postsPage =
                 postRepository.searchByKeywordAndRole(
@@ -153,9 +169,10 @@ public class PostService {
         return mapPostsToPagedResponse(postsPage);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<PostResponse> searchPosts(
             CategoryType categoryType, String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
         Page<Post> postsPage = postRepository.searchByKeyword(categoryType, keyword, pageable);
         return mapPostsToPagedResponse(postsPage);
     }
