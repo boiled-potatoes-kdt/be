@@ -73,7 +73,7 @@ public class CampaignController {
             getRegisteredCampaigns( // 사업주가 등록한 체험단 목록 조회
                     @AuthenticationPrincipal CustomUserDetails customUserDetails,
                     @ModelAttribute CampaignFilterRequest campaignFilterRequest,
-                    @PageableDefault(page = 1, size = 10) Pageable pageable) {
+                    @PageableDefault(size = 10) Pageable pageable) {
 
         Page<CampaignSummaryResponse> campaigns =
                 campaignService.getRegisteredCampaigns(
@@ -83,8 +83,9 @@ public class CampaignController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<PagedResponse<CampaignSummaryResponse>> searchCampaigns( // 검색 필터로 체험단 검색
-            CampaignSearchRequest searchRequest, @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<PagedResponse<CampaignSummaryResponse>> searchCampaigns(
+            CampaignSearchRequest searchRequest,
+            @PageableDefault(size = 10) Pageable pageable) {
 
         PagedResponse<CampaignSummaryResponse> campaigns =
                 campaignService.searchCampaigns(searchRequest, pageable);
