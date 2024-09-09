@@ -83,5 +83,4 @@ public class RequestFilter extends OncePerRequestFilter {
         return new UsernamePasswordAuthenticationToken(
                 userDetails, null, userDetails.getAuthorities());
     }
-
 }
