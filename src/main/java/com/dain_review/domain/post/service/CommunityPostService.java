@@ -5,7 +5,7 @@ import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
-import com.dain_review.domain.post.model.entity.enums.CommunityType;
+import com.dain_review.domain.post.model.request.PostRequest;
 import com.dain_review.domain.post.model.request.PostSearchRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
 import com.dain_review.domain.post.repository.PostRepository;
@@ -17,7 +17,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -52,27 +51,16 @@ public class CommunityPostService extends AbstractPostService {
     @Override
     public PagedResponse<PostResponse> getAllPosts(Long userId, Pageable pageable) {
         User user = userRepository.getUserById(userId);
-//        Pageable pageable = PageRequest.of(page, size);
         Page<Post> postsPage = postRepository.findCommunityPostsByRole(user.getRole(), pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
     @Override
-    public PagedResponse<PostResponse> searchPosts(Long userId, String keyword, Pageable pageable) {
+    public PagedResponse<PostResponse> searchPosts(Long userId, PostSearchRequest request, Pageable pageable) {
         User user = userRepository.getUserById(userId);
-        Page<Post> postsPage =
-                postRepository.searchByKeywordAndRole(
-                        user.getRole(), CategoryType.COMMUNITY, keyword, pageable);
-        return mapPostsToPagedResponse(postsPage);
-    }
 
-    @Transactional(readOnly = true)
-    public PagedResponse<PostResponse> getPostsByCommunityType(Long userId, CommunityType communityType, Pageable pageable) {
-        User user = userRepository.getUserById(userId);
-        Page<Post> postsPage =
-                postRepository.findByCategoryTypeAndCommunityType(
-                        user.getRole(), CategoryType.COMMUNITY, communityType, pageable);
-        return mapPostsToPagedResponse(postsPage);
+        Page<Post> posts = postRepository.searchCommunityPost(user.getRole(), request.keyword(), request.communityType(), pageable);
+        return mapPostsToPagedResponse(posts);
     }
 
     @Override
@@ -86,5 +74,10 @@ public class CommunityPostService extends AbstractPostService {
         imageFileService.saveImageFiles(imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_COMMUNITY_PATH);
         imageFileService.deleteImageFiles(deletedImageFiles, S3PathPrefixType.S3_COMMUNITY_PATH);
         return imageFileService.findImageUrls(post.getId(), ContentType.POST, S3PathPrefixType.S3_COMMUNITY_PATH);
+    }
+
+    @Override
+    protected Post createPostByCategoryType(PostRequest postRequest, User user) {
+        return Post.createCommunityPost(postRequest, user);
     }
 }

@@ -1,7 +1,6 @@
 package com.dain_review.domain.post.controller;
 
 
-import com.dain_review.domain.post.model.entity.enums.CommunityType;
 import com.dain_review.domain.post.model.request.PostRequest;
 import com.dain_review.domain.post.model.request.PostSearchRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -95,28 +93,14 @@ public class CommunityController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
-    @GetMapping("/type/{communityType}")
-    public ResponseEntity<?> getCommunityPostsByCommunityType( // 커뮤니티 게시글 카테고리 별 목록 조회
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable CommunityType communityType,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-
-        PagedResponse<PostResponse> communities =
-                communityPostService.getPostsByCommunityType(
-                        customUserDetails.getUserId(), communityType, pageable);
-        return API.OK(communities);
-    }
-
-    @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/search")
     public ResponseEntity<?> searchCommunityPosts(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestParam String keyword,
+            @ModelAttribute PostSearchRequest request,
             @PageableDefault(size = 10) Pageable pageable) {
 
         PagedResponse<PostResponse> communities =
-                communityPostService.searchPosts(customUserDetails.getUserId(), keyword, pageable);
+                communityPostService.searchPosts(customUserDetails.getUserId(), request, pageable);
         return API.OK(communities);
     }
 }

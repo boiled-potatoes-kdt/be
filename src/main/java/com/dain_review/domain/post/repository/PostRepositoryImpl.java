@@ -1,5 +1,6 @@
 package com.dain_review.domain.post.repository;
 
+import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.QPost;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.post.model.entity.enums.CommunityType;
@@ -8,6 +9,11 @@ import com.dain_review.domain.user.model.entity.enums.Role;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom{
@@ -77,7 +83,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
         }
 
         if(keyword != null) {
-            builder.and(post.title.containsIgnoreCase(keyword));
+            builder.or(post.title.containsIgnoreCase(keyword))
+                    .or(post.content.containsIgnoreCase(keyword))
+                    .or(post.user.nickname.containsIgnoreCase(keyword));
         }
 
         builder.and(post.deleted.isFalse());
@@ -93,4 +101,81 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
         return (query == null) ? null : query.getId();
     }
+
+    @Override
+    public Page<Post> searchCommunityPost(Role role, String keyword, CommunityType communityType, Pageable pageable) {
+        QPost post = QPost.post;
+
+        BooleanBuilder builder = new BooleanBuilder();
+        BooleanBuilder keywordBuilder = new BooleanBuilder();
+
+        builder.and(post.categoryType.eq(CategoryType.COMMUNITY))
+                .and(post.user.role.eq(role))
+                .and(post.deleted.isFalse());
+
+        if (communityType != null) {
+            builder.and(post.communityType.eq(communityType));
+        }
+
+        if (keyword != null) {
+            keywordBuilder.or(post.title.containsIgnoreCase(keyword))
+                    .or(post.content.containsIgnoreCase(keyword))
+                    .or(post.user.nickname.containsIgnoreCase(keyword));
+        }
+
+        builder.and(keywordBuilder);
+
+        var query = queryFactory
+                .selectFrom(post)
+                .where(
+                        builder,
+                        keywordBuilder)
+                .orderBy(post.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        List<Post> results = query.fetch();
+        long total = queryFactory.selectFrom(post).where(builder).fetchCount();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<Post> searchFollowPost(String keyword, FollowType followType, Pageable pageable) {
+        QPost post = QPost.post;
+
+        BooleanBuilder builder = new BooleanBuilder();
+        BooleanBuilder keywordBuilder = new BooleanBuilder();
+
+        builder.and(post.categoryType.eq(CategoryType.FOLLOW))
+                .and(post.deleted.isFalse());
+
+        if (followType != null) {
+            builder.and(post.followType.eq(followType));
+        }
+
+        if (keyword != null) {
+            keywordBuilder.or(post.title.containsIgnoreCase(keyword))
+                    .or(post.content.containsIgnoreCase(keyword))
+                    .or(post.user.nickname.containsIgnoreCase(keyword));
+        }
+
+        builder.and(keywordBuilder);
+
+        var query = queryFactory
+                .selectFrom(post)
+                .where(
+                        builder,
+                        keywordBuilder)
+                .orderBy(post.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        List<Post> results = query.fetch();
+        long total = queryFactory.selectFrom(post).where(builder).fetchCount();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+
 }

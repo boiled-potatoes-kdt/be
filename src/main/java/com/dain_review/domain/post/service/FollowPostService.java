@@ -5,16 +5,16 @@ import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
-import com.dain_review.domain.post.model.entity.enums.FollowType;
+import com.dain_review.domain.post.model.request.PostRequest;
 import com.dain_review.domain.post.model.request.PostSearchRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
 import com.dain_review.domain.post.repository.PostRepository;
+import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,15 +54,9 @@ public class FollowPostService extends AbstractPostService{
     }
 
     @Override
-    public PagedResponse<PostResponse> searchPosts(Long userId, String keyword, Pageable pageable) {
-        Page<Post> postsPage = postRepository.searchByKeyword(CategoryType.FOLLOW, keyword, pageable);
-        return mapPostsToPagedResponse(postsPage);
-    }
-
-    public PagedResponse<PostResponse> getPostsByFollowType(FollowType followType, Pageable pageable) {
-        Page<Post> postsPage = postRepository.findByCategoryTypeAndFollowType(
-                        CategoryType.FOLLOW, followType, pageable);
-        return mapPostsToPagedResponse(postsPage);
+    public PagedResponse<PostResponse> searchPosts(Long userId, PostSearchRequest request, Pageable pageable) {
+        Page<Post> posts = postRepository.searchFollowPost(request.keyword(), request.followType(), pageable);
+        return mapPostsToPagedResponse(posts);
     }
 
     @Override
@@ -76,5 +70,10 @@ public class FollowPostService extends AbstractPostService{
         imageFileService.saveImageFiles(imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_FOLLOW_PATH);
         imageFileService.deleteImageFiles(deletedImageFiles, S3PathPrefixType.S3_FOLLOW_PATH);
         return imageFileService.findImageUrls(post.getId(), ContentType.POST, S3PathPrefixType.S3_FOLLOW_PATH);
+    }
+
+    @Override
+    protected Post createPostByCategoryType(PostRequest postRequest, User user) {
+        return Post.createFollowPost(postRequest, user);
     }
 }

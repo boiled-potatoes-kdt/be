@@ -1,7 +1,6 @@
 package com.dain_review.domain.post.controller;
 
 
-import com.dain_review.domain.post.model.entity.enums.FollowType;
 import com.dain_review.domain.post.model.request.PostRequest;
 import com.dain_review.domain.post.model.request.PostSearchRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -94,24 +92,13 @@ public class FollowController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
-    @GetMapping("/type/{followType}")
-    public ResponseEntity<?> getFollowPostsByFollowType(
-            @PathVariable FollowType followType,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        PagedResponse<PostResponse> follows =
-                followPostService.getPostsByFollowType(followType, pageable);
-        return API.OK(follows);
-    }
-
-    @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/search")
     public ResponseEntity<?> searchFollowPosts(
-            @RequestParam String keyword,
+            @ModelAttribute PostSearchRequest request,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         PagedResponse<PostResponse> follows =
-                followPostService.searchPosts(null, keyword, pageable);
+                followPostService.searchPosts(null, request, pageable);
         return API.OK(follows);
     }
 }

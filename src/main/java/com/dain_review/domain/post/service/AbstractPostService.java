@@ -31,11 +31,13 @@ public abstract class AbstractPostService {
     @Transactional
     public PostResponse createPost(Long userId, PostRequest postRequest, List<MultipartFile> imageFiles) {
         User user = userRepository.getUserById(userId);
-        Post post = Post.createCommunityPost(postRequest, user);
+        System.out.println("category type: " + postRequest.categoryType());
+        Post post = createPostByCategoryType(postRequest, user);
         PostMeta postMeta = PostMeta.builder().post(post).viewCount(0L).commentCount(0L).build();
 
         post.setPostMeta(postMeta);
         postRepository.save(post);
+        System.out.println("category type: " + post.getCategoryType().getDisplayName());
 
         // 이미지 저장 및 url 반환
         List<String> imageUrls = saveImages(imageFiles, post);
@@ -72,7 +74,7 @@ public abstract class AbstractPostService {
     public abstract PagedResponse<PostResponse> getAllPosts(Long userId, Pageable pageable);
 
     @Transactional(readOnly = true)
-    public abstract PagedResponse<PostResponse> searchPosts(Long userId, String keyword, Pageable pageable);
+    public abstract PagedResponse<PostResponse> searchPosts(Long userId, PostSearchRequest request, Pageable pageable);
 
     protected PagedResponse<PostResponse> mapPostsToPagedResponse(Page<Post> postsPage) {
         List<PostResponse> communities =
@@ -93,5 +95,7 @@ public abstract class AbstractPostService {
 
     protected abstract List<String> saveImages(List<MultipartFile> imageFiles, Post post);
     protected abstract List<String> updateImages(List<MultipartFile> imageFiles, Post post, List<String> deletedImageFiles);
+
+    protected abstract Post createPostByCategoryType(PostRequest postRequest, User user);
 
 }

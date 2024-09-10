@@ -93,11 +93,11 @@ public class NoticeController {
 
     @GetMapping("/search")
     public ResponseEntity<?> searchNoticePosts(
-            @RequestParam String keyword,
+            @ModelAttribute PostSearchRequest request,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         PagedResponse<PostResponse> follows =
-                noticePostService.searchPosts(null, keyword, pageable);
+                noticePostService.searchPosts(null, request, pageable);
         return API.OK(follows);
     }
 }

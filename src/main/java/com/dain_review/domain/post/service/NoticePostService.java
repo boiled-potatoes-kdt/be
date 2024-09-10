@@ -5,9 +5,11 @@ import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.post.event.PostReadEvent;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
+import com.dain_review.domain.post.model.request.PostRequest;
 import com.dain_review.domain.post.model.request.PostSearchRequest;
 import com.dain_review.domain.post.model.response.PostResponse;
 import com.dain_review.domain.post.repository.PostRepository;
+import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
@@ -52,8 +54,8 @@ public class NoticePostService extends AbstractPostService {
     }
 
     @Override
-    public PagedResponse<PostResponse> searchPosts(Long userId, String keyword, Pageable pageable) {
-        Page<Post> postsPage = postRepository.searchByKeyword(CategoryType.NOTICE, keyword, pageable);
+    public PagedResponse<PostResponse> searchPosts(Long userId, PostSearchRequest request, Pageable pageable) {
+        Page<Post> postsPage = postRepository.searchByKeyword(CategoryType.NOTICE, request.keyword(), pageable);
         return mapPostsToPagedResponse(postsPage);
     }
 
@@ -68,5 +70,10 @@ public class NoticePostService extends AbstractPostService {
         imageFileService.saveImageFiles(imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_NOTICE_PATH);
         imageFileService.deleteImageFiles(deletedImageFiles, S3PathPrefixType.S3_NOTICE_PATH);
         return imageFileService.findImageUrls(post.getId(), ContentType.POST, S3PathPrefixType.S3_NOTICE_PATH);
+    }
+
+    @Override
+    protected Post createPostByCategoryType(PostRequest postRequest, User user) {
+        return Post.createNoticePost(postRequest, user);
     }
 }
