@@ -10,8 +10,8 @@ import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
+import com.dain_review.domain.choice.model.response.ChoiceInfluencerResponse;
 import com.dain_review.domain.review.model.response.ReviewerResponse;
-import com.dain_review.domain.select.model.response.SelectedInfluencerResponse;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
@@ -115,19 +115,21 @@ public class CampaignService {
                 content, campaignPage.getTotalElements(), campaignPage.getTotalPages());
     }
 
+    @Transactional(readOnly = true)
     public List<ApplicantResponse> getApplicants(Long campaignId, Long userId) {
         Campaign campaign = campaignRepository.getCampaignById(campaignId);
-
-        return ApplicantResponse.from(campaign, userId);
+        return ApplicantResponse.of(campaign, userId);
     }
 
-    public List<SelectedInfluencerResponse> getSelectedInfluencers(Long campaignId, Long userId) {
+    @Transactional(readOnly = true)
+    public List<ChoiceInfluencerResponse> getSelectedInfluencers(Long campaignId, Long userId) {
         Campaign campaign = campaignRepository.getCampaignById(campaignId);
-        return SelectedInfluencerResponse.from(campaign, userId);
+        return ChoiceInfluencerResponse.of(campaign, userId);
     }
 
+    @Transactional(readOnly = true)
     public List<ReviewerResponse> getReviews(Long campaignId, Long userId) {
         Campaign campaign = campaignRepository.getCampaignById(campaignId);
-        return ReviewerResponse.from(campaign, userId);
+        return ReviewerResponse.of(campaign, userId);
     }
 }

@@ -1,8 +1,10 @@
 package com.dain_review.domain.user.config;
 
 
-import com.dain_review.domain.user.config.filter.LoginFilter;
-import com.dain_review.domain.user.config.filter.RequestFilter;
+import com.dain_review.domain.auth.client.GoogleApiClient;
+import com.dain_review.domain.auth.client.KakaoApiClient;
+import com.dain_review.domain.auth.client.NaverApiClient;
+import com.dain_review.domain.user.config.filter.*;
 import com.dain_review.domain.user.exception.AuthException;
 import com.dain_review.domain.user.exception.errortype.AuthErrorCode;
 import com.dain_review.global.util.JwtUtil;
@@ -10,7 +12,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +39,9 @@ public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final KakaoApiClient kakaoApiClient;
+    private final GoogleApiClient googleApiClient;
+    private final NaverApiClient naverApiClient;
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -50,12 +57,14 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(
                 matcher ->
-                        matcher.requestMatchers(HttpMethod.POST, "/api/login")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/post/notices/**")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated());
+                        matcher.requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/kakao").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/naver").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/google").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/post/notices/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
+                                .anyRequest().authenticated()
+        );
 
         // TODO: Front 주소 확정시
         //        http.cors(httpSecurityCorsConfigurer ->
@@ -71,6 +80,10 @@ public class SecurityConfig {
         http.addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(requestFilter(), LoginFilter.class);
 
+        http.addFilterBefore(kakaoLoginFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(googleLoginFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(naverLoginFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
@@ -80,6 +93,27 @@ public class SecurityConfig {
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         // 필터 등록 로그 추가
         System.out.println("LoginFilter registered");
+        return filter;
+    }
+
+    @Bean
+    public KakaoLoginFilter kakaoLoginFilter() throws Exception {
+        KakaoLoginFilter filter = new KakaoLoginFilter(jwtUtil, kakaoApiClient);
+        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+        return filter;
+    }
+
+    @Bean
+    public GoogleLoginFilter googleLoginFilter() throws Exception {
+        GoogleLoginFilter filter = new GoogleLoginFilter(jwtUtil, googleApiClient);
+        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+        return filter;
+    }
+
+    @Bean
+    public NaverLoginFilter naverLoginFilter() throws Exception {
+        NaverLoginFilter filter = new NaverLoginFilter(jwtUtil, naverApiClient);
+        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }
 

@@ -50,21 +50,6 @@ jobs:
         run: |
           docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
 
-      - name: Nginx Docker 빌드
-        env:
-          IMAGE_NAME: nginx
-          IMAGE_TAG: latest
-        run: |
-          docker build -t ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG -f docker/Dockerfile-nginx .
-
-      - name: Nginx Docker Image Push0
-        env:
-          IMAGE_NAME: nginx
-          IMAGE_TAG: latest
-        run: |
-          docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
-
-
       - name: JDK 17 체크
         uses: actions/setup-java@v3
         with:
