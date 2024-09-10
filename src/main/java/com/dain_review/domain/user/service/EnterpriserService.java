@@ -88,7 +88,7 @@ public class EnterpriserService {
                     userRepository.save(
                             User.builder()
                                     .email(request.email())
-                                    .role(Role.ROLE_INFLUENCER)
+                                    .role(Role.ROLE_ENTERPRISER)
                                     .marketing(request.marketing())
                                     .isDeleted(false)
                                     .phone(certification.getResponse().getPhone())
@@ -141,7 +141,7 @@ public class EnterpriserService {
                 userRepository.save(
                         User.builder()
                                 .email(request.email())
-                                .role(Role.ROLE_INFLUENCER)
+                                .role(Role.ROLE_ENTERPRISER)
                                 .marketing(request.marketing())
                                 .isDeleted(false)
                                 .point(0L)
