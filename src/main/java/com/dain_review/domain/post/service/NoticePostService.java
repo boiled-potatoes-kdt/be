@@ -59,16 +59,14 @@ public class NoticePostService extends AbstractPostService {
 
     @Override
     protected List<String> saveImages(List<MultipartFile> imageFiles, Post post) {
-        S3PathPrefixType s3Path = S3PathPrefixType.S3_NOTICE_PATH;
-        imageFileService.saveImageFiles(imageFiles, ContentType.POST, post.getId(), s3Path);
-        return imageFileService.findImageUrls(post.getId(), ContentType.POST, s3Path);
+        imageFileService.saveImageFiles(imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_NOTICE_PATH);
+        return imageFileService.findImageUrls(post.getId(), ContentType.POST, S3PathPrefixType.S3_NOTICE_PATH);
     }
 
     @Override
     protected List<String> updateImages(List<MultipartFile> imageFiles, Post post, List<String> deletedImageFiles) {
-        S3PathPrefixType s3Path = S3PathPrefixType.S3_NOTICE_PATH;
-        imageFileService.saveImageFiles(imageFiles, ContentType.POST, post.getId(), s3Path);
-        imageFileService.deleteImageFiles(deletedImageFiles, s3Path);
-        return imageFileService.findImageUrls(post.getId(), ContentType.POST, s3Path);
+        imageFileService.saveImageFiles(imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_NOTICE_PATH);
+        imageFileService.deleteImageFiles(deletedImageFiles, S3PathPrefixType.S3_NOTICE_PATH);
+        return imageFileService.findImageUrls(post.getId(), ContentType.POST, S3PathPrefixType.S3_NOTICE_PATH);
     }
 }
