@@ -5,6 +5,7 @@ import com.dain_review.domain.application.model.response.ApplicantResponse;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
+import com.dain_review.domain.campaign.model.response.CampaignHomeResponse;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.service.CampaignService;
@@ -124,9 +125,10 @@ public class CampaignController {
         return API.OK(reviewerResponseList);
     }
 
-//    @GetMapping("/home")
-//    public ResponseEntity getCampaignForEachCategory() {
-//        CampaignHomeResponse campaignHomeResponse = campaignService.getCampaignForHomeScreen();
-//        return API.OK(campaignHomeResponse);
-//    }
+    // 홈 화면 조회
+    @GetMapping("/home")
+    public ResponseEntity<CampaignHomeResponse> getCampaignForEachCategory() {
+        CampaignHomeResponse campaignHomeResponse = campaignService.getCampaignForHomeScreen();
+        return API.OK(campaignHomeResponse);
+    }
 }

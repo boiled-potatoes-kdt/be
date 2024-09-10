@@ -6,8 +6,8 @@ import java.util.List;
 
 @Builder
 public record CampaignHomeResponse(
-        List<CampaignPreviewResponse> premium,
-        List<CampaignPreviewResponse> popular,
-        List<CampaignPreviewResponse> newest,
-        List<CampaignPreviewResponse> imminent
+        List<CampaignSummaryResponse> premium,
+        List<CampaignSummaryResponse> popular,
+        List<CampaignSummaryResponse> newest,
+        List<CampaignSummaryResponse> imminent
 ) { }

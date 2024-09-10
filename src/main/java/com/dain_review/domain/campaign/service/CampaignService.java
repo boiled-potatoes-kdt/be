@@ -4,12 +4,10 @@ package com.dain_review.domain.campaign.service;
 import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.application.model.response.ApplicantResponse;
 import com.dain_review.domain.campaign.model.entity.Campaign;
-import com.dain_review.domain.campaign.model.entity.enums.Label;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
 import com.dain_review.domain.campaign.model.response.CampaignHomeResponse;
-import com.dain_review.domain.campaign.model.response.CampaignPreviewResponse;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
@@ -22,7 +20,6 @@ import com.dain_review.global.type.S3PathPrefixType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -137,26 +134,25 @@ public class CampaignService {
         return ReviewerResponse.of(campaign, userId);
     }
 
-    // 홈 데이터 반환
-//    public CampaignHomeResponse getCampaignForHomeScreen() {
-//        List<Campaign> premium = campaignRepository.findByLabel(Label.PREMIUM, null, null, null, PageRequest.of(0, 8)).getContent();
-//        List<CampaignPreviewResponse> premiumPreview = premium.stream()
-//                .map(CampaignPreviewResponse::from).toList();
-//        List<Campaign> popular = campaignRepository.orderByApplicant(null, null, null, PageRequest.of(0, 8)).getContent();
-//        List<CampaignPreviewResponse> popularPreview = popular.stream()
-//                .map(CampaignPreviewResponse::from).toList();
-//        List<Campaign> newest = campaignRepository.orderByApprovalDate(null, null, null, PageRequest.of(0, 3)).getContent();
-//        List<CampaignPreviewResponse> newestPreview = newest.stream()
-//                .map(CampaignPreviewResponse::from).toList();
-//        List<Campaign> imminent = campaignRepository.orderByImminentDueDate(null, null, null, PageRequest.of(0, 3)).getContent();
-//        List<CampaignPreviewResponse> imminentPreview = imminent.stream()
-//                .map(CampaignPreviewResponse::from).toList();
-//
-//        return CampaignHomeResponse.builder()
-//                .premium(premiumPreview)
-//                .popular(popularPreview)
-//                .newest(newestPreview)
-//                .imminent(imminentPreview)
-//                .build();
-//    }
+    @Transactional(readOnly = true)
+    public CampaignHomeResponse getCampaignForHomeScreen() {
+        List<Campaign> premium = campaignRepository.findPremiumCampaigns();
+        List<Campaign> popular = campaignRepository.findPopularCampaigns();
+        List<Campaign> newest = campaignRepository.findNewestCampaigns();
+        List<Campaign> imminent = campaignRepository.findImminentDueDateCampaigns();
+
+        return new CampaignHomeResponse(
+                mapToSummaryResponses(premium),
+                mapToSummaryResponses(popular),
+                mapToSummaryResponses(newest),
+                mapToSummaryResponses(imminent));
+    }
+
+    private List<CampaignSummaryResponse> mapToSummaryResponses(List<Campaign> campaigns) {
+        return campaigns.stream().map(campaign -> {
+            String imageUrl = imageFileService.getImageUrl(campaign.getImageUrl(), S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
+            return CampaignSummaryResponse.from(campaign, imageUrl);
+        }).toList();
+    }
+
 }
