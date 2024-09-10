@@ -99,12 +99,12 @@ public class CommunityController {
     public ResponseEntity<?> getCommunityPostsByCommunityType( // 커뮤니티 게시글 카테고리 별 목록 조회
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable CommunityType communityType,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
 
         PagedResponse<PostResponse> communities =
                 communityPostService.getPostsByCommunityType(
-                        customUserDetails.getUserId(), communityType, page, size);
+                        customUserDetails.getUserId(), communityType, pageable);
         return API.OK(communities);
     }
 

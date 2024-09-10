@@ -15,7 +15,6 @@ import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,8 +67,7 @@ public class CommunityPostService extends AbstractPostService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<PostResponse> getPostsByCommunityType(Long userId, CommunityType communityType, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public PagedResponse<PostResponse> getPostsByCommunityType(Long userId, CommunityType communityType, Pageable pageable) {
         User user = userRepository.getUserById(userId);
         Page<Post> postsPage =
                 postRepository.findByCategoryTypeAndCommunityType(
