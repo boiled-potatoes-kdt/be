@@ -15,8 +15,8 @@ import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.domain.user.model.entity.enums.SnsType;
 import com.dain_review.domain.user.model.request.InfluencerChangeRequest;
 import com.dain_review.domain.user.model.request.InfluencerExtraRegisterRequest;
-import com.dain_review.domain.user.model.request.InfluencerOAuthSingUpRequest;
-import com.dain_review.domain.user.model.request.InfluencerSingUpRequest;
+import com.dain_review.domain.user.model.request.InfluencerOAuthSignUpRequest;
+import com.dain_review.domain.user.model.request.InfluencerSignUpRequest;
 import com.dain_review.domain.user.model.response.InfluencerChangeResponse;
 import com.dain_review.domain.user.model.response.InfluencerResponse;
 import com.dain_review.domain.user.repository.InfluencerRepository;
@@ -83,7 +83,7 @@ public class InfluencerService {
     }
 
     @Transactional
-    public ResponseEntity singUpInfluencer(InfluencerSingUpRequest request) {
+    public ResponseEntity signUpInfluencer(InfluencerSignUpRequest request) {
         try {
             IamportResponse<Certification> certification =
                     iamportClient.certificationByImpUid(request.impId());
@@ -156,7 +156,7 @@ public class InfluencerService {
     }
 
     @Transactional
-    public ResponseEntity singUpOAuthInfluencer(InfluencerOAuthSingUpRequest request) {
+    public ResponseEntity signUpOAuthInfluencer(InfluencerOAuthSignUpRequest request) {
 
         String name = OAuthGetName(request.code(), request.type());
 
