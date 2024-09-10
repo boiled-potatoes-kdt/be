@@ -2,7 +2,6 @@ package com.dain_review.domain.user.config.filter;
 
 
 import com.dain_review.domain.user.config.model.CustomUserDetails;
-import com.dain_review.domain.user.exception.errortype.AuthErrorCode;
 import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.global.type.JwtOptionType;
 import com.dain_review.global.util.JwtUtil;
@@ -12,8 +11,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -86,5 +83,4 @@ public class RequestFilter extends OncePerRequestFilter {
         return new UsernamePasswordAuthenticationToken(
                 userDetails, null, userDetails.getAuthorities());
     }
-    
 }

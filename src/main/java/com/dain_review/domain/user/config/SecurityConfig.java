@@ -12,9 +12,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
-
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +29,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @RequiredArgsConstructor
@@ -57,19 +59,32 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(
                 matcher ->
-                        matcher.requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/kakao").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/naver").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/google").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/post/notices/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
-                                .anyRequest().authenticated()
-        );
+                        matcher.requestMatchers(HttpMethod.POST, "/api/login")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/kakao")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/naver")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/google")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/enterpriser/sing-up/**")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/influencer/sing-up/**")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/password/change")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/id/find")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/post/notices/**")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/actuator/**")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated());
 
-        // TODO: Front 주소 확정시
-        //        http.cors(httpSecurityCorsConfigurer ->
-        // httpSecurityCorsConfigurer.configurationSource(
-        //                corsConfigurationSource()));
+        http.cors(
+                httpSecurityCorsConfigurer ->
+                        httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()));
 
         http.logout(
                 logout ->
@@ -128,23 +143,21 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
-    // TODO: 프론트 주소가 결정되면 CORS 설정
-    //    @Bean
-    //    public CorsConfigurationSource corsConfigurationSource() {
-    //        CorsConfiguration config = new CorsConfiguration();
-    //
-    //        config.setAllowCredentials(true);
-    //        config.setAllowedOrigins(List.of("https://localhost:8080", "http://localhost:8080",
-    // "https://sandbox-pay.nicepay.co.kr/", "https://pay.nicepay.co.kr/"));
-    //        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-    //        config.setAllowedHeaders(List.of("*"));
-    //        config.setExposedHeaders(List.of("*"));
-    //
-    //        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    //        source.registerCorsConfiguration("/**", config);
-    //        return source;
-    //    }
-    //
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowCredentials(true);
+        config.setAllowedOrigins(
+                List.of("https://final-frontend-beta.vercel.app/ ", "https://g6.dainreview.kr/ "));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("*"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 
     class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 

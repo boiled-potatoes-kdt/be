@@ -37,6 +37,7 @@ public class NaverLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         TokenResponse token = naverApiClient.getNaverToken(request.getParameter("code"));
         NaverUserInfo info = naverApiClient.getNaverUserInfo(token.getAccessToken());
+        log.info(info.getEmail() + " 로그인 시도");
 
         return getAuthenticationManager()
                 .authenticate(
