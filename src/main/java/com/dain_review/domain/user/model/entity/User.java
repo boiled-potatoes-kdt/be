@@ -91,7 +91,7 @@ public class User extends BaseEntity {
         if (!passwordEncoder.matches(enterpriserChangeRequest.oldPassword(), this.password)) {
             throw new UserException(UserErrorCode.FAILED_CHANGE);
         }
-        this.password = enterpriserChangeRequest.newPassword();
+        this.password = passwordEncoder.encode(enterpriserChangeRequest.newPassword());
         this.name = enterpriserChangeRequest.name();
         this.nickname = enterpriserChangeRequest.nickname();
         this.phone = enterpriserChangeRequest.phone();
@@ -125,7 +125,7 @@ public class User extends BaseEntity {
         if (!passwordEncoder.matches(influencerChangeRequest.oldPassword(), this.password)) {
             throw new UserException(UserErrorCode.FAILED_CHANGE);
         }
-        this.password = influencerChangeRequest.newPassword();
+        this.password = passwordEncoder.encode(influencerChangeRequest.newPassword());
         this.name = influencerChangeRequest.name();
         this.nickname = influencerChangeRequest.nickname();
         this.phone = influencerChangeRequest.phone();
