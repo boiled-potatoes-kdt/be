@@ -5,6 +5,8 @@ import com.dain_review.domain.application.model.entity.Application;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.review.model.entity.Review;
+import com.dain_review.domain.user.exception.UserException;
+import com.dain_review.domain.user.exception.errortype.UserErrorCode;
 import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.domain.user.model.request.EnterpriserChangeRequest;
 import com.dain_review.domain.user.model.request.EnterpriserExtraRegisterRequest;
@@ -23,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter
@@ -73,12 +76,22 @@ public class User extends BaseEntity {
     private Boolean isDeleted;
 
     public void delete() {
+
+        // 사업주가 체험단을 등록했거나 인플루언서가 체험단을 신청 중일 때는 탈퇴가 불가능
+        if (this.campaignList.size() != 0 || this.applicationList.size() != 0) {
+            throw new UserException(UserErrorCode.FAILED_DELETE);
+        }
+
         this.isDeleted = true;
     }
 
-    public void change(EnterpriserChangeRequest enterpriserChangeRequest) {
-        // Todo 비밀번호 일치하는지 검증로직 추가
-        this.password = enterpriserChangeRequest.newPassword();
+    public void change(
+            EnterpriserChangeRequest enterpriserChangeRequest, PasswordEncoder passwordEncoder) {
+        // 비밀번호 일치하는지 검증
+        if (!passwordEncoder.matches(enterpriserChangeRequest.oldPassword(), this.password)) {
+            throw new UserException(UserErrorCode.FAILED_CHANGE);
+        }
+        this.password = passwordEncoder.encode(enterpriserChangeRequest.newPassword());
         this.name = enterpriserChangeRequest.name();
         this.nickname = enterpriserChangeRequest.nickname();
         this.phone = enterpriserChangeRequest.phone();
@@ -88,25 +101,31 @@ public class User extends BaseEntity {
     }
 
     // 완료
-    public void change(EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest) {
-        this.profileImage = enterpriserExtraRegisterRequest.profileImage();
+    public void change(
+            EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest, String profileImage) {
+        this.profileImage = profileImage;
         this.address = enterpriserExtraRegisterRequest.address();
         this.addressDetail = enterpriserExtraRegisterRequest.addressDetail();
         this.postalCode = enterpriserExtraRegisterRequest.postalCode();
     }
 
     // 완료
-    public void change(InfluencerExtraRegisterRequest influencerExtraRegisterRequest) {
-        this.profileImage = influencerExtraRegisterRequest.profileImage();
+    public void change(
+            InfluencerExtraRegisterRequest influencerExtraRegisterRequest, String profileImage) {
+        this.profileImage = profileImage;
         this.address = influencerExtraRegisterRequest.address();
         this.addressDetail = influencerExtraRegisterRequest.addressDetail();
         this.postalCode = influencerExtraRegisterRequest.postalCode();
         this.influencer.change(influencerExtraRegisterRequest);
     }
 
-    public void change(InfluencerChangeRequest influencerChangeRequest) {
-        // Todo 비밀번호 일치하는지 검증로직 추가
-        this.password = influencerChangeRequest.newPassword();
+    public void change(
+            InfluencerChangeRequest influencerChangeRequest, PasswordEncoder passwordEncoder) {
+        // 비밀번호 일치하는지 검증
+        if (!passwordEncoder.matches(influencerChangeRequest.oldPassword(), this.password)) {
+            throw new UserException(UserErrorCode.FAILED_CHANGE);
+        }
+        this.password = passwordEncoder.encode(influencerChangeRequest.newPassword());
         this.name = influencerChangeRequest.name();
         this.nickname = influencerChangeRequest.nickname();
         this.phone = influencerChangeRequest.phone();

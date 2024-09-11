@@ -13,6 +13,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class PostResponse {
+
     private Long id;
     private String authorNickName; // 작성자 닉네임
     private String authorProfileImageUrl;

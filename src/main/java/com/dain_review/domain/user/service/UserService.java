@@ -1,46 +1,37 @@
 package com.dain_review.domain.user.service;
 
 
-import com.dain_review.domain.user.exception.UserErrorCode;
-import com.dain_review.domain.user.exception.UserException;
+import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.user.model.entity.User;
-import com.dain_review.domain.user.model.request.ProfileChangeRequest;
 import com.dain_review.domain.user.repository.UserRepository;
+import com.dain_review.global.type.S3PathPrefixType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ImageFileService imageFileService;
 
     @Transactional
-    public void update(Long id, ProfileChangeRequest profileChangeRequest) {
+    public void update(Long id, MultipartFile imageFile) {
 
-        // 해당 아이디의 사용자 조회
-        User user =
-                userRepository
-                        .findById(id)
-                        .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND_BY_ID));
+        User user = userRepository.getUserById(id);
 
-        // 프로필 주소 변경
-        user.change(profileChangeRequest.profileImage());
+        // 이미지 처리 로직을 ImageService로 위임
+        String imageFileName =
+                imageFileService.uploadImage(imageFile, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
+
+        user.change(imageFileName);
     }
 
     @Transactional
     public void delete(Long id) {
-        User user =
-                userRepository
-                        .findById(id)
-                        .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND_BY_ID));
-
-        // 사업주가 체험단을 등록했거나 인플루언서가 체험단을 신청 중일 때는 탈퇴가 불가능
-        if (user.getCampaignList().size() != 0 || user.getApplicationList().size() != 0) {
-            throw new RuntimeException();
-        }
-
+        User user = userRepository.getUserById(id);
         user.delete();
     }
 }
