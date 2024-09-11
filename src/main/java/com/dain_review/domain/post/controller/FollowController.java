@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FollowController {
 
     private final FollowPostService followPostService;
+
     // 생성
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @PostMapping
