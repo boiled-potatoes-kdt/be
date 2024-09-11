@@ -1,5 +1,7 @@
 package com.dain_review.domain.post.service;
 
+import static com.dain_review.domain.post.model.response.PostResponse.responseWithContentPreview;
+
 import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.PostMeta;
@@ -10,16 +12,13 @@ import com.dain_review.domain.post.repository.PostRepository;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.dain_review.domain.post.model.response.PostResponse.responseWithContentPreview;
 
 @RequiredArgsConstructor
 public abstract class AbstractPostService {
@@ -29,7 +28,8 @@ public abstract class AbstractPostService {
     protected final ImageFileService imageFileService;
 
     @Transactional
-    public PostResponse createPost(Long userId, PostRequest postRequest, List<MultipartFile> imageFiles) {
+    public PostResponse createPost(
+            Long userId, PostRequest postRequest, List<MultipartFile> imageFiles) {
         User user = userRepository.getUserById(userId);
         System.out.println("category type: " + postRequest.categoryType());
         Post post = createPostByCategoryType(postRequest, user);
@@ -44,11 +44,13 @@ public abstract class AbstractPostService {
 
         String userImageUrl = imageFileService.getUserProfileUrl(post.getUser().getProfileImage());
 
-        return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls, null, null);
+        return PostResponse.responseWithoutContentPreview(
+                post, userImageUrl, imageUrls, null, null);
     }
 
     @Transactional
-    public PostResponse updatePost(Long userId, Long postId, PostRequest postRequest, List<MultipartFile> imageFiles) {
+    public PostResponse updatePost(
+            Long userId, Long postId, PostRequest postRequest, List<MultipartFile> imageFiles) {
         Post post = postRepository.getPostByIdAndDeletedFalse(postId);
         post.updateBy(userId, postRequest);
 
@@ -57,7 +59,8 @@ public abstract class AbstractPostService {
 
         String userImageUrl = imageFileService.getUserProfileUrl(post.getUser().getProfileImage());
 
-        return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls, null, null);
+        return PostResponse.responseWithoutContentPreview(
+                post, userImageUrl, imageUrls, null, null);
     }
 
     @Transactional
@@ -68,13 +71,15 @@ public abstract class AbstractPostService {
     }
 
     @Transactional
-    public abstract PostResponse getPost(Long userId, Long postId, PostSearchRequest postSearchRequest);
+    public abstract PostResponse getPost(
+            Long userId, Long postId, PostSearchRequest postSearchRequest);
 
     @Transactional(readOnly = true)
     public abstract PagedResponse<PostResponse> getAllPosts(Long userId, Pageable pageable);
 
     @Transactional(readOnly = true)
-    public abstract PagedResponse<PostResponse> searchPosts(Long userId, PostSearchRequest request, Pageable pageable);
+    public abstract PagedResponse<PostResponse> searchPosts(
+            Long userId, PostSearchRequest request, Pageable pageable);
 
     protected PagedResponse<PostResponse> mapPostsToPagedResponse(Page<Post> postsPage) {
         List<PostResponse> communities =
@@ -94,8 +99,9 @@ public abstract class AbstractPostService {
     }
 
     protected abstract List<String> saveImages(List<MultipartFile> imageFiles, Post post);
-    protected abstract List<String> updateImages(List<MultipartFile> imageFiles, Post post, List<String> deletedImageFiles);
+
+    protected abstract List<String> updateImages(
+            List<MultipartFile> imageFiles, Post post, List<String> deletedImageFiles);
 
     protected abstract Post createPostByCategoryType(PostRequest postRequest, User user);
-
 }

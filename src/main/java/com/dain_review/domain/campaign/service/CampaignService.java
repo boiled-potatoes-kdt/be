@@ -149,9 +149,15 @@ public class CampaignService {
     }
 
     private List<CampaignSummaryResponse> mapToSummaryResponses(List<Campaign> campaigns) {
-        return campaigns.stream().map(campaign -> {
-            String imageUrl = imageFileService.getImageUrl(campaign.getImageUrl(), S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
-            return CampaignSummaryResponse.from(campaign, imageUrl);
-        }).toList();
+        return campaigns.stream()
+                .map(
+                        campaign -> {
+                            String imageUrl =
+                                    imageFileService.getImageUrl(
+                                            campaign.getImageUrl(),
+                                            S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
+                            return CampaignSummaryResponse.from(campaign, imageUrl);
+                        })
+                .toList();
     }
 }
