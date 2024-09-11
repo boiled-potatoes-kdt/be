@@ -1,6 +1,6 @@
 package com.dain_review.domain.user.model.request;
 
-public record EnterpriserSingUpRequest(
+public record EnterpriserSignUpRequest(
         String email,
         String password,
         String name,

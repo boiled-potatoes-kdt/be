@@ -12,8 +12,8 @@ import com.dain_review.domain.user.model.entity.enums.OAuthType;
 import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.domain.user.model.request.EnterpriserChangeRequest;
 import com.dain_review.domain.user.model.request.EnterpriserExtraRegisterRequest;
-import com.dain_review.domain.user.model.request.EnterpriserOAuthSingUpRequest;
-import com.dain_review.domain.user.model.request.EnterpriserSingUpRequest;
+import com.dain_review.domain.user.model.request.EnterpriserOAuthSignUpRequest;
+import com.dain_review.domain.user.model.request.EnterpriserSignUpRequest;
 import com.dain_review.domain.user.model.response.EnterpriserChangeResponse;
 import com.dain_review.domain.user.model.response.EnterpriserResponse;
 import com.dain_review.domain.user.repository.EnterpriserRepository;
@@ -73,7 +73,7 @@ public class EnterpriserService {
     }
 
     @Transactional
-    public ResponseEntity singUpEnterpriser(EnterpriserSingUpRequest request) {
+    public ResponseEntity signUpEnterpriser(EnterpriserSignUpRequest request) {
         try {
             IamportResponse<Certification> certification =
                     iamportClient.certificationByImpUid(request.impId());
@@ -88,7 +88,7 @@ public class EnterpriserService {
                     userRepository.save(
                             User.builder()
                                     .email(request.email())
-                                    .role(Role.ROLE_INFLUENCER)
+                                    .role(Role.ROLE_ENTERPRISER)
                                     .marketing(request.marketing())
                                     .isDeleted(false)
                                     .phone(certification.getResponse().getPhone())
@@ -127,7 +127,7 @@ public class EnterpriserService {
     }
 
     @Transactional
-    public ResponseEntity singUpOAuthEnterpriser(EnterpriserOAuthSingUpRequest request) {
+    public ResponseEntity signUpOAuthEnterpriser(EnterpriserOAuthSignUpRequest request) {
 
         String name = OAuthGetName(request.code(), request.type());
 
@@ -141,7 +141,7 @@ public class EnterpriserService {
                 userRepository.save(
                         User.builder()
                                 .email(request.email())
-                                .role(Role.ROLE_INFLUENCER)
+                                .role(Role.ROLE_ENTERPRISER)
                                 .marketing(request.marketing())
                                 .isDeleted(false)
                                 .point(0L)

@@ -30,7 +30,7 @@ public class S3Util {
      * @param path 리소스가 저장될 경로
      * @return 저장된 리소스의 확장자 포함 파일명
      */
-    @Async("S3PoolTask")
+//    @Async("S3PoolTask")
     public String saveImage(MultipartFile file, String path) {
         String fileName = System.currentTimeMillis() + "." + extractExtensionName(file);
         String savePath = bucketName + path;
