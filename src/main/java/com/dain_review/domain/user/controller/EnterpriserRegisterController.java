@@ -1,8 +1,8 @@
 package com.dain_review.domain.user.controller;
 
 
-import com.dain_review.domain.user.model.request.EnterpriserOAuthSingUpRequest;
-import com.dain_review.domain.user.model.request.EnterpriserSingUpRequest;
+import com.dain_review.domain.user.model.request.EnterpriserOAuthSignUpRequest;
+import com.dain_review.domain.user.model.request.EnterpriserSignUpRequest;
 import com.dain_review.domain.user.service.EnterpriserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,19 +13,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/enterpriser/sing-up")
+@RequestMapping("/api/enterpriser/sign-up")
 public class EnterpriserRegisterController {
 
     private final EnterpriserService enterpriserService;
 
     @PostMapping
-    public ResponseEntity singUpEnterpriser(@RequestBody EnterpriserSingUpRequest request) {
-        return enterpriserService.singUpEnterpriser(request);
+    public ResponseEntity singUpEnterpriser(@RequestBody EnterpriserSignUpRequest request) {
+        return enterpriserService.signUpEnterpriser(request);
     }
 
     @PostMapping("/oauth")
     public ResponseEntity singUpOAuthEnterpriser(
-            @RequestBody EnterpriserOAuthSingUpRequest request) {
-        return enterpriserService.singUpOAuthEnterpriser(request);
+            @RequestBody EnterpriserOAuthSignUpRequest request) {
+        return enterpriserService.signUpOAuthEnterpriser(request);
     }
 }

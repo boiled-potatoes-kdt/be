@@ -101,7 +101,7 @@ public class Post extends BaseEntity {
                 .build();
     }
 
-    public static Post createFollowyPost(PostRequest postRequest, User user) {
+    public static Post createFollowPost(PostRequest postRequest, User user) {
         return Post.builder()
                 .user(user)
                 .categoryType(postRequest.categoryType())

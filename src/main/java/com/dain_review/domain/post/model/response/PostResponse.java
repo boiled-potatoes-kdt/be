@@ -25,6 +25,8 @@ public class PostResponse {
     private Long viewCount;
     private Long commentCount;
     private String contentPreview; // 글 내용 미리보기
+    private Long previousPostId;
+    private Long nextPostId;
 
     public static PostResponse responseWithContentPreview(Post post, String profileImageUrl) {
 
@@ -44,7 +46,7 @@ public class PostResponse {
     }
 
     public static PostResponse responseWithoutContentPreview(
-            Post post, String profileImageUrl, List<String> imageUrls) {
+            Post post, String profileImageUrl, List<String> imageUrls, Long previousPostId, Long nextPostId) {
         return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -57,6 +59,8 @@ public class PostResponse {
                 .createdAt(post.getCreatedAt())
                 .viewCount(post.getPostMeta().getViewCount())
                 .commentCount(post.getPostMeta().getCommentCount())
+                .previousPostId(previousPostId)
+                .nextPostId(nextPostId)
                 .build();
     }
 
