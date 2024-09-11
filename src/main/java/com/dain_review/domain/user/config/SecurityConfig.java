@@ -149,10 +149,10 @@ public class SecurityConfig {
 
         config.setAllowCredentials(true);
         config.setAllowedOrigins(
-                List.of("https://final-frontend-beta.vercel.app",
+                List.of(
+                        "https://final-frontend-beta.vercel.app",
                         "https://g6.dainreview.kr",
-                        "http://localhost:3000"
-                        ));
+                        "http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("*"));

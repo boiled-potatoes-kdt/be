@@ -38,9 +38,9 @@ public class CommunityController {
     public ResponseEntity<?> createCommunityPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
-    ) {
-        PostResponse communityResponse = communityPostService.createPost(
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+        PostResponse communityResponse =
+                communityPostService.createPost(
                         customUserDetails.getUserId(), postRequest, imageFiles);
         return API.OK(communityResponse);
     }
@@ -50,10 +50,9 @@ public class CommunityController {
     public ResponseEntity<?> getCommunityPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
-            @ModelAttribute PostSearchRequest postRequest
-    ) {
-        PostResponse communityResponse = communityPostService.getPost(
-                customUserDetails.getUserId(), postId, postRequest);
+            @ModelAttribute PostSearchRequest postRequest) {
+        PostResponse communityResponse =
+                communityPostService.getPost(customUserDetails.getUserId(), postId, postRequest);
         return API.OK(communityResponse);
     }
 
@@ -63,9 +62,9 @@ public class CommunityController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
-    ) {
-        PostResponse communityResponse = communityPostService.updatePost(
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+        PostResponse communityResponse =
+                communityPostService.updatePost(
                         customUserDetails.getUserId(), postId, postRequest, imageFiles);
         return API.OK(communityResponse);
     }
@@ -84,8 +83,7 @@ public class CommunityController {
     @GetMapping
     public ResponseEntity<?> getAllCommunityPosts( // 커뮤니티 게시글 전체 목록 조회
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
+            @PageableDefault(size = 10) Pageable pageable) {
 
         PagedResponse<PostResponse> communities =
                 communityPostService.getAllPosts(customUserDetails.getUserId(), pageable);

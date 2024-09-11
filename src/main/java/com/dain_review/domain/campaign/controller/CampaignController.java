@@ -85,8 +85,7 @@ public class CampaignController {
 
     @GetMapping("/search")
     public ResponseEntity<PagedResponse<CampaignSummaryResponse>> searchCampaigns(
-            CampaignSearchRequest searchRequest,
-            @PageableDefault(size = 10) Pageable pageable) {
+            CampaignSearchRequest searchRequest, @PageableDefault(size = 10) Pageable pageable) {
 
         PagedResponse<CampaignSummaryResponse> campaigns =
                 campaignService.searchCampaigns(searchRequest, pageable);
