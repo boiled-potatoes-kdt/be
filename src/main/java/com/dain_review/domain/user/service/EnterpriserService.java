@@ -41,7 +41,7 @@ public class EnterpriserService {
     private final EnterpriserRepository enterpriserRepository;
     private final ImageFileService imageFileService;
     private final IamportClient iamportClient;
-    private final PasswordEncoder pe;
+    private final PasswordEncoder passwordEncoder;
     private final KakaoApiClient kakaoApiClient;
     private final GoogleApiClient googleApiClient;
     private final NaverApiClient naverApiClient;
@@ -86,7 +86,7 @@ public class EnterpriserService {
             EnterpriserChangeRequest enterpriserChangeRequest, Long id) {
 
         User user = userRepository.getUserById(id);
-        user.change(enterpriserChangeRequest);
+        user.change(enterpriserChangeRequest, passwordEncoder);
 
         return EnterpriserChangeResponse.from(user);
     }
@@ -116,7 +116,7 @@ public class EnterpriserService {
                                     .point(0L)
                                     .nickname(request.nickname())
                                     .name(request.name())
-                                    .password(pe.encode(request.password()))
+                                    .password(passwordEncoder.encode(request.password()))
                                     .joinPath(request.joinPath())
                                     .build());
 
@@ -170,7 +170,7 @@ public class EnterpriserService {
                                 .point(0L)
                                 .nickname(request.nickname())
                                 .name(request.name())
-                                .password(pe.encode("OAuth"))
+                                .password(passwordEncoder.encode("OAuth"))
                                 .joinPath(request.joinPath())
                                 .build());
 

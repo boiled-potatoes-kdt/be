@@ -47,7 +47,7 @@ public class InfluencerService {
     private final InfluencerRepository influencerRepository;
     private final ImageFileService imageFileService;
     private final SnsRepository snsRepository;
-    private final PasswordEncoder pe;
+    private final PasswordEncoder passwordEncoder;
     private final KakaoApiClient kakaoApiClient;
     private final GoogleApiClient googleApiClient;
     private final NaverApiClient naverApiClient;
@@ -96,7 +96,7 @@ public class InfluencerService {
             InfluencerChangeRequest influencerChangeRequest, Long id) {
 
         User user = userRepository.getUserById(id);
-        user.change(influencerChangeRequest);
+        user.change(influencerChangeRequest, passwordEncoder);
 
         return InfluencerChangeResponse.from(user);
     }
@@ -126,7 +126,7 @@ public class InfluencerService {
                                     .point(0L)
                                     .nickname(request.nickname())
                                     .name(request.name())
-                                    .password(pe.encode(request.password()))
+                                    .password(passwordEncoder.encode(request.password()))
                                     .joinPath(request.joinPath())
                                     .build());
             Influencer influencer =
@@ -199,7 +199,7 @@ public class InfluencerService {
                                 .point(0L)
                                 .nickname(request.nickname())
                                 .name(request.name())
-                                .password(pe.encode("OAuth"))
+                                .password(passwordEncoder.encode("OAuth"))
                                 .joinPath(request.joinPath())
                                 .build());
 

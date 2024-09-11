@@ -1,5 +1,6 @@
 package com.dain_review.domain.post.service;
 
+
 import com.dain_review.domain.Image.entity.enums.ContentType;
 import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.post.event.PostReadEvent;
@@ -13,20 +14,23 @@ import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
+import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @Service
-public class FollowPostService extends AbstractPostService{
+public class FollowPostService extends AbstractPostService {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    public FollowPostService(PostRepository postRepository, UserRepository userRepository, ImageFileService imageFileService, ApplicationEventPublisher eventPublisher) {
+    public FollowPostService(
+            PostRepository postRepository,
+            UserRepository userRepository,
+            ImageFileService imageFileService,
+            ApplicationEventPublisher eventPublisher) {
         super(postRepository, userRepository, imageFileService);
         this.eventPublisher = eventPublisher;
     }
@@ -34,17 +38,34 @@ public class FollowPostService extends AbstractPostService{
     @Override
     public PostResponse getPost(Long userId, Long postId, PostSearchRequest postSearchRequest) {
         Post post = postRepository.getPostByIdAndDeletedFalse(postId);
-        Long prevPosId = postRepository.findPreviousPost(postId, null, CategoryType.FOLLOW, null, postSearchRequest.followType(), postSearchRequest.keyword());
-        Long nextPostId = postRepository.findNextPost(postId, null, CategoryType.FOLLOW, null, postSearchRequest.followType(), postSearchRequest.keyword());
+        Long prevPosId =
+                postRepository.findPreviousPost(
+                        postId,
+                        null,
+                        CategoryType.FOLLOW,
+                        null,
+                        postSearchRequest.followType(),
+                        postSearchRequest.keyword());
+        Long nextPostId =
+                postRepository.findNextPost(
+                        postId,
+                        null,
+                        CategoryType.FOLLOW,
+                        null,
+                        postSearchRequest.followType(),
+                        postSearchRequest.keyword());
 
         // 게시물의 모든 이미지 url 리스트를 반환
-        List<String> imageUrls = imageFileService.findImageUrls(post.getId(), ContentType.POST, S3PathPrefixType.S3_FOLLOW_PATH);
+        List<String> imageUrls =
+                imageFileService.findImageUrls(
+                        post.getId(), ContentType.POST, S3PathPrefixType.S3_FOLLOW_PATH);
 
         // 조회 이벤트 발생 시, 이미 조회된 Post 객체를 전달
         eventPublisher.publishEvent(new PostReadEvent(post));
 
         String userImageUrl = imageFileService.getUserProfileUrl(post.getUser().getProfileImage());
-        return PostResponse.responseWithoutContentPreview(post, userImageUrl, imageUrls, prevPosId, nextPostId);
+        return PostResponse.responseWithoutContentPreview(
+                post, userImageUrl, imageUrls, prevPosId, nextPostId);
     }
 
     @Override
@@ -54,22 +75,29 @@ public class FollowPostService extends AbstractPostService{
     }
 
     @Override
-    public PagedResponse<PostResponse> searchPosts(Long userId, PostSearchRequest request, Pageable pageable) {
-        Page<Post> posts = postRepository.searchFollowPost(request.keyword(), request.followType(), pageable);
+    public PagedResponse<PostResponse> searchPosts(
+            Long userId, PostSearchRequest request, Pageable pageable) {
+        Page<Post> posts =
+                postRepository.searchFollowPost(request.keyword(), request.followType(), pageable);
         return mapPostsToPagedResponse(posts);
     }
 
     @Override
     protected List<String> saveImages(List<MultipartFile> imageFiles, Post post) {
-        imageFileService.saveImageFiles(imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_FOLLOW_PATH);
-        return imageFileService.findImageUrls(post.getId(), ContentType.POST, S3PathPrefixType.S3_FOLLOW_PATH);
+        imageFileService.saveImageFiles(
+                imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_FOLLOW_PATH);
+        return imageFileService.findImageUrls(
+                post.getId(), ContentType.POST, S3PathPrefixType.S3_FOLLOW_PATH);
     }
 
     @Override
-    protected List<String> updateImages(List<MultipartFile> imageFiles, Post post, List<String> deletedImageFiles) {
-        imageFileService.saveImageFiles(imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_FOLLOW_PATH);
+    protected List<String> updateImages(
+            List<MultipartFile> imageFiles, Post post, List<String> deletedImageFiles) {
+        imageFileService.saveImageFiles(
+                imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_FOLLOW_PATH);
         imageFileService.deleteImageFiles(deletedImageFiles, S3PathPrefixType.S3_FOLLOW_PATH);
-        return imageFileService.findImageUrls(post.getId(), ContentType.POST, S3PathPrefixType.S3_FOLLOW_PATH);
+        return imageFileService.findImageUrls(
+                post.getId(), ContentType.POST, S3PathPrefixType.S3_FOLLOW_PATH);
     }
 
     @Override

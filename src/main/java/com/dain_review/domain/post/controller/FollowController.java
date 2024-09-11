@@ -32,15 +32,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class FollowController {
 
     private final FollowPostService followPostService;
+
     // 생성
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @PostMapping
     public ResponseEntity<?> createFollowPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
-    ) {
-        PostResponse postResponse = followPostService.createPost(
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+        PostResponse postResponse =
+                followPostService.createPost(
                         customUserDetails.getUserId(), postRequest, imageFiles);
         return API.OK(postResponse);
     }
@@ -49,9 +50,7 @@ public class FollowController {
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping("/{postId}")
     public ResponseEntity<?> getFollowPost(
-            @PathVariable Long postId,
-            @ModelAttribute PostSearchRequest postRequest
-    ) {
+            @PathVariable Long postId, @ModelAttribute PostSearchRequest postRequest) {
         PostResponse postResponse = followPostService.getPost(null, postId, postRequest);
         return API.OK(postResponse);
     }
@@ -63,9 +62,9 @@ public class FollowController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
-    ) {
-        PostResponse postResponse = followPostService.updatePost(
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+        PostResponse postResponse =
+                followPostService.updatePost(
                         customUserDetails.getUserId(), postId, postRequest, imageFiles);
         return API.OK(postResponse);
     }
@@ -83,11 +82,8 @@ public class FollowController {
     // 목록조회
     @PreAuthorize("hasAnyRole('ROLE_INFLUENCER', 'ROLE_ENTERPRISER')")
     @GetMapping
-    public ResponseEntity<?> getAllFollowPosts(
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        PagedResponse<PostResponse> follows =
-                followPostService.getAllPosts(null, pageable);
+    public ResponseEntity<?> getAllFollowPosts(@PageableDefault(size = 10) Pageable pageable) {
+        PagedResponse<PostResponse> follows = followPostService.getAllPosts(null, pageable);
         return API.OK(follows);
     }
 
@@ -95,8 +91,7 @@ public class FollowController {
     @GetMapping("/search")
     public ResponseEntity<?> searchFollowPosts(
             @ModelAttribute PostSearchRequest request,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
+            @PageableDefault(size = 10) Pageable pageable) {
         PagedResponse<PostResponse> follows =
                 followPostService.searchPosts(null, request, pageable);
         return API.OK(follows);

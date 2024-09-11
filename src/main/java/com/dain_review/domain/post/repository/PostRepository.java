@@ -6,6 +6,7 @@ import com.dain_review.domain.post.exception.errortype.PostErrorCode;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.user.model.entity.enums.Role;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,9 +14,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Optional;
-
 public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
+
     default Post getPostById(Long id) {
         return findById(id).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
     }
@@ -24,7 +24,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     Optional<Post> findByIdAndDeletedFalse(Long id);
 
     default Post getPostByIdAndDeletedFalse(Long id) {
-        return findByIdAndDeletedFalse(id).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+        return findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
     }
 
     @Query(
@@ -54,5 +55,4 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     @Query(
             "UPDATE PostMeta pm SET pm.commentCount = pm.commentCount + :commentCount WHERE pm.post.id = :postId")
     void updateCommentCount(@Param("postId") Long postId, @Param("commentCount") int commentCount);
-
 }

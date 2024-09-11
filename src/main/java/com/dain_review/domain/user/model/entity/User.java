@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter
@@ -84,8 +85,12 @@ public class User extends BaseEntity {
         this.isDeleted = true;
     }
 
-    public void change(EnterpriserChangeRequest enterpriserChangeRequest) {
-        // Todo 비밀번호 일치하는지 검증로직 추가
+    public void change(
+            EnterpriserChangeRequest enterpriserChangeRequest, PasswordEncoder passwordEncoder) {
+        // 비밀번호 일치하는지 검증
+        if (!passwordEncoder.matches(enterpriserChangeRequest.oldPassword(), this.password)) {
+            throw new UserException(UserErrorCode.FAILED_CHANGE);
+        }
         this.password = enterpriserChangeRequest.newPassword();
         this.name = enterpriserChangeRequest.name();
         this.nickname = enterpriserChangeRequest.nickname();
@@ -114,8 +119,12 @@ public class User extends BaseEntity {
         this.influencer.change(influencerExtraRegisterRequest);
     }
 
-    public void change(InfluencerChangeRequest influencerChangeRequest) {
-        // Todo 비밀번호 일치하는지 검증로직 추가
+    public void change(
+            InfluencerChangeRequest influencerChangeRequest, PasswordEncoder passwordEncoder) {
+        // 비밀번호 일치하는지 검증
+        if (!passwordEncoder.matches(influencerChangeRequest.oldPassword(), this.password)) {
+            throw new UserException(UserErrorCode.FAILED_CHANGE);
+        }
         this.password = influencerChangeRequest.newPassword();
         this.name = influencerChangeRequest.name();
         this.nickname = influencerChangeRequest.nickname();

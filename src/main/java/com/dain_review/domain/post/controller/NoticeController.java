@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,19 +38,17 @@ public class NoticeController {
     public ResponseEntity<?> createNoticePost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
-    ) {
-        PostResponse postResponse = noticePostService.createPost(
-                customUserDetails.getUserId(), postRequest, imageFiles);
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+        PostResponse postResponse =
+                noticePostService.createPost(
+                        customUserDetails.getUserId(), postRequest, imageFiles);
         return API.OK(postResponse);
     }
 
     // 단건조회
     @GetMapping("/{postId}")
     public ResponseEntity<?> getNoticePost(
-            @PathVariable Long postId,
-            @ModelAttribute PostSearchRequest postRequest
-    ) {
+            @PathVariable Long postId, @ModelAttribute PostSearchRequest postRequest) {
         PostResponse postResponse = noticePostService.getPost(null, postId, postRequest);
         return API.OK(postResponse);
     }
@@ -63,10 +60,10 @@ public class NoticeController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long postId,
             @RequestPart("data") PostRequest postRequest,
-            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles
-    ) {
-        PostResponse postResponse = noticePostService.updatePost(
-                customUserDetails.getUserId(), postId, postRequest, imageFiles);
+            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+        PostResponse postResponse =
+                noticePostService.updatePost(
+                        customUserDetails.getUserId(), postId, postRequest, imageFiles);
         return API.OK(postResponse);
     }
 
@@ -75,27 +72,22 @@ public class NoticeController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deleteNoticePost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long postId
-    ) {
+            @PathVariable Long postId) {
         noticePostService.deletePost(customUserDetails.getUserId(), postId);
         return API.OK("게시글이 삭제 완료 되었습니다.");
     }
 
     // 목록조회
     @GetMapping
-    public ResponseEntity<?> getAllNoticePosts(
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        PagedResponse<PostResponse> follows =
-                noticePostService.getAllPosts(null, pageable);
+    public ResponseEntity<?> getAllNoticePosts(@PageableDefault(size = 10) Pageable pageable) {
+        PagedResponse<PostResponse> follows = noticePostService.getAllPosts(null, pageable);
         return API.OK(follows);
     }
 
     @GetMapping("/search")
     public ResponseEntity<?> searchNoticePosts(
             @ModelAttribute PostSearchRequest request,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
+            @PageableDefault(size = 10) Pageable pageable) {
         PagedResponse<PostResponse> follows =
                 noticePostService.searchPosts(null, request, pageable);
         return API.OK(follows);
