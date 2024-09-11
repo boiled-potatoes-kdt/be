@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 @AllOrNone(fields = {"address", "addressDetail", "postalCode"})
 public record InfluencerExtraRegisterRequest(
-        String profileImage,
         LocalDate birthday,
         Gender gender,
         String address,

@@ -1,6 +1,7 @@
 package com.dain_review.domain.user.service;
 
 
+import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.auth.client.GoogleApiClient;
 import com.dain_review.domain.auth.client.KakaoApiClient;
 import com.dain_review.domain.auth.client.NaverApiClient;
@@ -23,6 +24,7 @@ import com.dain_review.domain.user.repository.InfluencerRepository;
 import com.dain_review.domain.user.repository.SnsRepository;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.api.API;
+import com.dain_review.global.type.S3PathPrefixType;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.Certification;
@@ -34,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,7 @@ public class InfluencerService {
     private final IamportClient iamportClient;
     private final UserRepository userRepository;
     private final InfluencerRepository influencerRepository;
+    private final ImageFileService imageFileService;
     private final SnsRepository snsRepository;
     private final PasswordEncoder pe;
     private final KakaoApiClient kakaoApiClient;
@@ -50,17 +54,32 @@ public class InfluencerService {
 
     @Transactional
     public void signUpExtra(
-            Long id, InfluencerExtraRegisterRequest influencerExtraRegisterRequest) {
+            Long id,
+            InfluencerExtraRegisterRequest influencerExtraRegisterRequest,
+            MultipartFile imageFile) {
 
         User user = userRepository.getUserById(id);
-        user.change(influencerExtraRegisterRequest);
+        String profileImage = null;
+
+        // 이미지 처리 로직을 ImageService로 위임
+        if (imageFile != null) {
+            profileImage =
+                    imageFileService.uploadImage(imageFile, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
+        }
+
+        user.change(influencerExtraRegisterRequest, profileImage);
     }
 
     @Transactional
     public InfluencerResponse getMyPage(Long id) {
 
         User user = userRepository.getUserById(id);
-        return InfluencerResponse.from(user);
+
+        String imageUrl =
+                imageFileService.getImageUrl(
+                        user.getProfileImage(), S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
+
+        return InfluencerResponse.from(user, imageUrl);
     }
 
     // 인플루언서 회원정보 변경 페이지
@@ -88,11 +107,13 @@ public class InfluencerService {
             IamportResponse<Certification> certification =
                     iamportClient.certificationByImpUid(request.impId());
 
-            if (certification.getResponse().getName().equals(request.name()))
+            if (certification.getResponse().getName().equals(request.name())) {
                 throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
+            }
 
-            if (userRepository.findByEmail(request.email()).isPresent())
+            if (userRepository.findByEmail(request.email()).isPresent()) {
                 throw new RegisterException(RegisterErrorCode.EMAIL_SAME);
+            }
 
             User user =
                     userRepository.save(
@@ -160,11 +181,13 @@ public class InfluencerService {
 
         String name = OAuthGetName(request.code(), request.type());
 
-        if (name.equals(request.name()))
+        if (name.equals(request.name())) {
             throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
+        }
 
-        if (userRepository.findByEmail(request.email()).isPresent())
+        if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new RegisterException(RegisterErrorCode.EMAIL_SAME);
+        }
 
         User user =
                 userRepository.save(
