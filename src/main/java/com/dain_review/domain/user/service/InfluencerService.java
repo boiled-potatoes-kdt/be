@@ -153,9 +153,7 @@ public class InfluencerService {
                 snsRepository.save(Sns.builder().snsType(snsType).influencer(influencer).build());
             }
 
-        } catch (IamportResponseException e) {
-            throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
-        } catch (IOException e) {
+        } catch (IamportResponseException | IOException e) {
             throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
         }
 

@@ -22,7 +22,6 @@ public class UserService {
 
         User user = userRepository.getUserById(id);
 
-        // 이미지 처리 로직을 ImageService로 위임
         String imageFileName =
                 imageFileService.validateAndUploadImage(
                         imageFile, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);

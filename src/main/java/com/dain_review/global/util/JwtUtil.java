@@ -17,6 +17,7 @@ import java.net.URLEncoder;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -128,8 +129,8 @@ public class JwtUtil {
     }
 
     public boolean validateCookieName(Cookie cookie) {
-        return cookie.getName() == AUTHORIZATION_ACCESS_HEADER
-                || cookie.getName() == AUTHORIZATION_REFRESH_HEADER;
+        return Objects.equals(cookie.getName(), AUTHORIZATION_ACCESS_HEADER)
+                || Objects.equals(cookie.getName(), AUTHORIZATION_REFRESH_HEADER);
     }
 
     public boolean validateToken(String token, HttpServletResponse response) {
@@ -137,13 +138,12 @@ public class JwtUtil {
             token = substringToken(token, response);
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (SecurityException | MalformedJwtException | SignatureException e) {
-            return false;
-        } catch (ExpiredJwtException e) {
-            return false;
-        } catch (UnsupportedJwtException e) {
-            return false;
-        } catch (IllegalArgumentException e) {
+        } catch (SecurityException
+                | MalformedJwtException
+                | SignatureException
+                | ExpiredJwtException
+                | UnsupportedJwtException
+                | IllegalArgumentException e) {
             return false;
         }
     }

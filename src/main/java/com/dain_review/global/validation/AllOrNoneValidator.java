@@ -5,7 +5,9 @@ import com.dain_review.global.validation.type.AllOrNone;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.lang.reflect.Field;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AllOrNoneValidator implements ConstraintValidator<AllOrNone, Object> {
 
     private String[] fields;
@@ -37,7 +39,7 @@ public class AllOrNoneValidator implements ConstraintValidator<AllOrNone, Object
             return allNull || allPresent;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("필드 유효성 검사 중 예외가 발생했습니다: ", e);
             return false;
         }
     }

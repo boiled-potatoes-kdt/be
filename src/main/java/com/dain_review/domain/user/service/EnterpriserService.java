@@ -123,12 +123,9 @@ public class EnterpriserService {
             enterpriserRepository.save(
                     Enterpriser.builder().company(request.company()).user(user).build());
 
-        } catch (IamportResponseException e) {
-            throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
-        } catch (IOException e) {
+        } catch (IamportResponseException | IOException e) {
             throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
         }
-
         return API.OK();
     }
 
