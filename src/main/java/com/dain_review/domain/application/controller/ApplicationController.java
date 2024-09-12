@@ -60,6 +60,6 @@ public class ApplicationController {
                 applicationService.getApplications(
                         campaignFilterRequest, pageable, customUserDetails.getUserId());
 
-        return ResponseEntity.ok(response);
+        return API.OK(response);
     }
 }

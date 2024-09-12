@@ -31,17 +31,13 @@ public abstract class AbstractPostService {
     public PostResponse createPost(
             Long userId, PostRequest postRequest, List<MultipartFile> imageFiles) {
         User user = userRepository.getUserById(userId);
-        System.out.println("category type: " + postRequest.categoryType());
         Post post = createPostByCategoryType(postRequest, user);
         PostMeta postMeta = PostMeta.builder().post(post).viewCount(0L).commentCount(0L).build();
 
         post.setPostMeta(postMeta);
         postRepository.save(post);
-        System.out.println("category type: " + post.getCategoryType().getDisplayName());
 
-        // 이미지 저장 및 url 반환
         List<String> imageUrls = saveImages(imageFiles, post);
-
         String userImageUrl = post.getUser().getProfileImageUrl();
 
         return PostResponse.responseWithoutContentPreview(
@@ -85,10 +81,9 @@ public abstract class AbstractPostService {
         List<PostResponse> communities =
                 postsPage.stream()
                         .map(
-                                post -> {
-                                    return responseWithContentPreview(
-                                            post, post.getUser().getProfileImageUrl());
-                                })
+                                post ->
+                                        responseWithContentPreview(
+                                                post, post.getUser().getProfileImageUrl()))
                         .collect(Collectors.toList());
 
         return new PagedResponse<>(

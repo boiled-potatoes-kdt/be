@@ -21,7 +21,7 @@ public class ChoiceController {
 
     // 체험단을 수행할 인플루언서 선정
     @PostMapping
-    public ResponseEntity selectInfluencer(
+    public ResponseEntity<?> selectInfluencer(
             @RequestBody @Valid ChoiceInfluencerRequest choiceInfluencerRequest) {
 
         choiceService.choiceInfluencer(choiceInfluencerRequest);

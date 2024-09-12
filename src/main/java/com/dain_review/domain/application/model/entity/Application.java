@@ -54,11 +54,9 @@ public class Application extends BaseEntity {
     }
 
     public void delete(Long userId) {
-        // 삭제하려는 신청정보의 사용자 아이디와 로그인 아이디가 일치하는지 확인
         if (!user.getId().equals(userId)) {
             throw new ApplicationException(ApplicationErrorCode.FAIL_CANCEL);
         }
-
         this.isDeleted = true;
     }
 
