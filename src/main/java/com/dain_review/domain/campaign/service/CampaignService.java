@@ -27,13 +27,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CampaignService {
 
     private final CampaignRepository campaignRepository;
     private final UserRepository userRepository;
     private final ImageFileService imageFileService;
 
+    @Transactional
     public CampaignResponse createCampaign(
             Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
         User user = userRepository.getUserById(userId);
