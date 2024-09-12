@@ -70,6 +70,8 @@ public class Campaign extends BaseEntity {
 
     private String businessName; // 상호명
 
+    private String imageFileName; // 이미지 파일 명
+
     private String imageUrl; // 이미지 등록 URL
 
     private String contactNumber; // 연락처
@@ -136,9 +138,11 @@ public class Campaign extends BaseEntity {
 
     private Boolean isDeleted; // 삭제 여부
 
-    public static Campaign create(User user, String imageUrl, CampaignRequest request) {
+    public static Campaign create(
+            User user, String imageFIleName, String imageUrl, CampaignRequest request) {
         Campaign campaign = new Campaign();
         campaign.user = user;
+        campaign.imageFileName = imageFIleName;
         campaign.imageUrl = imageUrl;
         campaign.businessName = request.businessName();
         campaign.contactNumber = request.contactNumber();

@@ -43,26 +43,22 @@ public class CampaignService {
                 imageFileService.uploadImage(
                         imageFile, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
 
+        String imageUrl =
+                imageFileService.getImageUrl(
+                        imageFileName, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
+
         // 캠페인 생성
-        Campaign campaign = Campaign.create(user, imageFileName, campaignRequest);
+        Campaign campaign = Campaign.create(user, imageFileName, imageUrl, campaignRequest);
         campaignRepository.save(campaign);
 
-        // 이미지 URL 가져오는 로직도 ImageService에 위임
-        String imageUrl =
-                imageFileService.selectImage(
-                        campaign.getImageUrl(), S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
-
-        return CampaignResponse.from(campaign, imageUrl);
+        return CampaignResponse.from(campaign);
     }
 
     @Transactional(readOnly = true)
     public CampaignResponse getCampaignById(Long campaignId) { // 체험단 단건 조회
         Campaign campaign = campaignRepository.getCampaignById(campaignId);
-        String imageUrl =
-                imageFileService.getImageUrl(
-                        campaign.getImageUrl(), S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
 
-        return CampaignResponse.from(campaign, imageUrl);
+        return CampaignResponse.from(campaign);
     }
 
     public void deleteCampaign(Long userId, Long campaignId) { // 체험단 삭제(취소)
@@ -85,14 +81,7 @@ public class CampaignService {
                         userId,
                         pageable);
 
-        return campaignPage.map(
-                campaign -> {
-                    String imageUrl =
-                            imageFileService.getImageUrl(
-                                    campaign.getImageUrl(),
-                                    S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
-                    return CampaignSummaryResponse.from(campaign, imageUrl);
-                });
+        return campaignPage.map(CampaignSummaryResponse::from);
     }
 
     // 체험단 검색
@@ -101,16 +90,7 @@ public class CampaignService {
             CampaignSearchRequest searchRequest, Pageable pageable) {
         Page<Campaign> campaignPage = campaignRepository.searchCampaigns(searchRequest, pageable);
         List<CampaignSummaryResponse> content =
-                campaignPage
-                        .map(
-                                campaign -> {
-                                    String imageUrl =
-                                            imageFileService.getImageUrl(
-                                                    campaign.getImageUrl(),
-                                                    S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
-                                    return CampaignSummaryResponse.from(campaign, imageUrl);
-                                })
-                        .getContent();
+                campaignPage.map(CampaignSummaryResponse::from).getContent();
 
         return new PagedResponse<>(
                 content, campaignPage.getTotalElements(), campaignPage.getTotalPages());
@@ -149,15 +129,6 @@ public class CampaignService {
     }
 
     private List<CampaignSummaryResponse> mapToSummaryResponses(List<Campaign> campaigns) {
-        return campaigns.stream()
-                .map(
-                        campaign -> {
-                            String imageUrl =
-                                    imageFileService.getImageUrl(
-                                            campaign.getImageUrl(),
-                                            S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
-                            return CampaignSummaryResponse.from(campaign, imageUrl);
-                        })
-                .toList();
+        return campaigns.stream().map(CampaignSummaryResponse::from).toList();
     }
 }

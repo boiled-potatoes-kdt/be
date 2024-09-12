@@ -39,7 +39,7 @@ public class CommunityPostService extends AbstractPostService {
     public PostResponse getPost(Long userId, Long postId, PostSearchRequest postSearchRequest) {
         User user = userRepository.getUserById(userId);
         Post post = postRepository.getPostByIdAndDeletedFalse(postId);
-        String userImageUrl = imageFileService.getUserProfileUrl(post.getUser().getProfileImage());
+        String userImageUrl = post.getUser().getProfileImageUrl();
         Long prevPosId =
                 postRepository.findPreviousPost(
                         postId,
@@ -58,9 +58,7 @@ public class CommunityPostService extends AbstractPostService {
                         postSearchRequest.keyword());
 
         // 게시물의 모든 이미지 url 리스트를 반환
-        List<String> imageUrls =
-                imageFileService.findImageUrls(
-                        post.getId(), ContentType.POST, S3PathPrefixType.S3_COMMUNITY_PATH);
+        List<String> imageUrls = imageFileService.findImageUrls(post.getId(), ContentType.POST);
 
         // 조회 이벤트 발생 시, 이미 조회된 Post 객체를 전달
         eventPublisher.publishEvent(new PostReadEvent(post));
@@ -91,8 +89,7 @@ public class CommunityPostService extends AbstractPostService {
     protected List<String> saveImages(List<MultipartFile> imageFiles, Post post) {
         imageFileService.saveImageFiles(
                 imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_COMMUNITY_PATH);
-        return imageFileService.findImageUrls(
-                post.getId(), ContentType.POST, S3PathPrefixType.S3_COMMUNITY_PATH);
+        return imageFileService.findImageUrls(post.getId(), ContentType.POST);
     }
 
     @Override
@@ -101,8 +98,7 @@ public class CommunityPostService extends AbstractPostService {
         imageFileService.saveImageFiles(
                 imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_COMMUNITY_PATH);
         imageFileService.deleteImageFiles(deletedImageFiles, S3PathPrefixType.S3_COMMUNITY_PATH);
-        return imageFileService.findImageUrls(
-                post.getId(), ContentType.POST, S3PathPrefixType.S3_COMMUNITY_PATH);
+        return imageFileService.findImageUrls(post.getId(), ContentType.POST);
     }
 
     @Override
