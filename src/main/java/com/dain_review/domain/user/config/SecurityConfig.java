@@ -77,6 +77,8 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/post/notices/**")
                                 .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/campaigns/**")
+                                .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/actuator/**")
                                 .permitAll()
                                 .anyRequest()
