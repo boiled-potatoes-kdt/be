@@ -8,7 +8,6 @@ import java.util.List;
 
 public record InfluencerChangeResponse(
         String name,
-        String profileImage,
         List<SnsResponse> snsResponseList,
         Integer likeCnt,
         String email,
@@ -31,7 +30,6 @@ public record InfluencerChangeResponse(
 
         return new InfluencerChangeResponse(
                 user.getName(),
-                user.getProfileImage(),
                 snsResponseList,
                 likeCnt,
                 user.getEmail(),

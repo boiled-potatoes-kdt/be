@@ -5,4 +5,4 @@ import com.dain_review.global.validation.type.AllOrNone;
 
 @AllOrNone(fields = {"address", "addressDetail", "postalCode"})
 public record EnterpriserExtraRegisterRequest(
-        String profileImage, String address, String addressDetail, String postalCode) {}
+        String address, String addressDetail, String postalCode) {}
