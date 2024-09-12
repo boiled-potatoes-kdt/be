@@ -15,11 +15,13 @@ import com.dain_review.global.model.response.PagedResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractPostService {
 
@@ -31,13 +33,13 @@ public abstract class AbstractPostService {
     public PostResponse createPost(
             Long userId, PostRequest postRequest, List<MultipartFile> imageFiles) {
         User user = userRepository.getUserById(userId);
-        System.out.println("category type: " + postRequest.categoryType());
+        log.info("category type: {}", postRequest.categoryType());
         Post post = createPostByCategoryType(postRequest, user);
         PostMeta postMeta = PostMeta.builder().post(post).viewCount(0L).commentCount(0L).build();
 
         post.setPostMeta(postMeta);
         postRepository.save(post);
-        System.out.println("category type: " + post.getCategoryType().getDisplayName());
+        log.info("category type: {}", post.getCategoryType().getDisplayName());
 
         // 이미지 저장 및 url 반환
         List<String> imageUrls = saveImages(imageFiles, post);
