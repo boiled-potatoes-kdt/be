@@ -13,7 +13,7 @@ public record CampaignSummaryResponse(
         Integer currentApplicants, // 현재 신청 인원
         Integer capacity, // 최대 신청 인원
         String campaignState, // 체험단 상태 (예: 모집중, 검수중 등)
-        Integer pointPerPerson, // 총 포인트
+        Integer pointPerPerson, // 1인당 지급 포인트
         String city, // 시/도
         String district, // 구/군
         String type, // 체험단 유형
