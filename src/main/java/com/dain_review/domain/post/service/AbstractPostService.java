@@ -85,10 +85,9 @@ public abstract class AbstractPostService {
         List<PostResponse> communities =
                 postsPage.stream()
                         .map(
-                                post -> {
-                                    return responseWithContentPreview(
-                                            post, post.getUser().getProfileImageUrl());
-                                })
+                                post ->
+                                        responseWithContentPreview(
+                                                post, post.getUser().getProfileImageUrl()))
                         .collect(Collectors.toList());
 
         return new PagedResponse<>(

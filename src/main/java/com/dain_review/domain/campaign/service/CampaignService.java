@@ -38,9 +38,8 @@ public class CampaignService {
             Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
         User user = userRepository.getUserById(userId);
 
-        // 이미지 처리 로직을 ImageService로 위임
         String imageFileName =
-                imageFileService.uploadImage(
+                imageFileService.validateAndUploadImage(
                         imageFile, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
 
         String imageUrl =

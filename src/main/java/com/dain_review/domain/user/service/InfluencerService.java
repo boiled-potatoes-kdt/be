@@ -65,7 +65,8 @@ public class InfluencerService {
         // 이미지 처리 로직을 ImageService로 위임
         if (imageFile != null) {
             profileImage =
-                    imageFileService.uploadImage(imageFile, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
+                    imageFileService.validateAndUploadImage(
+                            imageFile, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
             profileImageUrl =
                     imageFileService.selectImage(
                             profileImage, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
