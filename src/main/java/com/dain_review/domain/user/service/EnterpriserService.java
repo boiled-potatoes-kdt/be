@@ -54,25 +54,24 @@ public class EnterpriserService {
 
         User user = userRepository.getUserById(id);
         String profileImage = null;
+        String profileImageUrl = null;
 
         // 이미지 처리 로직을 ImageService로 위임
         if (imageFile != null) {
             profileImage =
                     imageFileService.uploadImage(imageFile, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
+            profileImageUrl =
+                    imageFileService.selectImage(
+                            profileImage, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
         }
 
-        user.change(enterpriserExtraRegisterRequest, profileImage);
+        user.change(enterpriserExtraRegisterRequest, profileImage, profileImageUrl);
     }
 
     public EnterpriserResponse getMyPage(Long id) {
 
         User user = userRepository.getUserById(id);
-
-        String imageUrl =
-                imageFileService.getImageUrl(
-                        user.getProfileImage(), S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
-
-        return EnterpriserResponse.from(user, imageUrl);
+        return EnterpriserResponse.from(user);
     }
 
     public EnterpriserChangeResponse getChangePage(Long id) {

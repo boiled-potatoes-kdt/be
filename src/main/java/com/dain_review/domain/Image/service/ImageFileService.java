@@ -12,7 +12,6 @@ import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -79,17 +78,9 @@ public class ImageFileService {
         }
     }
 
-    public List<String> findImageUrls(
-            Long postId, ContentType contentType, S3PathPrefixType s3PathPrefixType) {
+    public List<String> findImageUrls(Long postId, ContentType contentType) {
         List<ImageFile> imageFiles =
                 imageFileRepository.findByContentTypeAndContentId(contentType, postId);
-        return imageFiles.stream()
-                .map(it -> s3Util.selectImage(it.getFileName(), s3PathPrefixType.toString()))
-                .collect(Collectors.toList());
-    }
-
-    public String getUserProfileUrl(String userProfileImageName) {
-        return s3Util.selectImage(
-                userProfileImageName, S3PathPrefixType.S3_PROFILE_IMAGE_PATH.toString());
+        return imageFiles.stream().map(ImageFile::getImageUrl).toList();
     }
 }

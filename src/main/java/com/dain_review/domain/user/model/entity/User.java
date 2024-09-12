@@ -71,6 +71,7 @@ public class User extends BaseEntity {
     private String addressDetail;
     private String postalCode;
     private String profileImage;
+    private String profileImageUrl;
     private Boolean marketing;
     private Boolean penalty;
     private Boolean isDeleted;
@@ -102,8 +103,11 @@ public class User extends BaseEntity {
 
     // 완료
     public void change(
-            EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest, String profileImage) {
+            EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest,
+            String profileImage,
+            String profileImageUrl) {
         this.profileImage = profileImage;
+        this.profileImageUrl = profileImageUrl;
         this.address = enterpriserExtraRegisterRequest.address();
         this.addressDetail = enterpriserExtraRegisterRequest.addressDetail();
         this.postalCode = enterpriserExtraRegisterRequest.postalCode();
@@ -111,7 +115,9 @@ public class User extends BaseEntity {
 
     // 완료
     public void change(
-            InfluencerExtraRegisterRequest influencerExtraRegisterRequest, String profileImage) {
+            InfluencerExtraRegisterRequest influencerExtraRegisterRequest,
+            String profileImage,
+            String profileImageUrl) {
         this.profileImage = profileImage;
         this.address = influencerExtraRegisterRequest.address();
         this.addressDetail = influencerExtraRegisterRequest.addressDetail();
@@ -135,8 +141,9 @@ public class User extends BaseEntity {
         this.influencer.change(influencerChangeRequest);
     }
 
-    public void change(String profileImage) {
+    public void change(String profileImage, String profileImageUrl) {
         this.profileImage = profileImage;
+        this.profileImageUrl = profileImageUrl;
     }
 
     public boolean isNotSame(Long userId) {

@@ -60,14 +60,18 @@ public class InfluencerService {
 
         User user = userRepository.getUserById(id);
         String profileImage = null;
+        String profileImageUrl = null;
 
         // 이미지 처리 로직을 ImageService로 위임
         if (imageFile != null) {
             profileImage =
                     imageFileService.uploadImage(imageFile, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
+            profileImageUrl =
+                    imageFileService.selectImage(
+                            profileImage, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
         }
 
-        user.change(influencerExtraRegisterRequest, profileImage);
+        user.change(influencerExtraRegisterRequest, profileImage, profileImageUrl);
     }
 
     @Transactional
@@ -75,11 +79,7 @@ public class InfluencerService {
 
         User user = userRepository.getUserById(id);
 
-        String imageUrl =
-                imageFileService.getImageUrl(
-                        user.getProfileImage(), S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
-
-        return InfluencerResponse.from(user, imageUrl);
+        return InfluencerResponse.from(user);
     }
 
     // 인플루언서 회원정보 변경 페이지

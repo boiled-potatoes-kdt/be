@@ -24,7 +24,7 @@ public record CampaignSummaryResponse(
         Long applicationDeadline, // 지원 마감까지 남은 일수
         Boolean isCancel // 취소 가능한지 여부
         ) {
-    public static CampaignSummaryResponse from(Campaign campaign, String imageUrl) {
+    public static CampaignSummaryResponse from(Campaign campaign) {
         // 지원 마감까지 남은 일수 계산
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(now, campaign.getApplicationEndDate());
@@ -36,7 +36,7 @@ public record CampaignSummaryResponse(
         return new CampaignSummaryResponse(
                 campaign.getId(),
                 campaign.getBusinessName(),
-                imageUrl,
+                campaign.getImageUrl(),
                 campaign.getCurrentApplicants(),
                 campaign.getCapacity(),
                 campaign.getCampaignState().name(), // CampaignState 자체를 반환

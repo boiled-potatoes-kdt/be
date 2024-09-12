@@ -36,11 +36,11 @@ public record CampaignResponse(
         LocalDateTime experienceStartDate,
         LocalDateTime experienceEndDate,
         LocalDateTime reviewDate) {
-    public static CampaignResponse from(Campaign campaign, String imageUrl) {
+    public static CampaignResponse from(Campaign campaign) {
         return new CampaignResponse(
                 campaign.getId(),
                 campaign.getBusinessName(),
-                imageUrl,
+                campaign.getImageUrl(),
                 campaign.getContactNumber(),
                 campaign.getAddress(),
                 campaign.getPostalCode(),

@@ -42,7 +42,7 @@ public abstract class AbstractPostService {
         // 이미지 저장 및 url 반환
         List<String> imageUrls = saveImages(imageFiles, post);
 
-        String userImageUrl = imageFileService.getUserProfileUrl(post.getUser().getProfileImage());
+        String userImageUrl = post.getUser().getProfileImageUrl();
 
         return PostResponse.responseWithoutContentPreview(
                 post, userImageUrl, imageUrls, null, null);
@@ -57,7 +57,7 @@ public abstract class AbstractPostService {
         // 새로 추가된 이미지 저장
         List<String> imageUrls = updateImages(imageFiles, post, postRequest.deletedAttachedFiles());
 
-        String userImageUrl = imageFileService.getUserProfileUrl(post.getUser().getProfileImage());
+        String userImageUrl = post.getUser().getProfileImageUrl();
 
         return PostResponse.responseWithoutContentPreview(
                 post, userImageUrl, imageUrls, null, null);
@@ -86,11 +86,8 @@ public abstract class AbstractPostService {
                 postsPage.stream()
                         .map(
                                 post -> {
-                                    String userProfileImageName = post.getUser().getProfileImage();
-                                    String profileImageUrl =
-                                            imageFileService.getUserProfileUrl(
-                                                    userProfileImageName);
-                                    return responseWithContentPreview(post, profileImageUrl);
+                                    return responseWithContentPreview(
+                                            post, post.getUser().getProfileImageUrl());
                                 })
                         .collect(Collectors.toList());
 

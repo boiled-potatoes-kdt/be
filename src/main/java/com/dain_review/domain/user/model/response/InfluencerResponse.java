@@ -18,7 +18,7 @@ public record InfluencerResponse(
         Long cancelledApplicationCount // 취소한 신청 수
         ) {
 
-    public static InfluencerResponse from(User user, String imageUrl) {
+    public static InfluencerResponse from(User user) {
 
         // 사용자가 좋아요한 캠페인 수 구하기
         int likeCnt = user.getCampaignList().size();
@@ -65,7 +65,7 @@ public record InfluencerResponse(
 
         return new InfluencerResponse(
                 user.getNickname(),
-                imageUrl,
+                user.getProfileImageUrl(),
                 snsResponseList,
                 likeCnt,
                 appliedCampaignCount,
