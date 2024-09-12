@@ -215,4 +215,12 @@ public class Campaign extends BaseEntity {
         return LocalDateTime.now().isAfter(reviewDate)
                 || LocalDateTime.now().isBefore(experienceStartDate);
     }
+
+    public void addApplicantCount() {
+        ++this.currentApplicants;
+    }
+
+    public void subtractApplicantCount() {
+        --this.currentApplicants;
+    }
 }
