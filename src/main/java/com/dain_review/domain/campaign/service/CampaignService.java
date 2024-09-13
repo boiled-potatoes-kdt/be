@@ -14,7 +14,6 @@ import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
 import com.dain_review.domain.campaign.repository.LabelOrderingRepository;
 import com.dain_review.domain.choice.model.response.ChoiceInfluencerResponse;
-import com.dain_review.domain.like.repository.LikeRepository;
 import com.dain_review.domain.review.model.response.ReviewerResponse;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
@@ -36,7 +35,6 @@ public class CampaignService {
     private final UserRepository userRepository;
     private final ImageFileService imageFileService;
     private final LabelOrderingRepository labelOrderingRepository;
-    private final LikeRepository likeRepository;
 
     @Transactional
     public CampaignResponse createCampaign(
