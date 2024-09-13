@@ -9,7 +9,7 @@ import java.util.List;
 
 public record InfluencerResponse(
         String nickname,
-        String profileImage,
+        String profileImageUrl,
         List<SnsResponse> snsResponseList,
         Integer likeCount,
         Long appliedCampaignCount, // 신청한 캠페인 수

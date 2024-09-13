@@ -96,7 +96,7 @@ public class EnterpriserService {
             IamportResponse<Certification> certification =
                     iamportClient.certificationByImpUid(request.impId());
 
-            if (certification.getResponse().getName().equals(request.name())) {
+            if (!certification.getResponse().getName().equals(request.name())) {
                 throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
             }
 
@@ -134,7 +134,7 @@ public class EnterpriserService {
             IamportResponse<Certification> certification =
                     iamportClient.certificationByImpUid(request.impId());
 
-            if (certification.getResponse().getName().equals(request.name()))
+            if (!certification.getResponse().getName().equals(request.name()))
                 throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
 
             if (userRepository.findByEmail(request.email()).isPresent())
