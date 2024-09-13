@@ -60,10 +60,13 @@ public class RequestFilter extends OncePerRequestFilter {
             info = jwtUtil.getUserInfoFromToken(accessToken, response);
         }
 
-        Long userId =
-                info.get(JwtOptionType.USER_ID.name()) instanceof Integer
-                        ? ((Integer) info.get(JwtOptionType.USER_ID.name())).longValue()
-                        : (Long) info.get(JwtOptionType.USER_ID.name());
+        // userId가 Integer로 저장된 경우 처리
+        Long userId;
+        if (info.get(JwtOptionType.USER_ID.name()) instanceof Integer) {
+            userId = ((Integer) info.get(JwtOptionType.USER_ID.name())).longValue();
+        } else {
+            userId = (Long) info.get(JwtOptionType.USER_ID.name());
+        }
 
         setAuthentication(info.getSubject(), (String) info.get(JwtOptionType.ROLE.name()), userId);
         filterChain.doFilter(request, response);

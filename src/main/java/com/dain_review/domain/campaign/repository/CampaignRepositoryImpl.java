@@ -5,6 +5,7 @@ import com.dain_review.domain.campaign.exception.CampaignException;
 import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.entity.QCampaign;
+import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.SortBy;
 import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
 import com.dain_review.domain.like.repository.LikeRepository;
@@ -76,6 +77,9 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
             }
         }
 
+        // 체험단 상태가 모집중인 체험단만 필터링
+        builder.and(campaign.campaignState.eq(CampaignState.RECRUITING));
+        // 삭제 상태가 아닌 체험단만 필터링
         builder.and(campaign.isDeleted.isFalse());
 
         // 쿼리 생성
@@ -86,26 +90,21 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize());
 
-        // 정렬 조건 설정 - created_at 대신 id로 정렬
         if (searchRequest.sortBy() == SortBy.POPULAR) { // 인기순
-            query.orderBy(
-                    campaign.currentApplicants.desc(),
-                    campaign.labelOrderingNumber.asc(),
-                    campaign.id.desc());
+            query.orderBy(campaign.currentApplicants.desc(), campaign.labelOrderingNumber.asc());
         } else if (searchRequest.sortBy() == SortBy.CLOSING_SOON) { // 마감임박순
             query.orderBy(
                     campaign.applicationEndDate.asc(),
-                    campaign.experienceStartDate.asc(),
-                    campaign.labelOrderingNumber.asc(),
-                    campaign.id.desc());
+                    campaign.approvedDate.asc(),
+                    campaign.labelOrderingNumber.asc());
         } else if (searchRequest.sortBy() == SortBy.NEWEST) { // 최신순
             query.orderBy(campaign.id.desc(), campaign.labelOrderingNumber.asc());
         } else { // 기본 정렬 값은 추천순
             query.orderBy(
                     campaign.pointPerPerson.desc(),
                     campaign.currentApplicants.asc(),
-                    campaign.labelOrderingNumber.asc(),
-                    campaign.id.desc());
+                    campaign.approvedDate.desc(),
+                    campaign.labelOrderingNumber.asc());
         }
 
         List<Campaign> results = query.fetch();
