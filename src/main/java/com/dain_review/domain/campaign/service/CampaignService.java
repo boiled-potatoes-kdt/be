@@ -92,12 +92,11 @@ public class CampaignService {
 
         Long userId = null;
 
-        // 로그인된 사용자 정보가 있으면 userId 설정
+        // 로그인된 사용자 정보가 존재하는 경우엔, userId 설정
         if (customUserDetails != null && customUserDetails.getUserId() != null) {
             userId = customUserDetails.getUserId();
         }
 
-        // Repository로 검색 요청을 전달
         Page<Campaign> campaignPage =
                 campaignRepository.searchCampaigns(searchRequest, pageable, userId);
         List<CampaignSummaryResponse> content =

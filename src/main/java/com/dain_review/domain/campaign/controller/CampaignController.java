@@ -84,11 +84,11 @@ public class CampaignController {
 
     @GetMapping("/search")
     public ResponseEntity<?> searchCampaigns(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails, // 로그인된 사용자 정보 (없을 수 있음)
+            @AuthenticationPrincipal
+                    CustomUserDetails customUserDetails, // 로그인 안해도 검색할 수 있음 (좋아요 필터링 제외)
             CampaignSearchRequest searchRequest,
             @PageableDefault(size = 10) Pageable pageable) {
 
-        // 로그인된 사용자 정보를 서비스 레이어로 전달
         PagedResponse<CampaignSummaryResponse> campaigns =
                 campaignService.searchCampaigns(searchRequest, pageable, customUserDetails);
 
