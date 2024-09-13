@@ -1,10 +1,13 @@
 package com.dain_review.domain.campaign.repository;
 
 
+import com.dain_review.domain.campaign.exception.CampaignException;
+import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.entity.QCampaign;
 import com.dain_review.domain.campaign.model.entity.enums.SortBy;
 import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
+import com.dain_review.domain.like.repository.LikeRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -17,12 +20,20 @@ import org.springframework.data.domain.Pageable;
 public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final LikeRepository likeRepository;
 
     @Override
     public Page<Campaign> searchCampaigns(CampaignSearchRequest searchRequest, Pageable pageable) {
         QCampaign campaign = QCampaign.campaign;
 
         BooleanBuilder builder = new BooleanBuilder();
+
+        // 찜 목록 필터링 추가
+        if (searchRequest.isLikedFilter()) {
+            List<Long> likedCampaignIds =
+                    likeRepository.findLikedCampaignIdsByUserId(searchRequest.getUserId());
+            builder.and(campaign.id.in(likedCampaignIds));
+        }
 
         // 검색 조건 필터링 로직
         if (searchRequest.category() != null) {
@@ -87,6 +98,11 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
         List<Campaign> results = query.fetch();
         long total = queryFactory.selectFrom(campaign).where(builder).fetchCount();
+
+        // 캠페인이 없을 경우 예외 발생
+        if (results.isEmpty()) {
+            throw new CampaignException(CampaignErrorCode.NO_CAMPAIGNS_FOUND);
+        }
 
         return new PageImpl<>(results, pageable, total);
     }
