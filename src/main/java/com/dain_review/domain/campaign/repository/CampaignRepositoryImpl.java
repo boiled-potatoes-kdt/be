@@ -90,21 +90,21 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         if (searchRequest.sortBy() == SortBy.POPULAR) { // 인기순
             query.orderBy(
                     campaign.currentApplicants.desc(),
-                    campaign.labelOrdering.ordering.asc(),
+                    campaign.labelOrderingNumber.asc(),
                     campaign.id.desc());
         } else if (searchRequest.sortBy() == SortBy.CLOSING_SOON) { // 마감임박순
             query.orderBy(
                     campaign.applicationEndDate.asc(),
                     campaign.experienceStartDate.asc(),
-                    campaign.labelOrdering.ordering.asc(),
+                    campaign.labelOrderingNumber.asc(),
                     campaign.id.desc());
         } else if (searchRequest.sortBy() == SortBy.NEWEST) { // 최신순
-            query.orderBy(campaign.id.desc(), campaign.labelOrdering.ordering.asc());
+            query.orderBy(campaign.id.desc(), campaign.labelOrderingNumber.asc());
         } else { // 기본 정렬 값은 추천순
             query.orderBy(
                     campaign.pointPerPerson.desc(),
                     campaign.currentApplicants.asc(),
-                    campaign.labelOrdering.ordering.asc(),
+                    campaign.labelOrderingNumber.asc(),
                     campaign.id.desc());
         }
 
