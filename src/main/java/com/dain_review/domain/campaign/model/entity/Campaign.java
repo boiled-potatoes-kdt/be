@@ -130,6 +130,9 @@ public class Campaign extends BaseEntity {
 
     private LocalDateTime reviewDate; // 리뷰 마감일
 
+    private LocalDateTime activeDate; // 리뷰 마감일
+    private Boolean active; // 승인 여부
+
     private Boolean isDeleted; // 삭제 여부
 
     public static Campaign create(
