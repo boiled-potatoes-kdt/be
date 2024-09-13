@@ -12,6 +12,7 @@ import com.dain_review.domain.campaign.model.entity.enums.Type;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.util.AddressAndPointUtil;
 import com.dain_review.domain.choice.model.entity.Choice;
+import com.dain_review.domain.like.model.entity.Like;
 import com.dain_review.domain.review.model.entity.Review;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
@@ -25,6 +26,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -55,7 +57,10 @@ public class Campaign extends BaseEntity {
     private List<Choice> choiceList;
 
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
-    private List<Review> ReviewList;
+    private List<Review> reviewList;
+
+    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
+    private List<Like> likeList;
 
     @Enumerated(EnumType.STRING)
     private Platform platform; // 광고를 원하는 플랫폼 (예: 블로그, 인스타그램)
@@ -222,5 +227,19 @@ public class Campaign extends BaseEntity {
 
     public void subtractApplicantCount() {
         --this.currentApplicants;
+    }
+
+    public Long calculateApplicationDeadline() {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(now, this.applicationEndDate);
+        return Math.max(duration.toDays(), 0);
+    }
+
+    public Boolean isLike(Long userId) {
+        if (userId == null) {
+            return false;
+        }
+
+        return this.likeList.stream().anyMatch(like -> like.getUser().getId().equals(userId));
     }
 }
