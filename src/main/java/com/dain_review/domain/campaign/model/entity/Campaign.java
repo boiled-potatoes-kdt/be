@@ -161,7 +161,10 @@ public class Campaign extends BaseEntity {
         campaign.campaignState = CampaignState.INSPECTION; // 기본값
         campaign.isDeleted = false; // 기본값
 
-        campaign.label = Boolean.TRUE.equals(request.pointPayment()) ? Label.PREMIUM : null;
+        campaign.label =
+                Boolean.TRUE.equals(request.pointPayment())
+                        ? Label.PREMIUM
+                        : Label.GENERAL_CAMPAIGN;
 
         Set<AvailableDay> availableDays =
                 request.availableDays().stream()

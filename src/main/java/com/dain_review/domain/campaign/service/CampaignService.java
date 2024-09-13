@@ -13,6 +13,7 @@ import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
 import com.dain_review.domain.choice.model.response.ChoiceInfluencerResponse;
 import com.dain_review.domain.review.model.response.ReviewerResponse;
+import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
@@ -82,12 +83,23 @@ public class CampaignService {
 
         return campaignPage.map(CampaignSummaryResponse::from);
     }
-
     // 체험단 검색
     @Transactional(readOnly = true)
     public PagedResponse<CampaignSummaryResponse> searchCampaigns(
-            CampaignSearchRequest searchRequest, Pageable pageable) {
-        Page<Campaign> campaignPage = campaignRepository.searchCampaigns(searchRequest, pageable);
+            CampaignSearchRequest searchRequest,
+            Pageable pageable,
+            CustomUserDetails customUserDetails) {
+
+        Long userId = null;
+
+        // 로그인된 사용자 정보가 있으면 userId 설정
+        if (customUserDetails != null && customUserDetails.getUserId() != null) {
+            userId = customUserDetails.getUserId();
+        }
+
+        // Repository로 검색 요청을 전달
+        Page<Campaign> campaignPage =
+                campaignRepository.searchCampaigns(searchRequest, pageable, userId);
         List<CampaignSummaryResponse> content =
                 campaignPage.map(CampaignSummaryResponse::from).getContent();
 

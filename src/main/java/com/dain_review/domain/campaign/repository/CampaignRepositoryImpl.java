@@ -23,16 +23,20 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     private final LikeRepository likeRepository;
 
     @Override
-    public Page<Campaign> searchCampaigns(CampaignSearchRequest searchRequest, Pageable pageable) {
+    public Page<Campaign> searchCampaigns(
+            CampaignSearchRequest searchRequest, Pageable pageable, Long userId) {
         QCampaign campaign = QCampaign.campaign;
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        // 찜 목록 필터링 추가
-        if (searchRequest.isLikedFilter()) {
-            List<Long> likedCampaignIds =
-                    likeRepository.findLikedCampaignIdsByUserId(searchRequest.getUserId());
-            builder.and(campaign.id.in(likedCampaignIds));
+        // 로그인한 사용자의 찜 목록 필터링 (likeFilter가 true인 경우)
+        if (searchRequest.likeFilter() && userId != null) {
+            List<Long> likedCampaignIds = likeRepository.findLikedCampaignIdsByUserId(userId);
+            if (likedCampaignIds.isEmpty()) {
+                builder.and(campaign.id.in(0L)); // 결과가 없도록 설정
+            } else {
+                builder.and(campaign.id.in(likedCampaignIds));
+            }
         }
 
         // 검색 조건 필터링 로직
