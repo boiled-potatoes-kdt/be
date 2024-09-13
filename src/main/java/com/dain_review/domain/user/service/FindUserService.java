@@ -43,9 +43,7 @@ public class FindUserService {
                                     () -> new RegisterException(RegisterErrorCode.NOT_FOUND_USER));
 
             return API.OK(new FindUserIdResponse(user.getEmail()));
-        } catch (IamportResponseException e) {
-            throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
-        } catch (IOException e) {
+        } catch (IamportResponseException | IOException e) {
             throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
         }
     }
@@ -60,9 +58,7 @@ public class FindUserService {
             if (certification.getResponse().getName().equals(request.name()))
                 throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
 
-        } catch (IamportResponseException e) {
-            throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
-        } catch (IOException e) {
+        } catch (IamportResponseException | IOException e) {
             throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
         }
 

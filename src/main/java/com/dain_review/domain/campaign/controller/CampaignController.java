@@ -70,31 +70,30 @@ public class CampaignController {
 
     @PreAuthorize("hasAnyRole('ROLE_ENTERPRISER')")
     @GetMapping("/me")
-    public ResponseEntity<Page<CampaignSummaryResponse>>
-            getRegisteredCampaigns( // 사업주가 등록한 체험단 목록 조회
-                    @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                    @ModelAttribute CampaignFilterRequest campaignFilterRequest,
-                    @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<?> getRegisteredCampaigns( // 사업주가 등록한 체험단 목록 조회
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @ModelAttribute CampaignFilterRequest campaignFilterRequest,
+            @PageableDefault(size = 10) Pageable pageable) {
 
         Page<CampaignSummaryResponse> campaigns =
                 campaignService.getRegisteredCampaigns(
                         campaignFilterRequest, pageable, customUserDetails.getUserId());
 
-        return ResponseEntity.ok(campaigns);
+        return API.OK(campaigns);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<PagedResponse<CampaignSummaryResponse>> searchCampaigns(
+    public ResponseEntity<?> searchCampaigns(
             CampaignSearchRequest searchRequest, @PageableDefault(size = 10) Pageable pageable) {
 
         PagedResponse<CampaignSummaryResponse> campaigns =
                 campaignService.searchCampaigns(searchRequest, pageable);
-        return ResponseEntity.ok(campaigns);
+        return API.OK(campaigns);
     }
 
     // 캠페인 관리 페이지 - 모집중
     @GetMapping("/{campaignId}/management/recruiting")
-    public ResponseEntity<List<ApplicantResponse>> getApplicants(
+    public ResponseEntity<?> getApplicants(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long campaignId) {
 
@@ -105,7 +104,7 @@ public class CampaignController {
 
     // 캠페인 관리 페이지 - 모집완료
     @GetMapping("/{campaignId}/management/recruitmentCompleted")
-    public ResponseEntity<List<ChoiceInfluencerResponse>> getSelectedInfluencers(
+    public ResponseEntity<?> getSelectedInfluencers(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long campaignId) {
 
@@ -116,7 +115,7 @@ public class CampaignController {
 
     // 캠페인 관리 페이지 - 체험&리뷰, 리뷰마감
     @GetMapping("/{campaignId}/management/review")
-    public ResponseEntity<List<ReviewerResponse>> getReviews(
+    public ResponseEntity<?> getReviews(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long campaignId) {
 
@@ -127,7 +126,7 @@ public class CampaignController {
 
     // 홈 화면 조회
     @GetMapping("/home")
-    public ResponseEntity<CampaignHomeResponse> getCampaignForEachCategory() {
+    public ResponseEntity<?> getCampaignForEachCategory() {
         CampaignHomeResponse campaignHomeResponse = campaignService.getCampaignForHomeScreen();
         return API.OK(campaignHomeResponse);
     }

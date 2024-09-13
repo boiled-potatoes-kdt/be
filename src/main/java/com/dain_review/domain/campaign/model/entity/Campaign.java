@@ -81,17 +81,11 @@ public class Campaign extends BaseEntity {
     private LabelOrdering labelOrdering;
 
     @Setter
-    @OneToMany(
-            mappedBy = "campaign",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.PERSIST) // Cascade 추가
+    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Set<AvailableDay> availableDays; // 체험 가능 요일
 
     @Setter
-    @OneToMany(
-            mappedBy = "campaign",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.PERSIST) // Cascade 추가
+    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Set<Keyword> keywords; // 홍보용 키워드(태그)
 
     private Boolean pointPayment; // 포인트 지급 여부 (예/아니오)
@@ -218,10 +212,7 @@ public class Campaign extends BaseEntity {
     }
 
     public boolean isNotReviewPeriod() {
-        if (LocalDateTime.now().isAfter(reviewDate)
-                || LocalDateTime.now().isBefore(experienceStartDate)) {
-            return true;
-        }
-        return false;
+        return LocalDateTime.now().isAfter(reviewDate)
+                || LocalDateTime.now().isBefore(experienceStartDate);
     }
 }

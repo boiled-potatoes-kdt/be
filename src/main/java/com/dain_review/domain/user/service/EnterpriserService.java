@@ -9,7 +9,6 @@ import com.dain_review.domain.user.exception.RegisterException;
 import com.dain_review.domain.user.exception.errortype.RegisterErrorCode;
 import com.dain_review.domain.user.model.entity.Enterpriser;
 import com.dain_review.domain.user.model.entity.User;
-import com.dain_review.domain.user.model.entity.enums.OAuthType;
 import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.domain.user.model.request.EnterpriserChangeRequest;
 import com.dain_review.domain.user.model.request.EnterpriserExtraRegisterRequest;
@@ -59,7 +58,8 @@ public class EnterpriserService {
         // 이미지 처리 로직을 ImageService로 위임
         if (imageFile != null) {
             profileImage =
-                    imageFileService.uploadImage(imageFile, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
+                    imageFileService.validateAndUploadImage(
+                            imageFile, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
             profileImageUrl =
                     imageFileService.selectImage(
                             profileImage, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
@@ -122,60 +122,47 @@ public class EnterpriserService {
             enterpriserRepository.save(
                     Enterpriser.builder().company(request.company()).user(user).build());
 
+        } catch (IamportResponseException | IOException e) {
+            throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
+        }
+        return API.OK();
+    }
+
+    @Transactional
+    public ResponseEntity singUpOAuthEnterpriser(EnterpriserOAuthSignUpRequest request) {
+        try {
+            IamportResponse<Certification> certification =
+                    iamportClient.certificationByImpUid(request.impId());
+
+            if (certification.getResponse().getName().equals(request.name()))
+                throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
+
+            if (userRepository.findByEmail(request.email()).isPresent())
+                throw new RegisterException(RegisterErrorCode.EMAIL_SAME);
+
+            User user =
+                    userRepository.save(
+                            User.builder()
+                                    .email(request.email())
+                                    .role(Role.ROLE_INFLUENCER)
+                                    .marketing(request.marketing())
+                                    .isDeleted(false)
+                                    .phone(certification.getResponse().getPhone())
+                                    .point(0L)
+                                    .nickname(request.nickname())
+                                    .name(request.name())
+                                    .password(passwordEncoder.encode("OAuth"))
+                                    .joinPath(request.joinPath())
+                                    .build());
+
+            enterpriserRepository.save(
+                    Enterpriser.builder().company(request.company()).user(user).build());
+
         } catch (IamportResponseException e) {
             throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
         } catch (IOException e) {
             throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
         }
-
-        return API.OK();
-    }
-
-    private String OAuthGetName(String code, OAuthType type) {
-        return switch (type) {
-            case KAKAO -> kakaoApiClient
-                    .getKakaoUserInfo(kakaoApiClient.getKakaoToken(code).getAccessToken())
-                    .getName();
-            case NAVER -> naverApiClient
-                    .getNaverUserInfo(naverApiClient.getNaverToken(code).getAccessToken())
-                    .getName();
-            case GOOGLE -> googleApiClient
-                    .getGoogleUserInfo(googleApiClient.getGoogleToken(code).getAccessToken())
-                    .getName();
-            default -> throw new RegisterException(RegisterErrorCode.NOT_FOUND_OAUTH_TYPE);
-        };
-    }
-
-    @Transactional
-    public ResponseEntity signUpOAuthEnterpriser(EnterpriserOAuthSignUpRequest request) {
-
-        String name = OAuthGetName(request.code(), request.type());
-
-        if (name.equals(request.name())) {
-            throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
-        }
-
-        if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new RegisterException(RegisterErrorCode.EMAIL_SAME);
-        }
-
-        User user =
-                userRepository.save(
-                        User.builder()
-                                .email(request.email())
-                                .role(Role.ROLE_ENTERPRISER)
-                                .marketing(request.marketing())
-                                .isDeleted(false)
-                                .point(0L)
-                                .nickname(request.nickname())
-                                .name(request.name())
-                                .password(passwordEncoder.encode("OAuth"))
-                                .joinPath(request.joinPath())
-                                .build());
-
-        enterpriserRepository.save(
-                Enterpriser.builder().company(request.company()).user(user).build());
-
         return API.OK();
     }
 }

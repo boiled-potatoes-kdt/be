@@ -12,6 +12,7 @@ import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import com.dain_review.global.type.S3PathPrefixType;
 import com.dain_review.global.util.S3Util;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +24,7 @@ public class ImageFileService {
     private final ImageFileRepository imageFileRepository;
     private final S3Util s3Util;
 
-    public String uploadImage(MultipartFile imageFile, S3PathPrefixType pathPrefixType) {
+    public String validateAndUploadImage(MultipartFile imageFile, S3PathPrefixType pathPrefixType) {
         if (imageFile == null || imageFile.isEmpty()) {
             throw new CampaignException(CampaignErrorCode.IMAGE_REQUIRED);
         }
@@ -46,28 +47,24 @@ public class ImageFileService {
             ContentType contentType,
             Long id,
             S3PathPrefixType s3PathPrefixType) {
-        if (imageFiles == null || imageFiles.isEmpty()) {
-            return;
-        }
+        if (imageFiles == null || imageFiles.isEmpty()) return;
 
-        for (MultipartFile imageFile : imageFiles) {
-            if (imageFile != null && !imageFile.isEmpty()) {
-                if (!ImageFileValidUtil.isValidImageFile(imageFile)) {
-                    throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
-                }
-
-                String fileName = s3Util.saveImage(imageFile, s3PathPrefixType.toString());
-                String url = s3Util.selectImage(fileName, s3PathPrefixType.toString());
-                ImageFile file =
-                        ImageFile.builder()
-                                .contentType(contentType)
-                                .contentId(id)
-                                .fileName(fileName)
-                                .imageUrl(url)
-                                .build();
-                imageFileRepository.save(file);
-            }
-        }
+        imageFiles.stream()
+                .filter(Objects::nonNull)
+                .filter(imageFile -> !imageFile.isEmpty())
+                .forEach(
+                        imageFile -> {
+                            String fileName = validateAndUploadImage(imageFile, s3PathPrefixType);
+                            String url = s3Util.selectImage(fileName, s3PathPrefixType.toString());
+                            ImageFile file =
+                                    ImageFile.builder()
+                                            .contentType(contentType)
+                                            .contentId(id)
+                                            .fileName(fileName)
+                                            .imageUrl(url)
+                                            .build();
+                            imageFileRepository.save(file);
+                        });
     }
 
     public void deleteImageFiles(List<String> fileNames, S3PathPrefixType s3PathPrefixType) {
