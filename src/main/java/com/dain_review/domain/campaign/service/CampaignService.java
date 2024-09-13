@@ -7,6 +7,7 @@ import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
+import com.dain_review.domain.campaign.model.response.CampaignHomeResponse;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
@@ -26,42 +27,37 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CampaignService {
 
     private final CampaignRepository campaignRepository;
     private final UserRepository userRepository;
     private final ImageFileService imageFileService;
 
+    @Transactional
     public CampaignResponse createCampaign(
             Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
         User user = userRepository.getUserById(userId);
 
-        // 이미지 처리 로직을 ImageService로 위임
         String imageFileName =
-                imageFileService.uploadImage(
+                imageFileService.validateAndUploadImage(
                         imageFile, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
 
+        String imageUrl =
+                imageFileService.getImageUrl(
+                        imageFileName, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
+
         // 캠페인 생성
-        Campaign campaign = Campaign.create(user, imageFileName, campaignRequest);
+        Campaign campaign = Campaign.create(user, imageFileName, imageUrl, campaignRequest);
         campaignRepository.save(campaign);
 
-        // 이미지 URL 가져오는 로직도 ImageService에 위임
-        String imageUrl =
-                imageFileService.selectImage(
-                        campaign.getImageUrl(), S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
-
-        return CampaignResponse.from(campaign, imageUrl);
+        return CampaignResponse.from(campaign);
     }
 
     @Transactional(readOnly = true)
     public CampaignResponse getCampaignById(Long campaignId) { // 체험단 단건 조회
         Campaign campaign = campaignRepository.getCampaignById(campaignId);
-        String imageUrl =
-                imageFileService.getImageUrl(
-                        campaign.getImageUrl(), S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
 
-        return CampaignResponse.from(campaign, imageUrl);
+        return CampaignResponse.from(campaign);
     }
 
     public void deleteCampaign(Long userId, Long campaignId) { // 체험단 삭제(취소)
@@ -84,14 +80,7 @@ public class CampaignService {
                         userId,
                         pageable);
 
-        return campaignPage.map(
-                campaign -> {
-                    String imageUrl =
-                            imageFileService.getImageUrl(
-                                    campaign.getImageUrl(),
-                                    S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
-                    return CampaignSummaryResponse.from(campaign, imageUrl);
-                });
+        return campaignPage.map(CampaignSummaryResponse::from);
     }
 
     // 체험단 검색
@@ -100,16 +89,7 @@ public class CampaignService {
             CampaignSearchRequest searchRequest, Pageable pageable) {
         Page<Campaign> campaignPage = campaignRepository.searchCampaigns(searchRequest, pageable);
         List<CampaignSummaryResponse> content =
-                campaignPage
-                        .map(
-                                campaign -> {
-                                    String imageUrl =
-                                            imageFileService.getImageUrl(
-                                                    campaign.getImageUrl(),
-                                                    S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
-                                    return CampaignSummaryResponse.from(campaign, imageUrl);
-                                })
-                        .getContent();
+                campaignPage.map(CampaignSummaryResponse::from).getContent();
 
         return new PagedResponse<>(
                 content, campaignPage.getTotalElements(), campaignPage.getTotalPages());
@@ -131,5 +111,23 @@ public class CampaignService {
     public List<ReviewerResponse> getReviews(Long campaignId, Long userId) {
         Campaign campaign = campaignRepository.getCampaignById(campaignId);
         return ReviewerResponse.of(campaign, userId);
+    }
+
+    @Transactional(readOnly = true)
+    public CampaignHomeResponse getCampaignForHomeScreen() {
+        List<Campaign> premium = campaignRepository.findPremiumCampaigns();
+        List<Campaign> popular = campaignRepository.findPopularCampaigns();
+        List<Campaign> newest = campaignRepository.findNewestCampaigns();
+        List<Campaign> imminent = campaignRepository.findImminentDueDateCampaigns();
+
+        return new CampaignHomeResponse(
+                mapToSummaryResponses(premium),
+                mapToSummaryResponses(popular),
+                mapToSummaryResponses(newest),
+                mapToSummaryResponses(imminent));
+    }
+
+    private List<CampaignSummaryResponse> mapToSummaryResponses(List<Campaign> campaigns) {
+        return campaigns.stream().map(CampaignSummaryResponse::from).toList();
     }
 }

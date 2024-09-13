@@ -5,6 +5,7 @@ import com.dain_review.domain.application.model.response.ApplicantResponse;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
+import com.dain_review.domain.campaign.model.response.CampaignHomeResponse;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.service.CampaignService;
@@ -69,31 +70,30 @@ public class CampaignController {
 
     @PreAuthorize("hasAnyRole('ROLE_ENTERPRISER')")
     @GetMapping("/me")
-    public ResponseEntity<Page<CampaignSummaryResponse>>
-            getRegisteredCampaigns( // 사업주가 등록한 체험단 목록 조회
-                    @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                    @ModelAttribute CampaignFilterRequest campaignFilterRequest,
-                    @PageableDefault(page = 1, size = 10) Pageable pageable) {
+    public ResponseEntity<?> getRegisteredCampaigns( // 사업주가 등록한 체험단 목록 조회
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @ModelAttribute CampaignFilterRequest campaignFilterRequest,
+            @PageableDefault(size = 10) Pageable pageable) {
 
         Page<CampaignSummaryResponse> campaigns =
                 campaignService.getRegisteredCampaigns(
                         campaignFilterRequest, pageable, customUserDetails.getUserId());
 
-        return ResponseEntity.ok(campaigns);
+        return API.OK(campaigns);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<PagedResponse<CampaignSummaryResponse>> searchCampaigns( // 검색 필터로 체험단 검색
+    public ResponseEntity<?> searchCampaigns(
             CampaignSearchRequest searchRequest, @PageableDefault(size = 10) Pageable pageable) {
 
         PagedResponse<CampaignSummaryResponse> campaigns =
                 campaignService.searchCampaigns(searchRequest, pageable);
-        return ResponseEntity.ok(campaigns);
+        return API.OK(campaigns);
     }
 
     // 캠페인 관리 페이지 - 모집중
     @GetMapping("/{campaignId}/management/recruiting")
-    public ResponseEntity<List<ApplicantResponse>> getApplicants(
+    public ResponseEntity<?> getApplicants(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long campaignId) {
 
@@ -104,7 +104,7 @@ public class CampaignController {
 
     // 캠페인 관리 페이지 - 모집완료
     @GetMapping("/{campaignId}/management/recruitmentCompleted")
-    public ResponseEntity<List<ChoiceInfluencerResponse>> getSelectedInfluencers(
+    public ResponseEntity<?> getSelectedInfluencers(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long campaignId) {
 
@@ -115,12 +115,19 @@ public class CampaignController {
 
     // 캠페인 관리 페이지 - 체험&리뷰, 리뷰마감
     @GetMapping("/{campaignId}/management/review")
-    public ResponseEntity<List<ReviewerResponse>> getReviews(
+    public ResponseEntity<?> getReviews(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long campaignId) {
 
         List<ReviewerResponse> reviewerResponseList =
                 campaignService.getReviews(campaignId, customUserDetails.getUserId());
         return API.OK(reviewerResponseList);
+    }
+
+    // 홈 화면 조회
+    @GetMapping("/home")
+    public ResponseEntity<?> getCampaignForEachCategory() {
+        CampaignHomeResponse campaignHomeResponse = campaignService.getCampaignForHomeScreen();
+        return API.OK(campaignHomeResponse);
     }
 }

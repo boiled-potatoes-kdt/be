@@ -1,5 +1,6 @@
 package com.dain_review.domain.user.controller;
 
+
 import com.dain_review.domain.user.model.request.ImpInfoRequest;
 import com.dain_review.domain.user.model.request.OAuthInfoRequest;
 import com.dain_review.domain.user.service.InfoService;
@@ -18,17 +19,12 @@ public class InfoController {
     private final InfoService infoService;
 
     @PostMapping("/oauth")
-    public ResponseEntity getOAuthInfo(
-            @RequestBody OAuthInfoRequest request
-    ) {
+    public ResponseEntity getOAuthInfo(@RequestBody OAuthInfoRequest request) {
         return infoService.getOAuthInfo(request);
     }
 
     @PostMapping("/imp")
-    public ResponseEntity getImpInfo(
-            @RequestBody ImpInfoRequest impInfoRequest
-    ) {
+    public ResponseEntity getImpInfo(@RequestBody ImpInfoRequest impInfoRequest) {
         return infoService.getImpInfo(impInfoRequest);
     }
-
 }

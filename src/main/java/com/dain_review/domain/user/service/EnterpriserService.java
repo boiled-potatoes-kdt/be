@@ -1,6 +1,7 @@
 package com.dain_review.domain.user.service;
 
 
+import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.auth.client.GoogleApiClient;
 import com.dain_review.domain.auth.client.KakaoApiClient;
 import com.dain_review.domain.auth.client.NaverApiClient;
@@ -8,17 +9,17 @@ import com.dain_review.domain.user.exception.RegisterException;
 import com.dain_review.domain.user.exception.errortype.RegisterErrorCode;
 import com.dain_review.domain.user.model.entity.Enterpriser;
 import com.dain_review.domain.user.model.entity.User;
-import com.dain_review.domain.user.model.entity.enums.OAuthType;
 import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.domain.user.model.request.EnterpriserChangeRequest;
 import com.dain_review.domain.user.model.request.EnterpriserExtraRegisterRequest;
-import com.dain_review.domain.user.model.request.EnterpriserOAuthSingUpRequest;
-import com.dain_review.domain.user.model.request.EnterpriserSingUpRequest;
+import com.dain_review.domain.user.model.request.EnterpriserOAuthSignUpRequest;
+import com.dain_review.domain.user.model.request.EnterpriserSignUpRequest;
 import com.dain_review.domain.user.model.response.EnterpriserChangeResponse;
 import com.dain_review.domain.user.model.response.EnterpriserResponse;
 import com.dain_review.domain.user.repository.EnterpriserRepository;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.api.API;
+import com.dain_review.global.type.S3PathPrefixType;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.Certification;
@@ -29,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -36,18 +38,34 @@ public class EnterpriserService {
 
     private final UserRepository userRepository;
     private final EnterpriserRepository enterpriserRepository;
+    private final ImageFileService imageFileService;
     private final IamportClient iamportClient;
-    private final PasswordEncoder pe;
+    private final PasswordEncoder passwordEncoder;
     private final KakaoApiClient kakaoApiClient;
     private final GoogleApiClient googleApiClient;
     private final NaverApiClient naverApiClient;
 
     @Transactional
     public void signUpExtra(
-            Long id, EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest) {
+            Long id,
+            EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest,
+            MultipartFile imageFile) {
 
         User user = userRepository.getUserById(id);
-        user.change(enterpriserExtraRegisterRequest);
+        String profileImage = null;
+        String profileImageUrl = null;
+
+        // 이미지 처리 로직을 ImageService로 위임
+        if (imageFile != null) {
+            profileImage =
+                    imageFileService.validateAndUploadImage(
+                            imageFile, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
+            profileImageUrl =
+                    imageFileService.selectImage(
+                            profileImage, S3PathPrefixType.S3_PROFILE_IMAGE_PATH);
+        }
+
+        user.change(enterpriserExtraRegisterRequest, profileImage, profileImageUrl);
     }
 
     public EnterpriserResponse getMyPage(Long id) {
@@ -67,54 +85,51 @@ public class EnterpriserService {
             EnterpriserChangeRequest enterpriserChangeRequest, Long id) {
 
         User user = userRepository.getUserById(id);
-        user.change(enterpriserChangeRequest);
+        user.change(enterpriserChangeRequest, passwordEncoder);
 
         return EnterpriserChangeResponse.from(user);
     }
 
     @Transactional
-    public ResponseEntity singUpEnterpriser(EnterpriserSingUpRequest request) {
+    public ResponseEntity signUpEnterpriser(EnterpriserSignUpRequest request) {
         try {
             IamportResponse<Certification> certification =
                     iamportClient.certificationByImpUid(request.impId());
 
-            if (certification.getResponse().getName().equals(request.name()))
+            if (certification.getResponse().getName().equals(request.name())) {
                 throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
+            }
 
-            if (userRepository.findByEmail(request.email()).isPresent())
+            if (userRepository.findByEmail(request.email()).isPresent()) {
                 throw new RegisterException(RegisterErrorCode.EMAIL_SAME);
+            }
 
             User user =
                     userRepository.save(
                             User.builder()
                                     .email(request.email())
-                                    .role(Role.ROLE_INFLUENCER)
+                                    .role(Role.ROLE_ENTERPRISER)
                                     .marketing(request.marketing())
                                     .isDeleted(false)
                                     .phone(certification.getResponse().getPhone())
                                     .point(0L)
                                     .nickname(request.nickname())
                                     .name(request.name())
-                                    .password(pe.encode(request.password()))
+                                    .password(passwordEncoder.encode(request.password()))
                                     .joinPath(request.joinPath())
                                     .build());
 
             enterpriserRepository.save(
                     Enterpriser.builder().company(request.company()).user(user).build());
 
-        } catch (IamportResponseException e) {
-            throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
-        } catch (IOException e) {
+        } catch (IamportResponseException | IOException e) {
             throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
         }
-
         return API.OK();
     }
 
-
-
     @Transactional
-    public ResponseEntity singUpOAuthEnterpriser(EnterpriserOAuthSingUpRequest request) {
+    public ResponseEntity singUpOAuthEnterpriser(EnterpriserOAuthSignUpRequest request) {
         try {
             IamportResponse<Certification> certification =
                     iamportClient.certificationByImpUid(request.impId());
@@ -136,7 +151,7 @@ public class EnterpriserService {
                                     .point(0L)
                                     .nickname(request.nickname())
                                     .name(request.name())
-                                    .password(pe.encode("OAuth"))
+                                    .password(passwordEncoder.encode("OAuth"))
                                     .joinPath(request.joinPath())
                                     .build());
 

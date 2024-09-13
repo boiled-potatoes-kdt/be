@@ -11,7 +11,6 @@ import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +29,6 @@ public class S3Util {
      * @param path 리소스가 저장될 경로
      * @return 저장된 리소스의 확장자 포함 파일명
      */
-    @Async("S3PoolTask")
     public String saveImage(MultipartFile file, String path) {
         String fileName = System.currentTimeMillis() + "." + extractExtensionName(file);
         String savePath = bucketName + path;

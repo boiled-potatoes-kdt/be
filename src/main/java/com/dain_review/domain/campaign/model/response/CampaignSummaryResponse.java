@@ -13,7 +13,7 @@ public record CampaignSummaryResponse(
         Integer currentApplicants, // 현재 신청 인원
         Integer capacity, // 최대 신청 인원
         String campaignState, // 체험단 상태 (예: 모집중, 검수중 등)
-        Integer totalPoints, // 총 포인트
+        Integer pointPerPerson, // 1인당 지급 포인트
         String city, // 시/도
         String district, // 구/군
         String type, // 체험단 유형
@@ -24,7 +24,7 @@ public record CampaignSummaryResponse(
         Long applicationDeadline, // 지원 마감까지 남은 일수
         Boolean isCancel // 취소 가능한지 여부
         ) {
-    public static CampaignSummaryResponse from(Campaign campaign, String imageUrl) {
+    public static CampaignSummaryResponse from(Campaign campaign) {
         // 지원 마감까지 남은 일수 계산
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(now, campaign.getApplicationEndDate());
@@ -36,11 +36,11 @@ public record CampaignSummaryResponse(
         return new CampaignSummaryResponse(
                 campaign.getId(),
                 campaign.getBusinessName(),
-                imageUrl,
+                campaign.getImageUrl(),
                 campaign.getCurrentApplicants(),
                 campaign.getCapacity(),
                 campaign.getCampaignState().name(), // CampaignState 자체를 반환
-                campaign.getTotalPoints(),
+                campaign.getPointPerPerson(),
                 campaign.getCity(),
                 campaign.getDistrict(),
                 campaign.getType().getDisplayName(),

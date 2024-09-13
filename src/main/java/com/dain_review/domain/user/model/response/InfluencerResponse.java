@@ -65,7 +65,7 @@ public record InfluencerResponse(
 
         return new InfluencerResponse(
                 user.getNickname(),
-                user.getProfileImage(),
+                user.getProfileImageUrl(),
                 snsResponseList,
                 likeCnt,
                 appliedCampaignCount,

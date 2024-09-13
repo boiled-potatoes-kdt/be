@@ -7,7 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class ImageFileValidUtil { // 이미지 형식 유효성 검증
 
-    private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png");
+    private static final List<String> ALLOWED_EXTENSIONS =
+            Arrays.asList("jpg", "jpeg", "png", "bmp", "gif", "tiff", "webp", "svg");
 
     public static boolean isValidImageFile(MultipartFile file) {
         if (file == null || file.isEmpty() || file.getOriginalFilename() == null) {

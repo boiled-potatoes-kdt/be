@@ -2,18 +2,17 @@ package com.dain_review.domain.user.controller;
 
 
 import com.dain_review.domain.user.config.model.CustomUserDetails;
-import com.dain_review.domain.user.model.request.ProfileChangeRequest;
 import com.dain_review.domain.user.service.UserService;
 import com.dain_review.global.api.API;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/user")
@@ -26,9 +25,9 @@ public class UserController {
     @PatchMapping("/profile")
     public ResponseEntity update(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody @Valid ProfileChangeRequest profileChangeRequest) {
+            @RequestPart(value = "imageFile") MultipartFile imageFile) {
 
-        userService.update(customUserDetails.getUserId(), profileChangeRequest);
+        userService.update(customUserDetails.getUserId(), imageFile);
 
         return API.OK();
     }

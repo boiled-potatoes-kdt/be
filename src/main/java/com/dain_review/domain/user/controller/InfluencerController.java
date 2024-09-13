@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/influencer")
@@ -30,10 +32,11 @@ public class InfluencerController {
     @PostMapping("/sign-up/extra")
     public ResponseEntity save(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Valid @RequestBody InfluencerExtraRegisterRequest influencerExtraRegisterRequest) {
+            @RequestPart("data") InfluencerExtraRegisterRequest influencerExtraRegisterRequest,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
 
         influencerService.signUpExtra(
-                customUserDetails.getUserId(), influencerExtraRegisterRequest);
+                customUserDetails.getUserId(), influencerExtraRegisterRequest, imageFile);
 
         return API.OK();
     }

@@ -1,5 +1,6 @@
 package com.dain_review.domain.user.service;
 
+
 import com.dain_review.domain.auth.client.GoogleApiClient;
 import com.dain_review.domain.auth.client.KakaoApiClient;
 import com.dain_review.domain.auth.client.NaverApiClient;
@@ -15,11 +16,10 @@ import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.Certification;
 import com.siot.IamportRestClient.response.IamportResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @Service
@@ -45,11 +45,8 @@ public class InfoService {
         };
     }
 
-
     public ResponseEntity getOAuthInfo(OAuthInfoRequest request) {
-        return API.OK(
-                new OAuthInfoResponse(OAuthGetName(request.code(), request.type()))
-        );
+        return API.OK(new OAuthInfoResponse(OAuthGetName(request.code(), request.type())));
     }
 
     public ResponseEntity getImpInfo(ImpInfoRequest request) {
@@ -64,7 +61,5 @@ public class InfoService {
         } catch (IOException e) {
             throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
         }
-
     }
-
 }

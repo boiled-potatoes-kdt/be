@@ -3,7 +3,7 @@ package com.dain_review.domain.user.model.request;
 
 import com.dain_review.domain.user.model.entity.enums.OAuthType;
 
-public record EnterpriserOAuthSingUpRequest(
+public record EnterpriserOAuthSignUpRequest(
         String email,
         String name,
         String nickname,

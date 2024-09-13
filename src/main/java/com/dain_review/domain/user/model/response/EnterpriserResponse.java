@@ -7,6 +7,6 @@ public record EnterpriserResponse(String profileImage, String nickname) {
 
     // 완성
     public static EnterpriserResponse from(User user) {
-        return new EnterpriserResponse(user.getProfileImage(), user.getNickname());
+        return new EnterpriserResponse(user.getProfileImageUrl(), user.getNickname());
     }
 }

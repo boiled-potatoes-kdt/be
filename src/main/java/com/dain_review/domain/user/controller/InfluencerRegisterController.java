@@ -1,8 +1,8 @@
 package com.dain_review.domain.user.controller;
 
 
-import com.dain_review.domain.user.model.request.InfluencerOAuthSingUpRequest;
-import com.dain_review.domain.user.model.request.InfluencerSingUpRequest;
+import com.dain_review.domain.user.model.request.InfluencerOAuthSignUpRequest;
+import com.dain_review.domain.user.model.request.InfluencerSignUpRequest;
 import com.dain_review.domain.user.service.InfluencerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,19 +13,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/influencer/sing-up")
+@RequestMapping("/api/influencer/sign-up")
 public class InfluencerRegisterController {
 
     private final InfluencerService influencerService;
 
     @PostMapping
-    public ResponseEntity singUpInfluencer(@RequestBody InfluencerSingUpRequest request) {
-        return influencerService.singUpInfluencer(request);
+    public ResponseEntity signUpInfluencer(@RequestBody InfluencerSignUpRequest request) {
+        return influencerService.signUpInfluencer(request);
     }
 
     @PostMapping("/oauth")
-    public ResponseEntity singUpOAuthInfluencer(@RequestBody InfluencerOAuthSingUpRequest request) {
+    public ResponseEntity signUpOAuthInfluencer(@RequestBody InfluencerOAuthSignUpRequest request) {
         return influencerService.singUpOAuthInfluencer(request);
     }
 }
-

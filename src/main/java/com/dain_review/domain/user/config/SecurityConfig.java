@@ -77,6 +77,8 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/post/notices/**")
                                 .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/campaigns/**")
+                                .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/actuator/**")
                                 .permitAll()
                                 .anyRequest()
@@ -149,7 +151,10 @@ public class SecurityConfig {
 
         config.setAllowCredentials(true);
         config.setAllowedOrigins(
-                List.of("https://final-frontend-beta.vercel.app/ ", "https://g6.dainreview.kr/ "));
+                List.of(
+                        "https://final-frontend-beta.vercel.app",
+                        "https://g6.dainreview.kr",
+                        "http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("*"));

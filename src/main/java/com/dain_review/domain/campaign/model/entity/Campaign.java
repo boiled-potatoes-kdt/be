@@ -70,6 +70,8 @@ public class Campaign extends BaseEntity {
 
     private String businessName; // 상호명
 
+    private String imageFileName; // 이미지 파일 명
+
     private String imageUrl; // 이미지 등록 URL
 
     private String contactNumber; // 연락처
@@ -79,17 +81,11 @@ public class Campaign extends BaseEntity {
     private LabelOrdering labelOrdering;
 
     @Setter
-    @OneToMany(
-            mappedBy = "campaign",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.PERSIST) // Cascade 추가
+    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Set<AvailableDay> availableDays; // 체험 가능 요일
 
     @Setter
-    @OneToMany(
-            mappedBy = "campaign",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.PERSIST) // Cascade 추가
+    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Set<Keyword> keywords; // 홍보용 키워드(태그)
 
     private Boolean pointPayment; // 포인트 지급 여부 (예/아니오)
@@ -136,9 +132,11 @@ public class Campaign extends BaseEntity {
 
     private Boolean isDeleted; // 삭제 여부
 
-    public static Campaign create(User user, String imageUrl, CampaignRequest request) {
+    public static Campaign create(
+            User user, String imageFIleName, String imageUrl, CampaignRequest request) {
         Campaign campaign = new Campaign();
         campaign.user = user;
+        campaign.imageFileName = imageFIleName;
         campaign.imageUrl = imageUrl;
         campaign.businessName = request.businessName();
         campaign.contactNumber = request.contactNumber();
@@ -214,10 +212,7 @@ public class Campaign extends BaseEntity {
     }
 
     public boolean isNotReviewPeriod() {
-        if (LocalDateTime.now().isAfter(reviewDate)
-                || LocalDateTime.now().isBefore(experienceStartDate)) {
-            return true;
-        }
-        return false;
+        return LocalDateTime.now().isAfter(reviewDate)
+                || LocalDateTime.now().isBefore(experienceStartDate);
     }
 }
