@@ -12,5 +12,5 @@ public record EnterpriserOAuthSignUpRequest(
         Boolean terms,
         Boolean personalInformation,
         Boolean marketing,
-        String code,
+        String impId,
         OAuthType type) {}
