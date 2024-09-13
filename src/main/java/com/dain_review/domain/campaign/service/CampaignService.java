@@ -98,7 +98,6 @@ public class CampaignService {
     public PagedResponse<CampaignSummaryResponse> searchCampaigns(
             CampaignSearchRequest searchRequest, Pageable pageable, Long userId) {
 
-        // Campaign 검색 로직 수행
         Page<Campaign> campaignPage =
                 campaignRepository.searchCampaigns(searchRequest, pageable, userId);
         List<CampaignSummaryResponse> content =
