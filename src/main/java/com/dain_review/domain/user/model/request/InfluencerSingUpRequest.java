@@ -9,7 +9,7 @@ public record InfluencerSingUpRequest(
         String password,
         String name,
         String nickname,
-        List<SnsType> sns,
+        List<SingUpSns> snsResponseList,
         String joinPath,
         Boolean terms,
         Boolean personalInformation,

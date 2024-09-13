@@ -13,10 +13,7 @@ import com.dain_review.domain.user.model.entity.enums.Gender;
 import com.dain_review.domain.user.model.entity.enums.OAuthType;
 import com.dain_review.domain.user.model.entity.enums.Role;
 import com.dain_review.domain.user.model.entity.enums.SnsType;
-import com.dain_review.domain.user.model.request.InfluencerChangeRequest;
-import com.dain_review.domain.user.model.request.InfluencerExtraRegisterRequest;
-import com.dain_review.domain.user.model.request.InfluencerOAuthSingUpRequest;
-import com.dain_review.domain.user.model.request.InfluencerSingUpRequest;
+import com.dain_review.domain.user.model.request.*;
 import com.dain_review.domain.user.model.response.InfluencerChangeResponse;
 import com.dain_review.domain.user.model.response.InfluencerResponse;
 import com.dain_review.domain.user.repository.InfluencerRepository;
@@ -44,9 +41,6 @@ public class InfluencerService {
     private final InfluencerRepository influencerRepository;
     private final SnsRepository snsRepository;
     private final PasswordEncoder pe;
-    private final KakaoApiClient kakaoApiClient;
-    private final GoogleApiClient googleApiClient;
-    private final NaverApiClient naverApiClient;
 
     @Transactional
     public void signUpExtra(
@@ -127,8 +121,8 @@ public class InfluencerService {
                                                     .toLocalDate())
                                     .build());
 
-            for (SnsType snsType : request.sns()) {
-                snsRepository.save(Sns.builder().snsType(snsType).influencer(influencer).build());
+            for (SingUpSns snsType : request.snsResponseList()) {
+                snsRepository.save(Sns.builder().snsType(snsType.snsType()).url(snsType.url()).influencer(influencer).build());
             }
 
         } catch (IamportResponseException e) {
@@ -140,50 +134,59 @@ public class InfluencerService {
         return API.OK();
     }
 
-    private String OAuthGetName(String code, OAuthType type) {
-        return switch (type) {
-            case KAKAO -> kakaoApiClient
-                    .getKakaoUserInfo(kakaoApiClient.getKakaoToken(code).getAccessToken())
-                    .getName();
-            case NAVER -> naverApiClient
-                    .getNaverUserInfo(naverApiClient.getNaverToken(code).getAccessToken())
-                    .getName();
-            case GOOGLE -> googleApiClient
-                    .getGoogleUserInfo(googleApiClient.getGoogleToken(code).getAccessToken())
-                    .getName();
-            default -> throw new RegisterException(RegisterErrorCode.NOT_FOUND_OAUTH_TYPE);
-        };
-    }
-
     @Transactional
     public ResponseEntity singUpOAuthInfluencer(InfluencerOAuthSingUpRequest request) {
+        try {
+            IamportResponse<Certification> certification =
+                    iamportClient.certificationByImpUid(request.impId());
 
-        String name = OAuthGetName(request.code(), request.type());
+            if (certification.getResponse().getName().equals(request.name()))
+                throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
 
-        if (name.equals(request.name()))
-            throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
+            if (userRepository.findByEmail(request.email()).isPresent())
+                throw new RegisterException(RegisterErrorCode.EMAIL_SAME);
 
-        if (userRepository.findByEmail(request.email()).isPresent())
-            throw new RegisterException(RegisterErrorCode.EMAIL_SAME);
+            User user =
+                    userRepository.save(
+                            User.builder()
+                                    .email(request.email())
+                                    .role(Role.ROLE_INFLUENCER)
+                                    .marketing(request.marketing())
+                                    .isDeleted(false)
+                                    .phone(certification.getResponse().getPhone())
+                                    .point(0L)
+                                    .nickname(request.nickname())
+                                    .name(request.name())
+                                    .password(pe.encode("OAuth"))
+                                    .joinPath(request.joinPath())
+                                    .build());
+            Influencer influencer =
+                    influencerRepository.save(
+                            Influencer.builder()
+                                    .user(user)
+                                    .gender(
+                                            Gender.valueOf(
+                                                    certification
+                                                            .getResponse()
+                                                            .getGender()
+                                                            .toUpperCase()))
+                                    .birthday(
+                                            certification
+                                                    .getResponse()
+                                                    .getBirth()
+                                                    .toInstant()
+                                                    .atZone(ZoneId.systemDefault())
+                                                    .toLocalDate())
+                                    .build());
 
-        User user =
-                userRepository.save(
-                        User.builder()
-                                .email(request.email())
-                                .role(Role.ROLE_INFLUENCER)
-                                .marketing(request.marketing())
-                                .isDeleted(false)
-                                .point(0L)
-                                .nickname(request.nickname())
-                                .name(request.name())
-                                .password(pe.encode("OAuth"))
-                                .joinPath(request.joinPath())
-                                .build());
+            for (SingUpSns snsType : request.snsResponseList()) {
+                snsRepository.save(Sns.builder().snsType(snsType.snsType()).url(snsType.url()).influencer(influencer).build());
+            }
 
-        Influencer influencer = influencerRepository.save(Influencer.builder().user(user).build());
-
-        for (SnsType snsType : request.sns()) {
-            snsRepository.save(Sns.builder().snsType(snsType).influencer(influencer).build());
+        } catch (IamportResponseException e) {
+            throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
+        } catch (IOException e) {
+            throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
         }
 
         return API.OK();

@@ -111,49 +111,43 @@ public class EnterpriserService {
         return API.OK();
     }
 
-    private String OAuthGetName(String code, OAuthType type) {
-        return switch (type) {
-            case KAKAO -> kakaoApiClient
-                    .getKakaoUserInfo(kakaoApiClient.getKakaoToken(code).getAccessToken())
-                    .getName();
-            case NAVER -> naverApiClient
-                    .getNaverUserInfo(naverApiClient.getNaverToken(code).getAccessToken())
-                    .getName();
-            case GOOGLE -> googleApiClient
-                    .getGoogleUserInfo(googleApiClient.getGoogleToken(code).getAccessToken())
-                    .getName();
-            default -> throw new RegisterException(RegisterErrorCode.NOT_FOUND_OAUTH_TYPE);
-        };
-    }
+
 
     @Transactional
     public ResponseEntity singUpOAuthEnterpriser(EnterpriserOAuthSingUpRequest request) {
+        try {
+            IamportResponse<Certification> certification =
+                    iamportClient.certificationByImpUid(request.impId());
 
-        String name = OAuthGetName(request.code(), request.type());
+            if (certification.getResponse().getName().equals(request.name()))
+                throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
 
-        if (name.equals(request.name()))
-            throw new RegisterException(RegisterErrorCode.FAIL_IMP_NAME_NOT_SAME);
+            if (userRepository.findByEmail(request.email()).isPresent())
+                throw new RegisterException(RegisterErrorCode.EMAIL_SAME);
 
-        if (userRepository.findByEmail(request.email()).isPresent())
-            throw new RegisterException(RegisterErrorCode.EMAIL_SAME);
+            User user =
+                    userRepository.save(
+                            User.builder()
+                                    .email(request.email())
+                                    .role(Role.ROLE_INFLUENCER)
+                                    .marketing(request.marketing())
+                                    .isDeleted(false)
+                                    .phone(certification.getResponse().getPhone())
+                                    .point(0L)
+                                    .nickname(request.nickname())
+                                    .name(request.name())
+                                    .password(pe.encode("OAuth"))
+                                    .joinPath(request.joinPath())
+                                    .build());
 
-        User user =
-                userRepository.save(
-                        User.builder()
-                                .email(request.email())
-                                .role(Role.ROLE_INFLUENCER)
-                                .marketing(request.marketing())
-                                .isDeleted(false)
-                                .point(0L)
-                                .nickname(request.nickname())
-                                .name(request.name())
-                                .password(pe.encode("OAuth"))
-                                .joinPath(request.joinPath())
-                                .build());
+            enterpriserRepository.save(
+                    Enterpriser.builder().company(request.company()).user(user).build());
 
-        enterpriserRepository.save(
-                Enterpriser.builder().company(request.company()).user(user).build());
-
+        } catch (IamportResponseException e) {
+            throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
+        } catch (IOException e) {
+            throw new RegisterException(RegisterErrorCode.FAIL_IMP_ID);
+        }
         return API.OK();
     }
 }
