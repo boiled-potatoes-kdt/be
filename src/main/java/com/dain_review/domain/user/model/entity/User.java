@@ -119,6 +119,7 @@ public class User extends BaseEntity {
             String profileImage,
             String profileImageUrl) {
         this.profileImage = profileImage;
+        this.profileImageUrl = profileImageUrl;
         this.address = influencerExtraRegisterRequest.address();
         this.addressDetail = influencerExtraRegisterRequest.addressDetail();
         this.postalCode = influencerExtraRegisterRequest.postalCode();
@@ -148,5 +149,9 @@ public class User extends BaseEntity {
 
     public boolean isNotSame(Long userId) {
         return !this.getId().equals(userId);
+    }
+
+    public Boolean isInfluencer() {
+        return this.influencer != null;
     }
 }
