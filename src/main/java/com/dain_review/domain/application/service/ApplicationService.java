@@ -27,13 +27,18 @@ public class ApplicationService {
     private final UserRepository userRepository;
     private final CampaignRepository campaignRepository;
 
+    @Transactional
     public void applyCampaign(ApplicationRequest applicationRequest, Long userId) {
 
         User user = userRepository.getUserById(userId);
         Campaign campaign = campaignRepository.getCampaignById(applicationRequest.campaignId());
 
+        // 신청 저장
         Application application = Application.from(applicationRequest, user, campaign);
         applicationRepository.save(application);
+
+        // 캠페인의 신청자수 +1
+        campaign.addApplicantCount();
     }
 
     public Page<ApplicationCampaignResponse> getApplications(
@@ -54,7 +59,8 @@ public class ApplicationService {
     public void cancelApplication(Long applicationId, Long userId) {
 
         Application application = applicationRepository.getApplicationById(applicationId);
-        CampaignState campaignState = application.getCampaign().getCampaignState();
+        Campaign campaign = campaignRepository.getCampaignById(application.getCampaign().getId());
+        CampaignState campaignState = campaign.getCampaignState();
 
         // 취소 가능 단계인지 확인
         // 검수증, 리뷰마감 단계이면 취소 불가
@@ -70,5 +76,7 @@ public class ApplicationService {
         else {
             application.delete(userId);
         }
+
+        campaign.subtractApplicantCount();
     }
 }
