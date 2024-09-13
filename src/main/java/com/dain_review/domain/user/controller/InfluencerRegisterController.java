@@ -25,6 +25,6 @@ public class InfluencerRegisterController {
 
     @PostMapping("/oauth")
     public ResponseEntity signUpOAuthInfluencer(@RequestBody InfluencerOAuthSignUpRequest request) {
-        return influencerService.signUpOAuthInfluencer(request);
+        return influencerService.singUpOAuthInfluencer(request);
     }
 }

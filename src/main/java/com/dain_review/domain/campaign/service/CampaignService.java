@@ -14,8 +14,8 @@ import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
 import com.dain_review.domain.campaign.repository.LabelOrderingRepository;
 import com.dain_review.domain.choice.model.response.ChoiceInfluencerResponse;
+import com.dain_review.domain.like.repository.LikeRepository;
 import com.dain_review.domain.review.model.response.ReviewerResponse;
-import com.dain_review.domain.user.config.model.CustomUserDetails;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
@@ -36,6 +36,7 @@ public class CampaignService {
     private final UserRepository userRepository;
     private final ImageFileService imageFileService;
     private final LabelOrderingRepository labelOrderingRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional
     public CampaignResponse createCampaign(
@@ -90,26 +91,20 @@ public class CampaignService {
                         userId,
                         pageable);
 
-        return campaignPage.map(CampaignSummaryResponse::from);
+        return campaignPage.map(campaign -> CampaignSummaryResponse.from(campaign, userId));
     }
     // 체험단 검색
     @Transactional(readOnly = true)
     public PagedResponse<CampaignSummaryResponse> searchCampaigns(
-            CampaignSearchRequest searchRequest,
-            Pageable pageable,
-            CustomUserDetails customUserDetails) {
+            CampaignSearchRequest searchRequest, Pageable pageable, Long userId) {
 
-        Long userId = null;
-
-        // 로그인된 사용자 정보가 존재하는 경우엔, userId 설정
-        if (customUserDetails != null && customUserDetails.getUserId() != null) {
-            userId = customUserDetails.getUserId();
-        }
-
+        // Campaign 검색 로직 수행
         Page<Campaign> campaignPage =
                 campaignRepository.searchCampaigns(searchRequest, pageable, userId);
         List<CampaignSummaryResponse> content =
-                campaignPage.map(CampaignSummaryResponse::from).getContent();
+                campaignPage
+                        .map(campaign -> CampaignSummaryResponse.from(campaign, userId))
+                        .getContent();
 
         return new PagedResponse<>(
                 content, campaignPage.getTotalElements(), campaignPage.getTotalPages());
@@ -134,20 +129,23 @@ public class CampaignService {
     }
 
     @Transactional(readOnly = true)
-    public CampaignHomeResponse getCampaignForHomeScreen() {
+    public CampaignHomeResponse getCampaignForHomeScreen(Long userId) {
         List<Campaign> premium = campaignRepository.findPremiumCampaigns();
         List<Campaign> popular = campaignRepository.findPopularCampaigns();
         List<Campaign> newest = campaignRepository.findNewestCampaigns();
         List<Campaign> imminent = campaignRepository.findImminentDueDateCampaigns();
 
         return new CampaignHomeResponse(
-                mapToSummaryResponses(premium),
-                mapToSummaryResponses(popular),
-                mapToSummaryResponses(newest),
-                mapToSummaryResponses(imminent));
+                mapToSummaryResponses(premium, userId),
+                mapToSummaryResponses(popular, userId),
+                mapToSummaryResponses(newest, userId),
+                mapToSummaryResponses(imminent, userId));
     }
 
-    private List<CampaignSummaryResponse> mapToSummaryResponses(List<Campaign> campaigns) {
-        return campaigns.stream().map(CampaignSummaryResponse::from).toList();
+    private List<CampaignSummaryResponse> mapToSummaryResponses(
+            List<Campaign> campaigns, Long userId) {
+        return campaigns.stream()
+                .map(campaign -> CampaignSummaryResponse.from(campaign, userId))
+                .toList();
     }
 }

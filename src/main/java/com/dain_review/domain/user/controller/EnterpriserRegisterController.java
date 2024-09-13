@@ -26,6 +26,6 @@ public class EnterpriserRegisterController {
     @PostMapping("/oauth")
     public ResponseEntity singUpOAuthEnterpriser(
             @RequestBody EnterpriserOAuthSignUpRequest request) {
-        return enterpriserService.signUpOAuthEnterpriser(request);
+        return enterpriserService.singUpOAuthEnterpriser(request);
     }
 }

@@ -84,14 +84,14 @@ public class CampaignController {
 
     @GetMapping("/search")
     public ResponseEntity<?> searchCampaigns(
-            @AuthenticationPrincipal
-                    CustomUserDetails customUserDetails, // 로그인 안해도 검색할 수 있음 (좋아요 필터링 제외)
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             CampaignSearchRequest searchRequest,
             @PageableDefault(size = 10) Pageable pageable) {
 
-        PagedResponse<CampaignSummaryResponse> campaigns =
-                campaignService.searchCampaigns(searchRequest, pageable, customUserDetails);
+        Long userId = (customUserDetails != null) ? customUserDetails.getUserId() : null;
 
+        PagedResponse<CampaignSummaryResponse> campaigns =
+                campaignService.searchCampaigns(searchRequest, pageable, userId);
         return API.OK(campaigns);
     }
 
@@ -130,8 +130,13 @@ public class CampaignController {
 
     // 홈 화면 조회
     @GetMapping("/home")
-    public ResponseEntity<?> getCampaignForEachCategory() {
-        CampaignHomeResponse campaignHomeResponse = campaignService.getCampaignForHomeScreen();
+    public ResponseEntity<?> getCampaignForEachCategory(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        Long userId = (customUserDetails != null) ? customUserDetails.getUserId() : null;
+
+        CampaignHomeResponse campaignHomeResponse =
+                campaignService.getCampaignForHomeScreen(userId);
         return API.OK(campaignHomeResponse);
     }
 }
