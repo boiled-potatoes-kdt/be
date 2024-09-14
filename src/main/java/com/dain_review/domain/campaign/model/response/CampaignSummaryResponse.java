@@ -22,7 +22,7 @@ public record CampaignSummaryResponse(
         LocalDateTime experienceStartDate, // 체험 시작일
         LocalDateTime experienceEndDate, // 체험 종료일
         Long applicationDeadline, // 지원 마감까지 남은 일수
-        Boolean isCancel, // 취소 가능한지 여부
+        Boolean isCancellable, // 취소 가능한지 여부
         Boolean isLike // 좋아요 눌렀는지 여부
         ) {
     public static CampaignSummaryResponse from(Campaign campaign, Long userId) {
@@ -31,7 +31,7 @@ public record CampaignSummaryResponse(
         Long applicationDeadline = campaign.calculateApplicationDeadline();
 
         // 취소 가능 여부
-        Boolean isCancel = campaign.isCancelable();
+        Boolean isCancellable = campaign.isCancelable();
 
         // 사용자가 좋아요 누른 캠페인인지
         Boolean isLike = campaign.isLike(userId);
@@ -53,7 +53,7 @@ public record CampaignSummaryResponse(
                 campaign.getExperienceStartDate(),
                 campaign.getExperienceEndDate(),
                 applicationDeadline,
-                isCancel,
+                isCancellable,
                 isLike);
     }
 }
