@@ -50,10 +50,7 @@ public class LikeService {
 
         List<CampaignResponse> content =
                 likes.stream()
-                        .map(
-                                like -> {
-                                    return CampaignResponse.from(like.getCampaign());
-                                })
+                        .map(like -> CampaignResponse.from(like.getCampaign(), null))
                         .toList();
 
         return new PagedResponse<>(content, likes.getTotalElements(), likes.getTotalPages());

@@ -59,14 +59,13 @@ public class CampaignService {
 
         campaignRepository.save(campaign);
 
-        return CampaignResponse.from(campaign);
+        return CampaignResponse.from(campaign, null);
     }
 
     @Transactional(readOnly = true)
-    public CampaignResponse getCampaignById(Long campaignId) { // 체험단 단건 조회
+    public CampaignResponse getCampaignById(Long campaignId, Long userId) {
         Campaign campaign = campaignRepository.getCampaignById(campaignId);
-
-        return CampaignResponse.from(campaign);
+        return CampaignResponse.from(campaign, userId);
     }
 
     public void deleteCampaign(Long userId, Long campaignId) { // 체험단 삭제(취소)

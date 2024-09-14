@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Set;
 
 public record CampaignRequest( // 체험단 등록 시 사용할 Request DTO
@@ -32,5 +33,7 @@ public record CampaignRequest( // 체험단 등록 시 사용할 Request DTO
         @NotNull LocalDateTime announcementDate, // 선정자 발표일
         @NotNull LocalDateTime experienceStartDate, // 체험 시작일
         @NotNull LocalDateTime experienceEndDate, // 체험 종료일
-        @NotNull LocalDateTime reviewDate // 리뷰 마감일
+        @NotNull LocalTime experienceStartTime, // 체험 시작 시간
+        @NotNull LocalTime experienceEndTime, // 체험 종료 시간
+        @NotNull LocalDateTime reviewDate // 후기 마감일
         ) {}
