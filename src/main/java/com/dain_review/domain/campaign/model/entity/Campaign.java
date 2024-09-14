@@ -27,6 +27,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -133,6 +134,10 @@ public class Campaign extends BaseEntity {
 
     private LocalDateTime experienceEndDate; // 체험 종료일
 
+    private LocalTime experienceStartTime; // 체험 시작 시간
+
+    private LocalTime experienceEndTime; // 체험 종료 시간
+
     private LocalDateTime reviewDate; // 리뷰 마감일
 
     private LocalDateTime approvedDate; // 체험단 승인일
@@ -162,8 +167,10 @@ public class Campaign extends BaseEntity {
         campaign.applicationStartDate = request.applicationStartDate();
         campaign.applicationEndDate = request.applicationEndDate();
         campaign.announcementDate = request.announcementDate();
-        campaign.experienceStartDate = request.experienceStartDate();
-        campaign.experienceEndDate = request.experienceEndDate();
+        campaign.experienceStartDate = request.applicationStartDate();
+        campaign.experienceEndDate = request.applicationEndDate();
+        campaign.experienceStartTime = request.experienceStartTime();
+        campaign.experienceEndTime = request.experienceEndTime();
         campaign.reviewDate = request.reviewDate();
         campaign.campaignState = CampaignState.INSPECTION;
         campaign.isDeleted = false;
