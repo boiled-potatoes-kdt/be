@@ -15,6 +15,12 @@ public record CampaignSearchRequest(
         Platform platform, // 플랫폼
         Type type, // 체험단 유형
         CampaignState campaignState, // 상태 (모집중, 검수중 등)
+        Boolean likeFilter, // 좋아요 필터 유무
         String keyword, // 검색 키워드
         SortBy sortBy // 정렬 방식: 추천순, 인기순, 마감임박순, 최신순
-        ) {}
+        ) {
+    // likedFilter가 null인 경우 false로 처리
+    public Boolean likeFilter() {
+        return likeFilter != null && likeFilter;
+    }
+}
