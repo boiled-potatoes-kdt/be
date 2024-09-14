@@ -22,7 +22,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -44,7 +43,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Table(
         name = "campaign",
-        indexes = {@Index(name = "idx_is_deleted", columnList = "isDeleted")})
+        indexes = {
+            @Index(name = "idx_is_deleted", columnList = "isDeleted"),
+            @Index(name = "idx_campaign_state", columnList = "campaignState")
+        })
 public class Campaign extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -81,9 +83,7 @@ public class Campaign extends BaseEntity {
 
     private String contactNumber; // 연락처
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "label_ordering_id")
-    private LabelOrdering labelOrdering;
+    @Setter private Integer labelOrderingNumber; // 라벨 정렬 순서
 
     @Setter
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -135,6 +135,8 @@ public class Campaign extends BaseEntity {
 
     private LocalDateTime reviewDate; // 리뷰 마감일
 
+    private LocalDateTime approvedDate; // 체험단 승인일
+
     private Boolean isDeleted; // 삭제 여부
 
     public static Campaign create(
@@ -163,10 +165,13 @@ public class Campaign extends BaseEntity {
         campaign.experienceStartDate = request.experienceStartDate();
         campaign.experienceEndDate = request.experienceEndDate();
         campaign.reviewDate = request.reviewDate();
-        campaign.campaignState = CampaignState.INSPECTION; // 기본값
-        campaign.isDeleted = false; // 기본값
+        campaign.campaignState = CampaignState.INSPECTION;
+        campaign.isDeleted = false;
 
-        campaign.label = Boolean.TRUE.equals(request.pointPayment()) ? Label.PREMIUM : null;
+        campaign.label =
+                Boolean.TRUE.equals(request.pointPayment())
+                        ? Label.PREMIUM
+                        : Label.GENERAL_CAMPAIGN;
 
         Set<AvailableDay> availableDays =
                 request.availableDays().stream()

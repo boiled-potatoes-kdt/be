@@ -43,7 +43,7 @@ public record CampaignSummaryResponse(
                 campaign.getServiceProvided(),
                 campaign.getCurrentApplicants(),
                 campaign.getCapacity(),
-                campaign.getCampaignState().name(), // CampaignState 자체를 반환
+                campaign.getCampaignState().getDisplayName(),
                 campaign.getPointPerPerson(),
                 campaign.getCity(),
                 campaign.getDistrict(),

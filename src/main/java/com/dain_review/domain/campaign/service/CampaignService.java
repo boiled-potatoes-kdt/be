@@ -4,6 +4,7 @@ package com.dain_review.domain.campaign.service;
 import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.application.model.response.ApplicantResponse;
 import com.dain_review.domain.campaign.model.entity.Campaign;
+import com.dain_review.domain.campaign.model.entity.LabelOrdering;
 import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
@@ -11,8 +12,8 @@ import com.dain_review.domain.campaign.model.response.CampaignHomeResponse;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
+import com.dain_review.domain.campaign.repository.LabelOrderingRepository;
 import com.dain_review.domain.choice.model.response.ChoiceInfluencerResponse;
-import com.dain_review.domain.like.repository.LikeRepository;
 import com.dain_review.domain.review.model.response.ReviewerResponse;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
@@ -33,7 +34,7 @@ public class CampaignService {
     private final CampaignRepository campaignRepository;
     private final UserRepository userRepository;
     private final ImageFileService imageFileService;
-    private final LikeRepository likeRepository;
+    private final LabelOrderingRepository labelOrderingRepository;
 
     @Transactional
     public CampaignResponse createCampaign(
@@ -48,8 +49,14 @@ public class CampaignService {
                 imageFileService.getImageUrl(
                         imageFileName, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
 
-        // 캠페인 생성
         Campaign campaign = Campaign.create(user, imageFileName, imageUrl, campaignRequest);
+
+        LabelOrdering labelOrdering =
+                labelOrderingRepository.getLabelOrderingByLabel(
+                        campaign.getLabel().getDisplayName());
+
+        campaign.setLabelOrderingNumber(labelOrdering.getOrdering());
+
         campaignRepository.save(campaign);
 
         return CampaignResponse.from(campaign);
@@ -84,13 +91,13 @@ public class CampaignService {
 
         return campaignPage.map(campaign -> CampaignSummaryResponse.from(campaign, userId));
     }
-
     // 체험단 검색
     @Transactional(readOnly = true)
     public PagedResponse<CampaignSummaryResponse> searchCampaigns(
             CampaignSearchRequest searchRequest, Pageable pageable, Long userId) {
 
-        Page<Campaign> campaignPage = campaignRepository.searchCampaigns(searchRequest, pageable);
+        Page<Campaign> campaignPage =
+                campaignRepository.searchCampaigns(searchRequest, pageable, userId);
         List<CampaignSummaryResponse> content =
                 campaignPage
                         .map(campaign -> CampaignSummaryResponse.from(campaign, userId))
