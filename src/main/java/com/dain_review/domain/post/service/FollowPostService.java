@@ -14,6 +14,7 @@ import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -90,6 +91,9 @@ public class FollowPostService extends AbstractPostService {
     @Override
     protected List<String> updateImages(
             List<MultipartFile> imageFiles, Post post, List<String> deletedImageFiles) {
+        if (deletedImageFiles == null) {
+            deletedImageFiles = Collections.emptyList();
+        }
         imageFileService.saveImageFiles(
                 imageFiles, ContentType.POST, post.getId(), S3PathPrefixType.S3_FOLLOW_PATH);
         imageFileService.deleteImageFiles(deletedImageFiles, S3PathPrefixType.S3_FOLLOW_PATH);

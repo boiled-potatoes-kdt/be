@@ -3,6 +3,7 @@ package com.dain_review.domain.user.service;
 
 import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.user.model.entity.User;
+import com.dain_review.domain.user.model.response.UserHeaderResponse;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.type.S3PathPrefixType;
 import jakarta.transaction.Transactional;
@@ -35,5 +36,11 @@ public class UserService {
     public void delete(Long id) {
         User user = userRepository.getUserById(id);
         user.delete();
+    }
+
+    @Transactional
+    public UserHeaderResponse getHeaderInfo(Long userId) {
+        User user = userRepository.getUserById(userId);
+        return UserHeaderResponse.of(user);
     }
 }
