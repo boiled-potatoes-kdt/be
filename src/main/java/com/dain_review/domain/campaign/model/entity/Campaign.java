@@ -106,6 +106,10 @@ public class Campaign extends BaseEntity {
 
     private String address; // 방문 체험할 장소의 주소
 
+    private String addressDetail; // 상세 주소
+
+    private String serviceUrl; // 구매형일 경우 서비스 URL
+
     private Integer postalCode; // 우편번호
 
     private Double latitude; // 위도
@@ -154,10 +158,12 @@ public class Campaign extends BaseEntity {
         campaign.user = user;
         campaign.imageFileName = imageFIleName;
         campaign.imageUrl = imageUrl;
+        campaign.serviceUrl = request.serviceUrl();
         campaign.businessName = request.businessName();
         campaign.contactNumber = request.contactNumber();
         campaign.postalCode = request.postalCode();
         campaign.setAddress(request.address());
+        campaign.addressDetail = request.addressDetail();
         campaign.latitude = request.latitude();
         campaign.longitude = request.longitude();
         campaign.platform = request.platform();

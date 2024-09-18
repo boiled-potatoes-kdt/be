@@ -16,6 +16,7 @@ public record CampaignResponse(
         String imageUrl,
         String contactNumber,
         String address,
+        String addressDetail,
         Integer postalCode,
         Double latitude,
         Double longitude,
@@ -44,6 +45,7 @@ public record CampaignResponse(
         String experienceStartTime,
         String experienceEndTime,
         LocalDate reviewDate,
+        String serviceUrl,
 
         // 추가된 사업주 정보
         Long enterpriserId, // 사업주 고유 ID
@@ -80,6 +82,7 @@ public record CampaignResponse(
                 campaign.getImageUrl(),
                 campaign.getContactNumber(),
                 campaign.getAddress(),
+                campaign.getAddressDetail(), // 상세 주소 추가
                 campaign.getPostalCode(),
                 campaign.getLatitude(),
                 campaign.getLongitude(),
@@ -112,8 +115,7 @@ public record CampaignResponse(
                 campaign.getExperienceStartTime().format(timeFormatter),
                 campaign.getExperienceEndTime().format(timeFormatter),
                 campaign.getReviewDate().toLocalDate(),
-
-                // 사업주 정보 추가
+                campaign.getServiceUrl(),
                 enterpriserId,
                 enterpriserProfileImage,
                 enterpriserCompanyName);
