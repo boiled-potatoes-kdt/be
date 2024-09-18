@@ -21,6 +21,10 @@ public interface CampaignRepository
                 .orElseThrow(() -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
     }
 
+    // 추가된 부분: 검수 중인 체험단만 가져오는 메서드
+    @Query("SELECT c FROM Campaign c WHERE c.campaignState = 'INSPECTION' AND c.isDeleted = false")
+    Page<Campaign> findByCampaignStateInspection(Pageable pageable);
+
     @Query(
             "SELECT c FROM Campaign c "
                     + "WHERE (:campaignState IS NULL OR c.campaignState = :campaignState) "

@@ -6,6 +6,7 @@ import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
 import com.dain_review.domain.campaign.model.response.CampaignHomeResponse;
+import com.dain_review.domain.campaign.model.response.CampaignRegistrationResponse;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.service.CampaignService;
@@ -46,7 +47,7 @@ public class CampaignController {
             @RequestPart("data") CampaignRequest campaignRequest,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
 
-        CampaignResponse campaignResponse =
+        CampaignRegistrationResponse campaignResponse =
                 campaignService.createCampaign(
                         customUserDetails.getUserId(), campaignRequest, imageFile);
         return API.OK(campaignResponse);
