@@ -7,6 +7,7 @@ import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.entity.enums.CampaignState;
 import com.dain_review.domain.campaign.model.entity.enums.Platform;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,6 +21,13 @@ public interface CampaignRepository
         return findById(id)
                 .orElseThrow(() -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
     }
+
+    default Campaign getRecruitingCampaignById(Long id) { // 모집 승인된 체험단만 가져옴
+        return findByIdAndCampaignState(id, CampaignState.RECRUITING)
+                .orElseThrow(() -> new CampaignException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+    }
+
+    Optional<Campaign> findByIdAndCampaignState(Long id, CampaignState campaignState);
 
     Page<Campaign> findAllByBusinessName(String name, Pageable pageable);
 

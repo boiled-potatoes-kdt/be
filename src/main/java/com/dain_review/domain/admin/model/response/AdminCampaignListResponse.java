@@ -16,8 +16,8 @@ public record AdminCampaignListResponse(
         String type,
         String phone,
         String createdAt,
-        String activeDate,
-        Boolean status) {
+        String campaignState) {
+
     public static AdminCampaignListResponse from(Campaign campaign) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return new AdminCampaignListResponse(
@@ -32,7 +32,6 @@ public record AdminCampaignListResponse(
                 campaign.getType().getDisplayName(),
                 campaign.getUser().getPhone(),
                 formatter.format(campaign.getCreatedAt()),
-                formatter.format(campaign.getActiveDate()),
-                campaign.getActive());
+                campaign.getCampaignState().getDisplayName());
     }
 }

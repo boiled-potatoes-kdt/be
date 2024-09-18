@@ -7,7 +7,6 @@ import com.dain_review.domain.campaign.model.entity.enums.Type;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Set;
 
@@ -16,8 +15,6 @@ public record CampaignRequest( // 체험단 등록 시 사용할 Request DTO
         @NotBlank String contactNumber, // 컨택할 번호
         @NotBlank String address,
         @NotBlank Integer postalCode,
-        @NotBlank Double latitude, // 위도
-        @NotBlank Double longitude, // 경도
         Set<String> availableDays, // 체험 가능 요일
         @NotBlank String addressDetail, // 상세 주소
         @NotNull Type type, // 체험단 유형 (예: 방문형, 구매형)
@@ -29,13 +26,7 @@ public record CampaignRequest( // 체험단 등록 시 사용할 Request DTO
         @Size(max = 3) Set<@Size(max = 10) String> keywords, // 홍보용 키워드 최대 3개, 각 키워드는 10자 이내
         @NotNull Boolean pointPayment, // 포인트 지급 여부(예/아니오)
         Integer pointPerPerson, // 1인당 지급 포인트
-        @NotNull LocalDateTime applicationStartDate, // 모집 시작일
-        @NotNull LocalDateTime applicationEndDate, // 모집 종료일
-        @NotNull LocalDateTime announcementDate, // 선정자 발표일
-        LocalDateTime experienceStartDate, // 체험 시작일
-        LocalDateTime experienceEndDate, // 체험 종료일
         LocalTime experienceStartTime, // 체험 시작 시간
         LocalTime experienceEndTime, // 체험 종료 시간
-        String serviceUrl, // 서비스 url
-        @NotNull LocalDateTime reviewDate // 후기 마감일
+        String serviceUrl // 서비스 url
         ) {}
