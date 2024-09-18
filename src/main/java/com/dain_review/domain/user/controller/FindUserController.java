@@ -2,7 +2,8 @@ package com.dain_review.domain.user.controller;
 
 
 import com.dain_review.domain.user.model.request.FindUserIdRequest;
-import com.dain_review.domain.user.model.request.UserPasswordChangeRequest;
+import com.dain_review.domain.user.model.request.PasswordChangeRequest;
+import com.dain_review.domain.user.model.request.PasswordCheckRequest;
 import com.dain_review.domain.user.service.FindUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,12 @@ public class FindUserController {
     }
 
     @PostMapping("/password/change")
-    public ResponseEntity passwordChange(@RequestBody UserPasswordChangeRequest request) {
+    public ResponseEntity passwordChange(@RequestBody PasswordChangeRequest request) {
         return findUserService.passwordChange(request);
+    }
+
+    @PostMapping("/password/change/check")
+    public ResponseEntity passwordCheck(@RequestBody PasswordCheckRequest request) {
+        return findUserService.passwordCheck(request);
     }
 }
