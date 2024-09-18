@@ -101,6 +101,10 @@ public class User extends BaseEntity {
         this.postalCode = enterpriserChangeRequest.postalCode();
     }
 
+    public void change(String password) {
+        this.password = password;
+    }
+
     // 완료
     public void change(
             EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest,
