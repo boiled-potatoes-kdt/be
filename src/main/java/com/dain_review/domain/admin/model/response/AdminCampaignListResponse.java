@@ -1,8 +1,7 @@
 package com.dain_review.domain.admin.model.response;
 
-import com.dain_review.domain.campaign.model.entity.Campaign;
-import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 
+import com.dain_review.domain.campaign.model.entity.Campaign;
 import java.time.format.DateTimeFormatter;
 
 public record AdminCampaignListResponse(
@@ -18,8 +17,7 @@ public record AdminCampaignListResponse(
         String phone,
         String createdAt,
         String activeDate,
-        Boolean status
-) {
+        Boolean status) {
     public static AdminCampaignListResponse from(Campaign campaign) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return new AdminCampaignListResponse(
@@ -35,7 +33,6 @@ public record AdminCampaignListResponse(
                 campaign.getUser().getPhone(),
                 formatter.format(campaign.getCreatedAt()),
                 formatter.format(campaign.getActiveDate()),
-                campaign.getActive()
-        );
+                campaign.getActive());
     }
 }
