@@ -101,6 +101,10 @@ public class User extends BaseEntity {
         this.postalCode = enterpriserChangeRequest.postalCode();
     }
 
+    public void change(String password) {
+        this.password = password;
+    }
+
     // 완료
     public void change(
             EnterpriserExtraRegisterRequest enterpriserExtraRegisterRequest,
@@ -119,6 +123,7 @@ public class User extends BaseEntity {
             String profileImage,
             String profileImageUrl) {
         this.profileImage = profileImage;
+        this.profileImageUrl = profileImageUrl;
         this.address = influencerExtraRegisterRequest.address();
         this.addressDetail = influencerExtraRegisterRequest.addressDetail();
         this.postalCode = influencerExtraRegisterRequest.postalCode();
@@ -148,5 +153,9 @@ public class User extends BaseEntity {
 
     public boolean isNotSame(Long userId) {
         return !this.getId().equals(userId);
+    }
+
+    public Boolean isInfluencer() {
+        return this.influencer != null;
     }
 }

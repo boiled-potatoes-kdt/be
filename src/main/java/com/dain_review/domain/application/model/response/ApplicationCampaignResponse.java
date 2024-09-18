@@ -26,9 +26,7 @@ public record ApplicationCampaignResponse(
         LocalDateTime experienceEndDate,
         Long applicationDeadline, // 지원 마감까지 남은 일수
         Boolean isCancel, // 취소 가능한지 여부
-        Label label,
-        Boolean isLike // 찜 했는지 여부
-        ) {
+        Label label) {
 
     public static ApplicationCampaignResponse from(Application application) {
 
@@ -41,8 +39,6 @@ public record ApplicationCampaignResponse(
         // 취소 가능 여부 판단 - 리뷰 종료 단계가 아닌 경우
         Boolean isCancel =
                 !CampaignState.REVIEW_CLOSED.equals(application.getCampaign().getCampaignState());
-
-        // 찜한 캠페인인지 여부
 
         // CampaignToResponse 객체로 변환
         return new ApplicationCampaignResponse(
@@ -61,7 +57,6 @@ public record ApplicationCampaignResponse(
                 application.getCampaign().getExperienceEndDate(),
                 applicationDeadline,
                 isCancel,
-                application.getCampaign().getLabel(),
-                false);
+                application.getCampaign().getLabel());
     }
 }

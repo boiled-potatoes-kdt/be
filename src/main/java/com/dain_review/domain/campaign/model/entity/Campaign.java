@@ -12,6 +12,7 @@ import com.dain_review.domain.campaign.model.entity.enums.Type;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.util.AddressAndPointUtil;
 import com.dain_review.domain.choice.model.entity.Choice;
+import com.dain_review.domain.like.model.entity.Like;
 import com.dain_review.domain.review.model.entity.Review;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.global.model.entity.BaseEntity;
@@ -21,11 +22,12 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +44,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Table(
         name = "campaign",
-        indexes = {@Index(name = "idx_is_deleted", columnList = "isDeleted")})
+        indexes = {
+            @Index(name = "idx_is_deleted", columnList = "isDeleted"),
+            @Index(name = "idx_campaign_state", columnList = "campaignState")
+        })
 public class Campaign extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,7 +60,10 @@ public class Campaign extends BaseEntity {
     private List<Choice> choiceList;
 
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
-    private List<Review> ReviewList;
+    private List<Review> reviewList;
+
+    @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY)
+    private List<Like> likeList;
 
     @Enumerated(EnumType.STRING)
     private Platform platform; // 광고를 원하는 플랫폼 (예: 블로그, 인스타그램)
@@ -76,9 +84,7 @@ public class Campaign extends BaseEntity {
 
     private String contactNumber; // 연락처
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "label_ordering_id")
-    private LabelOrdering labelOrdering;
+    @Setter private Integer labelOrderingNumber; // 라벨 정렬 순서
 
     @Setter
     @OneToMany(mappedBy = "campaign", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -128,7 +134,13 @@ public class Campaign extends BaseEntity {
 
     private LocalDateTime experienceEndDate; // 체험 종료일
 
+    private LocalTime experienceStartTime; // 체험 시작 시간
+
+    private LocalTime experienceEndTime; // 체험 종료 시간
+
     private LocalDateTime reviewDate; // 리뷰 마감일
+
+    private LocalDateTime approvedDate; // 체험단 승인일
 
     private Boolean isDeleted; // 삭제 여부
 
@@ -155,13 +167,18 @@ public class Campaign extends BaseEntity {
         campaign.applicationStartDate = request.applicationStartDate();
         campaign.applicationEndDate = request.applicationEndDate();
         campaign.announcementDate = request.announcementDate();
-        campaign.experienceStartDate = request.experienceStartDate();
-        campaign.experienceEndDate = request.experienceEndDate();
+        campaign.experienceStartDate = request.applicationStartDate();
+        campaign.experienceEndDate = request.applicationEndDate();
+        campaign.experienceStartTime = request.experienceStartTime();
+        campaign.experienceEndTime = request.experienceEndTime();
         campaign.reviewDate = request.reviewDate();
-        campaign.campaignState = CampaignState.INSPECTION; // 기본값
-        campaign.isDeleted = false; // 기본값
+        campaign.campaignState = CampaignState.INSPECTION;
+        campaign.isDeleted = false;
 
-        campaign.label = Boolean.TRUE.equals(request.pointPayment()) ? Label.PREMIUM : null;
+        campaign.label =
+                Boolean.TRUE.equals(request.pointPayment())
+                        ? Label.PREMIUM
+                        : Label.GENERAL_CAMPAIGN;
 
         Set<AvailableDay> availableDays =
                 request.availableDays().stream()
@@ -214,5 +231,27 @@ public class Campaign extends BaseEntity {
     public boolean isNotReviewPeriod() {
         return LocalDateTime.now().isAfter(reviewDate)
                 || LocalDateTime.now().isBefore(experienceStartDate);
+    }
+
+    public void addApplicantCount() {
+        ++this.currentApplicants;
+    }
+
+    public void subtractApplicantCount() {
+        --this.currentApplicants;
+    }
+
+    public Long calculateApplicationDeadline() {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(now, this.applicationEndDate);
+        return Math.max(duration.toDays(), 0);
+    }
+
+    public Boolean isLike(Long userId) {
+        if (userId == null) {
+            return false;
+        }
+
+        return this.likeList.stream().anyMatch(like -> like.getUser().getId().equals(userId));
     }
 }

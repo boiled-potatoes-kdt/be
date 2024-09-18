@@ -12,6 +12,7 @@ import com.dain_review.domain.post.repository.PostRepository;
 import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -50,8 +51,11 @@ public abstract class AbstractPostService {
         Post post = postRepository.getPostByIdAndDeletedFalse(postId);
         post.updateBy(userId, postRequest);
 
-        // 새로 추가된 이미지 저장
-        List<String> imageUrls = updateImages(imageFiles, post, postRequest.deletedAttachedFiles());
+        List<String> imageUrls =
+                updateImages(
+                        imageFiles != null ? imageFiles : Collections.emptyList(),
+                        post,
+                        postRequest.deletedAttachedFiles());
 
         String userImageUrl = post.getUser().getProfileImageUrl();
 

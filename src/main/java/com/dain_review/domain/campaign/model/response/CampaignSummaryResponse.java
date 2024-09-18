@@ -2,7 +2,6 @@ package com.dain_review.domain.campaign.model.response;
 
 
 import com.dain_review.domain.campaign.model.entity.Campaign;
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 public record CampaignSummaryResponse(
@@ -10,6 +9,7 @@ public record CampaignSummaryResponse(
         Long id, // 체험단 ID
         String businessName, // 상호명
         String imageUrl, // 이미지 URL
+        String serviceProvided, // 보상
         Integer currentApplicants, // 현재 신청 인원
         Integer capacity, // 최대 신청 인원
         String campaignState, // 체험단 상태 (예: 모집중, 검수중 등)
@@ -22,24 +22,28 @@ public record CampaignSummaryResponse(
         LocalDateTime experienceStartDate, // 체험 시작일
         LocalDateTime experienceEndDate, // 체험 종료일
         Long applicationDeadline, // 지원 마감까지 남은 일수
-        Boolean isCancel // 취소 가능한지 여부
+        Boolean isCancellable, // 취소 가능한지 여부
+        Boolean isLike // 좋아요 눌렀는지 여부
         ) {
-    public static CampaignSummaryResponse from(Campaign campaign) {
-        // 지원 마감까지 남은 일수 계산
-        LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(now, campaign.getApplicationEndDate());
-        Long applicationDeadline = Math.max(duration.toDays(), 0);
+    public static CampaignSummaryResponse from(Campaign campaign, Long userId) {
 
-        // 엔티티에서 취소 가능 여부 판단
-        Boolean isCancel = campaign.isCancelable();
+        // 지원 마감까지 남은 일수
+        Long applicationDeadline = campaign.calculateApplicationDeadline();
+
+        // 취소 가능 여부
+        Boolean isCancellable = campaign.isCancelable();
+
+        // 사용자가 좋아요 누른 캠페인인지
+        Boolean isLike = campaign.isLike(userId);
 
         return new CampaignSummaryResponse(
                 campaign.getId(),
                 campaign.getBusinessName(),
                 campaign.getImageUrl(),
+                campaign.getServiceProvided(),
                 campaign.getCurrentApplicants(),
                 campaign.getCapacity(),
-                campaign.getCampaignState().name(), // CampaignState 자체를 반환
+                campaign.getCampaignState().getDisplayName(),
                 campaign.getPointPerPerson(),
                 campaign.getCity(),
                 campaign.getDistrict(),
@@ -49,6 +53,7 @@ public record CampaignSummaryResponse(
                 campaign.getExperienceStartDate(),
                 campaign.getExperienceEndDate(),
                 applicationDeadline,
-                isCancel);
+                isCancellable,
+                isLike);
     }
 }
