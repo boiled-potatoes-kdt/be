@@ -106,16 +106,17 @@ public class Campaign extends BaseEntity {
 
     private String address; // 방문 체험할 장소의 주소
 
+    private String addressDetail; // 상세 주소
+
+    private String serviceUrl; // 구매형일 경우 서비스 URL
+
     private Integer postalCode; // 우편번호
-
-    private Double latitude; // 위도
-
-    private Double longitude; // 경도
 
     private String city; // 시/도
 
     private String district; // 구/군
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private CampaignState campaignState; // 체험단 상태 (검수중, 모집중 등)
 
@@ -124,23 +125,19 @@ public class Campaign extends BaseEntity {
 
     private String requirement; // 사업주 요청 사항
 
-    private LocalDateTime applicationStartDate; // 모집 시작일
-
-    private LocalDateTime applicationEndDate; // 모집 종료일
-
-    private LocalDateTime announcementDate; // 선정자 발표일
-
-    private LocalDateTime experienceStartDate; // 체험 시작일
-
-    private LocalDateTime experienceEndDate; // 체험 종료일
+    @Setter private LocalDateTime applicationStartDate; // 모집 시작일
+    @Setter private LocalDateTime applicationEndDate; // 모집 종료일
+    @Setter private LocalDateTime announcementDate; // 선정자 발표일
+    @Setter private LocalDateTime experienceStartDate; // 체험 시작일
+    @Setter private LocalDateTime experienceEndDate; // 체험 종료일
 
     private LocalTime experienceStartTime; // 체험 시작 시간
 
     private LocalTime experienceEndTime; // 체험 종료 시간
 
-    private LocalDateTime reviewDate; // 리뷰 마감일
+    @Setter private LocalDateTime reviewDate; // 리뷰 마감일
 
-    private LocalDateTime approvedDate; // 체험단 승인일
+    @Setter private LocalDateTime approvedDate; // 체험단 승인일
 
     private Boolean isDeleted; // 삭제 여부
 
@@ -150,12 +147,12 @@ public class Campaign extends BaseEntity {
         campaign.user = user;
         campaign.imageFileName = imageFIleName;
         campaign.imageUrl = imageUrl;
+        campaign.serviceUrl = request.serviceUrl();
         campaign.businessName = request.businessName();
         campaign.contactNumber = request.contactNumber();
         campaign.postalCode = request.postalCode();
         campaign.setAddress(request.address());
-        campaign.latitude = request.latitude();
-        campaign.longitude = request.longitude();
+        campaign.addressDetail = request.addressDetail();
         campaign.platform = request.platform();
         campaign.type = request.type();
         campaign.category = request.category();
@@ -164,14 +161,8 @@ public class Campaign extends BaseEntity {
         campaign.pointPerPerson = request.pointPerPerson();
         campaign.serviceProvided = request.serviceProvided();
         campaign.requirement = request.requirement();
-        campaign.applicationStartDate = request.applicationStartDate();
-        campaign.applicationEndDate = request.applicationEndDate();
-        campaign.announcementDate = request.announcementDate();
-        campaign.experienceStartDate = request.applicationStartDate();
-        campaign.experienceEndDate = request.applicationEndDate();
         campaign.experienceStartTime = request.experienceStartTime();
         campaign.experienceEndTime = request.experienceEndTime();
-        campaign.reviewDate = request.reviewDate();
         campaign.campaignState = CampaignState.INSPECTION;
         campaign.isDeleted = false;
 
@@ -229,7 +220,7 @@ public class Campaign extends BaseEntity {
     }
 
     public boolean isNotReviewPeriod() {
-        return LocalDateTime.now().isAfter(reviewDate)
+        return LocalDateTime.now().isAfter(experienceEndDate)
                 || LocalDateTime.now().isBefore(experienceStartDate);
     }
 

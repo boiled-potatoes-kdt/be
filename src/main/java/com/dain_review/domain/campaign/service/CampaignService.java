@@ -9,6 +9,7 @@ import com.dain_review.domain.campaign.model.request.CampaignFilterRequest;
 import com.dain_review.domain.campaign.model.request.CampaignRequest;
 import com.dain_review.domain.campaign.model.request.CampaignSearchRequest;
 import com.dain_review.domain.campaign.model.response.CampaignHomeResponse;
+import com.dain_review.domain.campaign.model.response.CampaignRegistrationResponse;
 import com.dain_review.domain.campaign.model.response.CampaignResponse;
 import com.dain_review.domain.campaign.model.response.CampaignSummaryResponse;
 import com.dain_review.domain.campaign.repository.CampaignRepository;
@@ -37,7 +38,7 @@ public class CampaignService {
     private final LabelOrderingRepository labelOrderingRepository;
 
     @Transactional
-    public CampaignResponse createCampaign(
+    public CampaignRegistrationResponse createCampaign(
             Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
         User user = userRepository.getUserById(userId);
 
@@ -59,7 +60,7 @@ public class CampaignService {
 
         campaignRepository.save(campaign);
 
-        return CampaignResponse.from(campaign, null);
+        return CampaignRegistrationResponse.from(campaign);
     }
 
     @Transactional(readOnly = true)
