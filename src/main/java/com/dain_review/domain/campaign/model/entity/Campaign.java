@@ -242,7 +242,7 @@ public class Campaign extends BaseEntity {
         if (userId == null) {
             return false;
         }
-
-        return this.likeList.stream().anyMatch(like -> like.getUser().getId().equals(userId));
+        return this.likeList.stream()
+                .anyMatch(like -> like.getUser().getId().equals(userId) && like.isLiked());
     }
 }
