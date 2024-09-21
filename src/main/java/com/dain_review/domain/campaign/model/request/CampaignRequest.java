@@ -13,10 +13,10 @@ import java.util.Set;
 public record CampaignRequest( // 체험단 등록 시 사용할 Request DTO
         @NotBlank String businessName, // 상호명
         @NotBlank String contactNumber, // 컨택할 번호
-        @NotBlank String address,
-        @NotBlank Integer postalCode,
+        String address,
+        Integer postalCode,
         Set<String> availableDays, // 체험 가능 요일
-        @NotBlank String addressDetail, // 상세 주소
+        String addressDetail, // 상세 주소
         @NotNull Type type, // 체험단 유형 (예: 방문형, 구매형)
         @NotNull Category category, // 카테고리 (예: 음식, 뷰티)
         @NotNull Platform platform, // 플랫폼 (예: 블로그, 인스타그램)
