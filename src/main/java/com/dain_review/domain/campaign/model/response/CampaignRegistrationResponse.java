@@ -4,7 +4,7 @@ package com.dain_review.domain.campaign.model.response;
 import com.dain_review.domain.campaign.model.entity.AvailableDay;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.entity.Keyword;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,13 +31,11 @@ public record CampaignRegistrationResponse( // 체험단 첫 등록시 반환받
         Boolean pointPayment,
         Integer pointPerPerson,
         Integer totalPoints,
-        String experienceStartTime,
-        String experienceEndTime,
+        LocalTime experienceStartTime,
+        LocalTime experienceEndTime,
         String serviceUrl) {
 
     public static CampaignRegistrationResponse from(Campaign campaign) {
-
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
         // 사업주 요청사항을 엔터 기준으로 배열로 변환 (임시로)
         String[] requirementArray =
@@ -72,8 +70,8 @@ public record CampaignRegistrationResponse( // 체험단 첫 등록시 반환받
                 campaign.getPointPayment(),
                 campaign.getPointPerPerson(),
                 campaign.getTotalPoints(),
-                campaign.getExperienceStartTime().format(timeFormatter),
-                campaign.getExperienceEndTime().format(timeFormatter),
+                campaign.getExperienceStartTime(), // LocalTime 그대로 반환
+                campaign.getExperienceEndTime(),
                 campaign.getServiceUrl());
     }
 }
