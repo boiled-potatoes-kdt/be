@@ -34,7 +34,7 @@ public class KakaoLoginFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(
             HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
-
+        System.out.println(request.getParameter("code"));
         TokenResponse token = kakaoApiClient.getKakaoToken(request.getParameter("code"));
         KakaoUserInfo info = kakaoApiClient.getKakaoUserInfo(token.getAccessToken());
         log.info(info.getEmail() + " 로그인 시도");
