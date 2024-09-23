@@ -6,7 +6,7 @@ import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.entity.Keyword;
 import com.dain_review.domain.user.model.entity.User;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,10 +38,10 @@ public record CampaignResponse( // 승인된 체험단 반환
         LocalDate applicationStartDate,
         LocalDate applicationEndDate,
         LocalDate announcementDate,
-        String experienceStartDate,
-        String experienceEndDate,
-        String experienceStartTime,
-        String experienceEndTime,
+        LocalDate experienceStartDate,
+        LocalDate experienceEndDate,
+        LocalTime experienceStartTime,
+        LocalTime experienceEndTime,
         String serviceUrl,
 
         // 추가된 사업주 정보
@@ -54,9 +54,6 @@ public record CampaignResponse( // 승인된 체험단 반환
 
         // 지원 마감까지 남은 일수
         Long applicationDeadline = campaign.calculateApplicationDeadline();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
         // 사업주 요청사항을 엔터 기준으로 배열로 변환 (임시로)
         String[] requirementArray =
@@ -105,10 +102,10 @@ public record CampaignResponse( // 승인된 체험단 반환
                 campaign.getApplicationStartDate().toLocalDate(),
                 campaign.getApplicationEndDate().toLocalDate(),
                 campaign.getAnnouncementDate().toLocalDate(),
-                campaign.getExperienceStartDate().format(dateFormatter),
-                campaign.getExperienceEndDate().format(dateFormatter),
-                campaign.getExperienceStartTime().format(timeFormatter),
-                campaign.getExperienceEndTime().format(timeFormatter),
+                campaign.getExperienceStartDate().toLocalDate(),
+                campaign.getExperienceEndDate().toLocalDate(),
+                campaign.getExperienceStartTime(),
+                campaign.getExperienceEndTime(),
                 campaign.getServiceUrl(),
                 enterpriserId,
                 enterpriserProfileImage,

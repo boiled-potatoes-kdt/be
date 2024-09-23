@@ -28,6 +28,7 @@ import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -172,9 +173,10 @@ public class Campaign extends BaseEntity {
                         : Label.GENERAL_CAMPAIGN;
 
         Set<AvailableDay> availableDays =
-                request.availableDays().stream()
-                        .map(day -> new AvailableDay(campaign, day))
-                        .collect(Collectors.toSet());
+                (request.availableDays() != null ? request.availableDays() : Collections.emptySet())
+                        .stream()
+                                .map(day -> new AvailableDay(campaign, day.toString()))
+                                .collect(Collectors.toSet());
         campaign.setAvailableDays(availableDays);
 
         Set<Keyword> keywords =
@@ -242,7 +244,7 @@ public class Campaign extends BaseEntity {
         if (userId == null) {
             return false;
         }
-
-        return this.likeList.stream().anyMatch(like -> like.getUser().getId().equals(userId));
+        return this.likeList.stream()
+                .anyMatch(like -> like.getUser().getId().equals(userId) && like.isLiked());
     }
 }

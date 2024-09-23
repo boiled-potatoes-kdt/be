@@ -3,6 +3,11 @@ package com.dain_review.domain.campaign.util;
 public class AddressAndPointUtil {
 
     public static String[] extractCityAndDistrict(String address) { // (시/도), (구/군) 추출 메서드
+
+        if (address == null || address.isEmpty()) {
+            return new String[] {"", ""}; // address가 null이거나 빈 문자열일 경우 빈 값을 반환
+        }
+
         String[] addressParts = address.split(" ");
         String rawCity = addressParts[0];
 
