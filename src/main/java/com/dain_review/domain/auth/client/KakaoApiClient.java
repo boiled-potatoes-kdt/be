@@ -43,7 +43,7 @@ public class KakaoApiClient {
         params.add("client_id", clientId);
         params.add("redirect_uri", redirectUri);
         params.add("code", code);
-//        params.add("client_secret", clientSecret);
+        //        params.add("client_secret", clientSecret);
         System.out.println(params);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         ResponseEntity<TokenResponse> response =

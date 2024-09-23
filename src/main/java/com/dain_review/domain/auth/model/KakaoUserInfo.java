@@ -3,10 +3,8 @@ package com.dain_review.domain.auth.model;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.Map;
 import java.util.Objects;
-
 import lombok.Getter;
 
 @Getter
@@ -23,8 +21,7 @@ public class KakaoUserInfo {
 
     public String getEmailByAttributes(Map<String, Object> attributes) {
         ObjectMapper objectMapper = new ObjectMapper();
-        TypeReference<Map<String, Object>> typeReferencer = new TypeReference<>() {
-        };
+        TypeReference<Map<String, Object>> typeReferencer = new TypeReference<>() {};
 
         Object kakaoAccount = attributes.get("kakao_account");
         Map<String, Object> account = objectMapper.convertValue(kakaoAccount, typeReferencer);
@@ -36,8 +33,7 @@ public class KakaoUserInfo {
 
     public String getNicknameByAttributes(Map<String, Object> attributes) {
         ObjectMapper objectMapper = new ObjectMapper();
-        TypeReference<Map<String, Object>> typeReferencer = new TypeReference<>() {
-        };
+        TypeReference<Map<String, Object>> typeReferencer = new TypeReference<>() {};
 
         Object kakaoAccount = attributes.get("kakao_account");
         Map<String, Object> account = objectMapper.convertValue(kakaoAccount, typeReferencer);
