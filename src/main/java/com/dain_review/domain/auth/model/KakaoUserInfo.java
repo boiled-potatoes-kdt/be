@@ -3,7 +3,10 @@ package com.dain_review.domain.auth.model;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Map;
+import java.util.Objects;
+
 import lombok.Getter;
 
 @Getter
@@ -20,23 +23,34 @@ public class KakaoUserInfo {
 
     public String getEmailByAttributes(Map<String, Object> attributes) {
         ObjectMapper objectMapper = new ObjectMapper();
-        TypeReference<Map<String, Object>> typeReferencer = new TypeReference<>() {};
+        TypeReference<Map<String, Object>> typeReferencer = new TypeReference<>() {
+        };
 
         Object kakaoAccount = attributes.get("kakao_account");
         Map<String, Object> account = objectMapper.convertValue(kakaoAccount, typeReferencer);
-
-        return (String) account.get("email");
+        if (!Objects.isNull(account)) {
+            return (String) account.get("email");
+        }
+        return "";
     }
 
     public String getNicknameByAttributes(Map<String, Object> attributes) {
         ObjectMapper objectMapper = new ObjectMapper();
-        TypeReference<Map<String, Object>> typeReferencer = new TypeReference<>() {};
+        TypeReference<Map<String, Object>> typeReferencer = new TypeReference<>() {
+        };
 
         Object kakaoAccount = attributes.get("kakao_account");
         Map<String, Object> account = objectMapper.convertValue(kakaoAccount, typeReferencer);
-        Map<String, Object> profile =
-                objectMapper.convertValue(account.get("profile"), typeReferencer);
+        if (!Objects.isNull(account)) {
+            if (!Objects.isNull(account.get("profile"))) {
+                Map<String, Object> profile =
+                        objectMapper.convertValue(account.get("profile"), typeReferencer);
 
-        return (String) profile.get("nickname");
+                String nickname = (String) profile.get("nickname");
+                return nickname;
+            }
+        }
+
+        return "";
     }
 }
