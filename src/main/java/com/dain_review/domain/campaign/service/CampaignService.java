@@ -1,7 +1,6 @@
 package com.dain_review.domain.campaign.service;
 
 
-import com.dain_review.domain.Image.service.ImageFileService;
 import com.dain_review.domain.application.model.response.ApplicantResponse;
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import com.dain_review.domain.campaign.model.entity.LabelOrdering;
@@ -20,6 +19,7 @@ import com.dain_review.domain.user.model.entity.User;
 import com.dain_review.domain.user.repository.UserRepository;
 import com.dain_review.global.model.response.PagedResponse;
 import com.dain_review.global.type.S3PathPrefixType;
+import com.dain_review.global.util.S3Util;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,21 +34,20 @@ public class CampaignService {
 
     private final CampaignRepository campaignRepository;
     private final UserRepository userRepository;
-    private final ImageFileService imageFileService;
     private final LabelOrderingRepository labelOrderingRepository;
+    private final S3Util s3Util;
 
     @Transactional
     public CampaignRegistrationResponse createCampaign(
             Long userId, CampaignRequest campaignRequest, MultipartFile imageFile) {
+
         User user = userRepository.getUserById(userId);
 
         String imageFileName =
-                imageFileService.validateAndUploadImage(
-                        imageFile, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
-
+                s3Util.saveImage(imageFile, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString());
         String imageUrl =
-                imageFileService.getImageUrl(
-                        imageFileName, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH);
+                s3Util.selectImage(
+                        imageFileName, S3PathPrefixType.S3_CAMPAIGN_THUMBNAIL_PATH.toString());
 
         Campaign campaign = Campaign.create(user, imageFileName, imageUrl, campaignRequest);
 
@@ -57,7 +56,6 @@ public class CampaignService {
                         campaign.getLabel().getDisplayName());
 
         campaign.setLabelOrderingNumber(labelOrdering.getOrdering());
-
         campaignRepository.save(campaign);
 
         return CampaignRegistrationResponse.from(campaign);
@@ -72,7 +70,6 @@ public class CampaignService {
     public void deleteCampaign(Long userId, Long campaignId) { // 체험단 삭제(취소)
         User user = userRepository.getUserById(userId);
         Campaign campaign = campaignRepository.getCampaignById(campaignId);
-
         campaign.delete(user);
     }
 
@@ -89,8 +86,9 @@ public class CampaignService {
                         userId,
                         pageable);
 
-        return campaignPage.map(campaign -> CampaignSummaryResponse.from(campaign, userId));
+        return CampaignSummaryResponse.from(campaignPage, userId);
     }
+
     // 체험단 검색
     @Transactional(readOnly = true)
     public PagedResponse<CampaignSummaryResponse> searchCampaigns(
@@ -99,11 +97,9 @@ public class CampaignService {
         Page<Campaign> campaignPage =
                 campaignRepository.searchCampaigns(searchRequest, pageable, userId);
         List<CampaignSummaryResponse> content =
-                campaignPage
-                        .map(campaign -> CampaignSummaryResponse.from(campaign, userId))
-                        .getContent();
+                CampaignSummaryResponse.from(campaignPage, userId).getContent();
 
-        return new PagedResponse<>(
+        return PagedResponse.of(
                 content, campaignPage.getTotalElements(), campaignPage.getTotalPages());
     }
 
@@ -132,17 +128,10 @@ public class CampaignService {
         List<Campaign> newest = campaignRepository.findNewestCampaigns();
         List<Campaign> imminent = campaignRepository.findImminentDueDateCampaigns();
 
-        return new CampaignHomeResponse(
-                mapToSummaryResponses(premium, userId),
-                mapToSummaryResponses(popular, userId),
-                mapToSummaryResponses(newest, userId),
-                mapToSummaryResponses(imminent, userId));
-    }
-
-    private List<CampaignSummaryResponse> mapToSummaryResponses(
-            List<Campaign> campaigns, Long userId) {
-        return campaigns.stream()
-                .map(campaign -> CampaignSummaryResponse.from(campaign, userId))
-                .toList();
+        return CampaignHomeResponse.of(
+                CampaignSummaryResponse.from(premium, userId),
+                CampaignSummaryResponse.from(popular, userId),
+                CampaignSummaryResponse.from(newest, userId),
+                CampaignSummaryResponse.from(imminent, userId));
     }
 }

@@ -6,6 +6,7 @@ import com.dain_review.domain.post.exception.errortype.PostErrorCode;
 import com.dain_review.domain.post.model.entity.Post;
 import com.dain_review.domain.post.model.entity.enums.CategoryType;
 import com.dain_review.domain.user.model.entity.enums.Role;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,4 +56,10 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     @Query(
             "UPDATE PostMeta pm SET pm.commentCount = pm.commentCount + :commentCount WHERE pm.post.id = :postId")
     void updateCommentCount(@Param("postId") Long postId, @Param("commentCount") int commentCount);
+
+    @Modifying
+    @Query("DELETE FROM Post p WHERE p.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
+
+    List<Post> findByUserId(Long userId);
 }

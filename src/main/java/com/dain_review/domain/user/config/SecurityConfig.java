@@ -4,7 +4,11 @@ package com.dain_review.domain.user.config;
 import com.dain_review.domain.auth.client.GoogleApiClient;
 import com.dain_review.domain.auth.client.KakaoApiClient;
 import com.dain_review.domain.auth.client.NaverApiClient;
-import com.dain_review.domain.user.config.filter.*;
+import com.dain_review.domain.user.config.filter.GoogleLoginFilter;
+import com.dain_review.domain.user.config.filter.KakaoLoginFilter;
+import com.dain_review.domain.user.config.filter.LoginFilter;
+import com.dain_review.domain.user.config.filter.NaverLoginFilter;
+import com.dain_review.domain.user.config.filter.RequestFilter;
 import com.dain_review.domain.user.exception.AuthException;
 import com.dain_review.domain.user.exception.errortype.AuthErrorCode;
 import com.dain_review.global.util.JwtUtil;
@@ -39,163 +43,151 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
 
-    private final JwtUtil jwtUtil;
-    private final AuthenticationConfiguration authenticationConfiguration;
-    private final KakaoApiClient kakaoApiClient;
-    private final GoogleApiClient googleApiClient;
-    private final NaverApiClient naverApiClient;
+	private final JwtUtil jwtUtil;
+	private final AuthenticationConfiguration authenticationConfiguration;
+	private final KakaoApiClient kakaoApiClient;
+	private final GoogleApiClient googleApiClient;
+	private final NaverApiClient naverApiClient;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http, AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
+	@Bean
+	public SecurityFilterChain securityFilterChain(
+		HttpSecurity http, AuthenticationConfiguration authenticationConfiguration)
+		throws Exception {
 
-        http.csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(
-                        configurer ->
-                                configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable);
+		http.csrf(AbstractHttpConfigurer::disable)
+			.sessionManagement(
+				configurer ->
+					configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.formLogin(AbstractHttpConfigurer::disable)
+			.httpBasic(AbstractHttpConfigurer::disable);
 
-        http.authorizeHttpRequests(
-                matcher ->
-                        matcher.requestMatchers(HttpMethod.POST, "/api/login")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/kakao")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/naver")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login/oauth2/code/google")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/info/imp")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/sign-up/**")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/enterpriser/sign-up/**")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/influencer/sign-up/**")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/password/change/**")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/id/find")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/post/notices/**")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/campaigns/**")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/actuator/**")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated());
+		http.authorizeHttpRequests(matcher -> matcher
+			// /api/admin/** 경로는 ROLE_ADMIN 만 접근 가능
+			.requestMatchers("/api/admin/**").hasRole("ADMIN")
+			.requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+			.requestMatchers(HttpMethod.POST, "/login/oauth2/code/kakao").permitAll()
+			.requestMatchers(HttpMethod.POST, "/login/oauth2/code/naver").permitAll()
+			.requestMatchers(HttpMethod.POST, "/login/oauth2/code/google").permitAll()
+			.requestMatchers(HttpMethod.POST, "/api/info/imp").permitAll()
+			.requestMatchers(HttpMethod.POST, "/api/sign-up/**").permitAll()
+			.requestMatchers(HttpMethod.POST, "/api/enterpriser/sign-up/**").permitAll()
+			.requestMatchers(HttpMethod.POST, "/api/influencer/sign-up/**").permitAll()
+			.requestMatchers(HttpMethod.POST, "/api/password/change/**").permitAll()
+			.requestMatchers(HttpMethod.POST, "/api/id/find").permitAll()
+			.requestMatchers(HttpMethod.GET, "/api/post/notices/**").permitAll()
+			.requestMatchers(HttpMethod.GET, "/api/campaigns/**").permitAll()
+			.requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
+			// 그 외 요청은 인증된 사용자만 허용
+			.anyRequest().authenticated());
 
-        http.cors(
-                httpSecurityCorsConfigurer ->
-                        httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()));
+		http.cors(
+			httpSecurityCorsConfigurer ->
+				httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()));
 
-        http.logout(
-                logout ->
-                        logout.logoutUrl("/logout")
-                                .logoutSuccessHandler(new CustomLogoutSuccessHandler())
-                                .permitAll());
+		http.logout(
+			logout ->
+				logout.logoutUrl("/logout")
+					.logoutSuccessHandler(new CustomLogoutSuccessHandler())
+					.permitAll());
 
-        http.addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterAfter(requestFilter(), LoginFilter.class);
+		http.addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterAfter(requestFilter(), LoginFilter.class);
 
-        http.addFilterBefore(kakaoLoginFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(googleLoginFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(naverLoginFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(kakaoLoginFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(googleLoginFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(naverLoginFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+		return http.build();
+	}
 
-    @Bean
-    public LoginFilter loginFilter() throws Exception {
-        LoginFilter filter = new LoginFilter(jwtUtil);
-        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-        // 필터 등록 로그 추가
-        System.out.println("LoginFilter registered");
-        return filter;
-    }
+	@Bean
+	public LoginFilter loginFilter() throws Exception {
+		LoginFilter filter = new LoginFilter(jwtUtil);
+		filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+		// 필터 등록 로그 추가
+		System.out.println("LoginFilter registered");
+		return filter;
+	}
 
-    @Bean
-    public KakaoLoginFilter kakaoLoginFilter() throws Exception {
-        KakaoLoginFilter filter = new KakaoLoginFilter(jwtUtil, kakaoApiClient);
-        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-        return filter;
-    }
+	@Bean
+	public KakaoLoginFilter kakaoLoginFilter() throws Exception {
+		KakaoLoginFilter filter = new KakaoLoginFilter(jwtUtil, kakaoApiClient);
+		filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+		return filter;
+	}
 
-    @Bean
-    public GoogleLoginFilter googleLoginFilter() throws Exception {
-        GoogleLoginFilter filter = new GoogleLoginFilter(jwtUtil, googleApiClient);
-        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-        return filter;
-    }
+	@Bean
+	public GoogleLoginFilter googleLoginFilter() throws Exception {
+		GoogleLoginFilter filter = new GoogleLoginFilter(jwtUtil, googleApiClient);
+		filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+		return filter;
+	}
 
-    @Bean
-    public NaverLoginFilter naverLoginFilter() throws Exception {
-        NaverLoginFilter filter = new NaverLoginFilter(jwtUtil, naverApiClient);
-        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-        return filter;
-    }
+	@Bean
+	public NaverLoginFilter naverLoginFilter() throws Exception {
+		NaverLoginFilter filter = new NaverLoginFilter(jwtUtil, naverApiClient);
+		filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+		return filter;
+	}
 
-    @Bean
-    public RequestFilter requestFilter() {
-        return new RequestFilter(jwtUtil);
-    }
+	@Bean
+	public RequestFilter requestFilter() {
+		return new RequestFilter(jwtUtil);
+	}
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-            throws Exception {
-        return configuration.getAuthenticationManager();
-    }
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+		throws Exception {
+		return configuration.getAuthenticationManager();
+	}
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowCredentials(true);
-        config.setAllowedOrigins(
-                List.of(
-                        "https://final-frontend-beta.vercel.app",
-                        "https://g6.dainreview.kr",
-                        "http://localhost:3000"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("*"));
+		config.setAllowCredentials(true);
+		config.setAllowedOrigins(
+			List.of(
+				"https://final-frontend-beta.vercel.app",
+				"https://g6.dainreview.kr",
+				"http://localhost:3000"));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+		config.setAllowedHeaders(List.of("*"));
+		config.setExposedHeaders(List.of("*"));
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
 
-    class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
+	class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 
-        @Override
-        public void onLogoutSuccess(
-                HttpServletRequest request,
-                HttpServletResponse response,
-                Authentication authentication)
-                throws IOException, ServletException {
-            try {
+		@Override
+		public void onLogoutSuccess(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Authentication authentication)
+			throws IOException, ServletException {
+			try {
 
-                Cookie[] cookies = request.getCookies();
-                if (cookies != null) {
-                    for (Cookie cookie : cookies) {
-                        if (jwtUtil.validateCookieName(cookie)) {
-                            cookie.setValue("");
-                            cookie.setPath("/");
-                            cookie.setMaxAge(0);
-                            response.addCookie(cookie);
-                        }
-                    }
-                }
+				Cookie[] cookies = request.getCookies();
+				if (cookies != null) {
+					for (Cookie cookie : cookies) {
+						if (jwtUtil.validateCookieName(cookie)) {
+							cookie.setValue("");
+							cookie.setPath("/");
+							cookie.setMaxAge(0);
+							response.addCookie(cookie);
+						}
+					}
+				}
 
-            } catch (Exception e) {
-                throw new AuthException(AuthErrorCode.LOGOUT_ERROR);
-            }
+			} catch (Exception e) {
+				throw new AuthException(AuthErrorCode.LOGOUT_ERROR);
+			}
 
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.sendRedirect("/");
-        }
-    }
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.sendRedirect("/");
+		}
+	}
 }

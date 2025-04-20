@@ -3,6 +3,8 @@ package com.dain_review.domain.campaign.model.response;
 
 import com.dain_review.domain.campaign.model.entity.Campaign;
 import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.data.domain.Page;
 
 public record CampaignSummaryResponse(
         /*체험단 목록 조회 시 반환할 데이터*/
@@ -25,6 +27,7 @@ public record CampaignSummaryResponse(
         Boolean isCancellable, // 취소 가능한지 여부
         Boolean isLike // 좋아요 눌렀는지 여부
         ) {
+
     public static CampaignSummaryResponse from(Campaign campaign, Long userId) {
 
         // 지원 마감까지 남은 일수
@@ -55,5 +58,13 @@ public record CampaignSummaryResponse(
                 applicationDeadline,
                 isCancellable,
                 isLike);
+    }
+
+    public static Page<CampaignSummaryResponse> from(Page<Campaign> campaignPage, Long userId) {
+        return campaignPage.map(campaign -> from(campaign, userId));
+    }
+
+    public static List<CampaignSummaryResponse> from(List<Campaign> campaignList, Long userId) {
+        return campaignList.stream().map(campaign -> from(campaign, userId)).toList();
     }
 }

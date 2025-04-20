@@ -20,6 +20,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -75,6 +76,7 @@ public class User extends BaseEntity {
     private Boolean marketing;
     private Boolean penalty;
     private Boolean isDeleted;
+    private LocalDateTime deletedAt;
 
     public void delete() {
 
@@ -84,6 +86,7 @@ public class User extends BaseEntity {
         }
 
         this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
     }
 
     public void change(

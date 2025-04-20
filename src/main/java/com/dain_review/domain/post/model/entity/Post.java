@@ -98,6 +98,7 @@ public class Post extends BaseEntity {
                 .title(postRequest.title())
                 .content(postRequest.content())
                 .communityType(postRequest.communityType())
+                .deleted(false)
                 .build();
     }
 
@@ -108,6 +109,7 @@ public class Post extends BaseEntity {
                 .title(postRequest.title())
                 .content(postRequest.content())
                 .followType(postRequest.followType())
+                .deleted(false)
                 .build();
     }
 
@@ -117,6 +119,11 @@ public class Post extends BaseEntity {
                 .categoryType(postRequest.categoryType())
                 .title(postRequest.title())
                 .content(postRequest.content())
+                .deleted(false)
                 .build();
+    }
+
+    public void change(User user) {
+        this.user = user;
     }
 }

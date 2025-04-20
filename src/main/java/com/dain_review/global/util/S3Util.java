@@ -6,6 +6,9 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.dain_review.domain.Image.exception.S3Exception;
 import com.dain_review.domain.Image.exception.errortype.S3ErrorCode;
+import com.dain_review.domain.Image.util.ImageFileValidUtil;
+import com.dain_review.domain.campaign.exception.CampaignException;
+import com.dain_review.domain.campaign.exception.errortype.CampaignErrorCode;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
@@ -30,8 +33,18 @@ public class S3Util {
      * @return 저장된 리소스의 확장자 포함 파일명
      */
     public String saveImage(MultipartFile file, String path) {
+
+        // 유효한 값인지 검증
+        if (file == null || file.isEmpty()) {
+            throw new CampaignException(CampaignErrorCode.IMAGE_REQUIRED);
+        }
+        if (!ImageFileValidUtil.isValidImageFile(file)) {
+            throw new S3Exception(S3ErrorCode.INVALID_IMAGE_FILE);
+        }
+
         String fileName = System.currentTimeMillis() + "." + extractExtensionName(file);
         String savePath = bucketName + path;
+
         try {
             s3Client.putObject(savePath, fileName, file.getInputStream(), null);
         } catch (IOException e) {

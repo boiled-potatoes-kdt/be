@@ -52,6 +52,7 @@ public class Comment extends BaseEntity {
                 .post(post)
                 .parent(parent)
                 .content(request.content())
+                .deleted(false)
                 .build();
     }
 
@@ -67,5 +68,9 @@ public class Comment extends BaseEntity {
             throw new CommentException(CommentErrorCode.COMMENT_AUTHOR_MISMATCH);
         }
         this.deleted = true;
+    }
+
+    public void change(User user) {
+        this.user = user;
     }
 }

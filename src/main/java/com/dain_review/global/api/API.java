@@ -4,6 +4,7 @@ package com.dain_review.global.api;
 import com.dain_review.global.exception.GlobalException;
 import com.dain_review.global.exception.GlobalResponse;
 import lombok.Data;
+import org.quartz.SchedulerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -36,5 +37,10 @@ public class API {
     public static ResponseEntity ERROR(AccessDeniedException ex) {
         return ResponseEntity.status(403)
                 .body(new GlobalResponse("해당 기능에 대한 권한이 없습니다.", HttpStatus.valueOf(403)));
+    }
+
+    public static ResponseEntity ERROR(SchedulerException ex) {
+        return ResponseEntity.status(403)
+            .body(new GlobalResponse("스케줄러 동적 변경에 실패하였습니다.", HttpStatus.valueOf(403)));
     }
 }

@@ -3,6 +3,7 @@ package com.dain_review.global.exception;
 
 import com.dain_review.global.api.API;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.SchedulerException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
@@ -30,7 +31,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    protected ResponseEntity<ErrorResponse> accessDeniedException(AccessDeniedException ex) {
+    public ResponseEntity<ErrorResponse> accessDeniedException(AccessDeniedException ex) {
+        return API.ERROR(ex);
+    }
+
+    @ExceptionHandler(SchedulerException.class)
+    public ResponseEntity<ErrorResponse> SchedulerException(SchedulerException ex) {
         return API.ERROR(ex);
     }
 }
